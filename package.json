@@ -4,8 +4,10 @@
   "type": "module",
   "scripts": {
     "bump": "node scripts/bump-version.ts",
-    "format": "oxfmt .",
-    "lint": "oxlint skills evals --fix",
+    "format": "oxfmt",
+    "format:all": "oxfmt .",
+    "lint": "oxlint",
+    "lint:all": "oxlint . --fix",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "node --test 'evals/**/*.test.ts'"
   },
