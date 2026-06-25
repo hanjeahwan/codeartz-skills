@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "unicorn", "oxc", "import", "node", "promise", "jsdoc"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "arrow-body-style": ["error", "always"],
+    "curly": ["error", "all"],
+    "object-shorthand": "error",
+    "prefer-template": "error",
+    "prefer-const": "error",
+    "no-nested-ternary": "error",
+    "no-lonely-if": "error",
+    "no-useless-return": "error",
+    "unicorn/no-unreadable-array-destructuring": "error",
+    "no-inline-comments": "error",
+    "jsdoc/check-tag-names": "error",
+    "jsdoc/require-param": "error",
+    "jsdoc/require-param-description": "error",
+    "jsdoc/require-returns": "error",
+    "jsdoc/require-returns-description": "error"
+  },
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": ["**/node_modules/**", "evals/**/fixtures/**"]
+}

@@ -1,0 +1,10 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: oxfmt
+      run: npm run format --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+
+    - name: oxlint
+      run: npm run lint --fix {staged_files}
+      stage_fixed: true
