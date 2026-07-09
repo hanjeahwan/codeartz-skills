@@ -2,7 +2,7 @@
 
 ## 阶段职责
 
-方案阶段负责生成 `.swe/<topic>/target-boundary.md`。
+方案阶段负责生成 `.codeartz/<topic>/target-boundary.md`。
 
 生成前必须把以下内容收敛成方案：
 
@@ -17,7 +17,7 @@
 
 ### 方案写入前自检
 
-写入 `.swe/<topic>/target-boundary.md` 前，逐项确认：
+写入 `.codeartz/<topic>/target-boundary.md` 前，逐项确认：
 
 #### 证据和合同
 
@@ -103,21 +103,21 @@
 
 ### 方案产物
 
-方案通过关卡后，默认写入当前项目的 `.swe/<topic>/target-boundary.md`。
+方案通过关卡后，默认写入当前项目的 `.codeartz/<topic>/target-boundary.md`。
 
 - 用户给出路径时，优先使用用户路径。
 - 用户未给路径时：
   - 从用户点名的功能、issue、故障、模块、路由或主要对象生成 `<topic>`。
   - 使用小写 kebab-case。
 - 主题无法判断时：
-  - 使用 `.swe/target-boundary/target-boundary.md`。
+  - 使用 `.codeartz/target-boundary/target-boundary.md`。
   - 不要为了命名停止推进。
 - 写入方案文件前：
   - 证据等级必须达到 L3。
   - L0/L1/L2 输出：只能在对话里输出资料假设、代码事实、候选系统现实、合同缺口或补证据动作。
-  - 不写 `.swe/<topic>/target-boundary.md`。
+  - 不写 `.codeartz/<topic>/target-boundary.md`。
 - 写入前处理目录和已有文件：
-  - 创建 `.swe/<topic>/` 目录。
+  - 创建 `.codeartz/<topic>/` 目录。
   - 已有同名文件时，先读取现有内容。
   - 再决定覆盖、更新或另存。
   - 不要静默丢失已有方案。
@@ -129,10 +129,10 @@
   - 完整方案以项目文件为准。
 - 项目不可写或用户只要求对话回答时：
   - 降级为对话输出。
-  - 说明没有写入 `.swe/` 的原因。
+  - 说明没有写入 `.codeartz/` 的原因。
 - 没有仓库或代码不可访问时：
   - 按降级输出处理。
-  - 不要把资料层候选方案写成 `.swe/<topic>/target-boundary.md`。
+  - 不要把资料层候选方案写成 `.codeartz/<topic>/target-boundary.md`。
 - 方案写入失败时：
   - 不把本轮说成已产出项目方案。
   - 只说明失败原因或等待用户确认路径。
@@ -149,7 +149,7 @@
 
 #### 使用规则
 
-- 写入 `.swe/<topic>/target-boundary.md` 时，使用此模板。
+- 写入 `.codeartz/<topic>/target-boundary.md` 时，使用此模板。
 - 只在方案关卡通过且证据等级达到 L3 时写入项目文件。
 - 关卡失败时：
   - 不使用此模板写文件。

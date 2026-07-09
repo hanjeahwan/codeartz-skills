@@ -2,7 +2,7 @@
 
 ## 阶段职责
 
-交接文件阶段负责生成 `.swe/<topic>/context-handoff.md`。
+交接文件阶段负责生成 `.codeartz/<topic>/context-handoff.md`。
 
 生成前必须满足：
 
@@ -72,10 +72,10 @@
 
 目标是避免重复探索同一批资料和代码。
 
-- 默认路径为 `.swe/<topic>/context-handoff.md`。
+- 默认路径为 `.codeartz/<topic>/context-handoff.md`。
 - 用户明确要求其他路径时，使用用户路径，但仍和方案文件分开。
 - 生成前读取方案文件：
-  - 先读取对应的 `.swe/<topic>/target-boundary.md`。
+  - 先读取对应的 `.codeartz/<topic>/target-boundary.md`。
   - 确认待裁决点已处理或明确为无。
   - 确认风险已在方案中展示。
   - 确认用户同意采用当前方案。
@@ -115,8 +115,8 @@
 
 1. 定位主题目录。
    - 优先使用用户点名路径。
-   - 否则使用当前方案文件所在的 `.swe/<topic>/`。
-2. 读取 `.swe/<topic>/target-boundary.md`。
+   - 否则使用当前方案文件所在的 `.codeartz/<topic>/`。
+2. 读取 `.codeartz/<topic>/target-boundary.md`。
    - 找不到方案文件时，输出缺失路径和需要先生成方案文件的动作。
    - 不从记忆补写交接文件。
 3. 处理用户裁决和生成条件。
@@ -147,7 +147,7 @@
    - 写哪些探索不要重复。
    - 写哪些缺口先补。
    - 写哪些边界不能越过。
-9. 写入 `.swe/<topic>/context-handoff.md`。
+9. 写入 `.codeartz/<topic>/context-handoff.md`。
    - 对话回复只给：交接文件路径、采用方案路径、必须先复核的证据和必须遵守的方案文件限制。
 
 ## 输出模板
@@ -156,7 +156,7 @@
 
 #### 使用规则
 
-- 写入 `.swe/<topic>/context-handoff.md` 时，使用此模板。
+- 写入 `.codeartz/<topic>/context-handoff.md` 时，使用此模板。
 - 使用前置：
   - 待裁决点已处理或明确无待裁决点。
   - 风险已在方案中展示。
@@ -174,7 +174,7 @@
 
 ### 方案入口
 
-- 方案文件：[.swe/<topic>/target-boundary.md]
+- 方案文件：[.codeartz/<topic>/target-boundary.md]
 - 读取顺序：先读方案文件，再读本交接文件。
 - 边界来源：方案结论、裁决、风险、不能声称和证据等级以方案文件为准。
 - 冲突处理：本文件与方案文件冲突时，停止开工，先复核方案文件。
