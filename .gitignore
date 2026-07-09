@@ -56,6 +56,9 @@ typings/
 # Optional REPL history
 .node_repl_history
 
+# Local git worktrees
+.worktrees/
+
 # Output of 'npm pack'
 *.tgz
 
