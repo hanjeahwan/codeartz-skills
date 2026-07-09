@@ -6,8 +6,8 @@
     "name": "Codeartz",
     "url": "https://github.com/hanjeahwan"
   },
-  "homepage": "https://github.com/hanjeahwan/CodeartzSkills",
-  "repository": "https://github.com/hanjeahwan/CodeartzSkills",
+  "homepage": "https://github.com/hanjeahwan/codeartz-skills",
+  "repository": "https://github.com/hanjeahwan/codeartz-skills",
   "license": "MIT",
   "keywords": ["codex", "skills", "agent-workflow", "技术方案"],
   "skills": "./skills/",
@@ -18,7 +18,7 @@
     "developerName": "Codeartz",
     "category": "Productivity",
     "capabilities": ["Instructions", "Planning", "Review"],
-    "websiteURL": "https://github.com/hanjeahwan/CodeartzSkills",
+    "websiteURL": "https://github.com/hanjeahwan/codeartz-skills",
     "defaultPrompt": [
       "分析这组需求和代码上下文的边界。",
       "把这些资料整理成可评审的技术方案。",

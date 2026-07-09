@@ -6,8 +6,8 @@
     "name": "Codeartz",
     "url": "https://github.com/hanjeahwan"
   },
-  "homepage": "https://github.com/hanjeahwan/CodeartzSkills",
-  "repository": "https://github.com/hanjeahwan/CodeartzSkills",
+  "homepage": "https://github.com/hanjeahwan/codeartz-skills",
+  "repository": "https://github.com/hanjeahwan/codeartz-skills",
   "license": "MIT",
   "keywords": ["claude-code", "codex", "skills", "agent-workflow", "技术方案"]
 }

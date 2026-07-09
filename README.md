@@ -65,7 +65,7 @@
 ### Codex
 
 ```bash
-codex plugin marketplace add hanjeahwan/CodeartzSkills
+codex plugin marketplace add hanjeahwan/codeartz-skills
 codex plugin add codeartz-skills@codeartz
 ```
 
@@ -76,8 +76,8 @@ Codex Desktop 安装后重启应用，让新插件进入新线程上下文。
 只想装单个 skill，用 `npx skills add`：
 
 ```bash
-npx skills add https://github.com/hanjeahwan/CodeartzSkills --skill target-boundary
-npx skills add https://github.com/hanjeahwan/CodeartzSkills --skill instruction-doc-audit
+npx skills add https://github.com/hanjeahwan/codeartz-skills --skill target-boundary
+npx skills add https://github.com/hanjeahwan/codeartz-skills --skill instruction-doc-audit
 ```
 
 ## Commands
