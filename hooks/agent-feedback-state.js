@@ -90,6 +90,38 @@ export function readEvent(eventPath) {
   }
 }
 
+export function readJsonFromString(text) {
+  try {
+    return JSON.parse(String(text || '').replace(/^\uFEFF/, ''));
+  } catch {
+    return null;
+  }
+}
+
+export function readStdinWithTimeout(timeoutMs = 1000) {
+  return new Promise((resolve) => {
+    let input = '';
+    let done = false;
+
+    function finish() {
+      if (done) {return;}
+      done = true;
+      resolve(readJsonFromString(input));
+    }
+
+    process.stdin.on('data', (chunk) => {
+      input += chunk;
+    });
+    process.stdin.on('end', finish);
+    process.stdin.on('error', finish);
+    setTimeout(finish, timeoutMs).unref();
+  });
+}
+
+export function readJsonFromStdin(timeoutMs = 1000) {
+  return readStdinWithTimeout(timeoutMs);
+}
+
 function listEvents(env = process.env) {
   const dir = eventsDir(env);
   try {
