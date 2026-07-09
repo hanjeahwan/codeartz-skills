@@ -22,6 +22,20 @@
 rg --files -g 'AGENTS.md' -g 'CLAUDE.md' -g 'README.md' -g 'docs/**' -g '.github/copilot-instructions.md' -g '.cursor/rules/**' -g '.windsurf/rules/**' -g '.clinerules'
 ```
 
+## 结构探测
+
+- 先探测 skill/plugin manifest 和现有技能入口：
+
+```bash
+rg --files -g '.codex-plugin/plugin.json' -g '.claude-plugin/plugin.json' -g 'skills/**/SKILL.md'
+```
+
+- 命中 `.codex-plugin/plugin.json`、`.claude-plugin/plugin.json` 或 `skills/**/SKILL.md` 任一项时，确认存在 skill/plugin 结构。
+- 只有确认存在 skill/plugin 结构后，才进入 `skills/**` 和 plugin path 分支。
+- 结构未确认时，不搜索 `skills/**` 和 plugin path。
+
+## skill/plugin 候选
+
 - 如果候选文件或 manifest 证明当前项目存在 skill/plugin 结构，再追加技能规则候选：
 
 ```bash
@@ -58,6 +72,7 @@ rg -n "规则|手册|规范|指令|约定|长期|feedback|rule|guide|handbook|ma
 ## 查重
 
 - 发现相同语义时，优先收紧已有规则。
+- 重复时合并，不追加第二份。
 - 删除或避免新增重复句。
 - 不把同一规则同时写进多个文件。
 - 发现 feedback 只是已有规则的例子时，不新增规则。
@@ -66,7 +81,7 @@ rg -n "规则|手册|规范|指令|约定|长期|feedback|rule|guide|handbook|ma
 ## 冲突
 
 - 发现冲突时，不覆盖旧规则。
-- 输出冲突位置。
+- 冲突时输出冲突位置。
 - 输出建议原则。
 - 标记为 `Proposed target` 或待裁决。
 

@@ -29,12 +29,23 @@ test('skill does not introduce a persistent ownership registry', () => {
 test('source discovery prioritizes known sources before grep fallback', () => {
   const source = read(sourcePath);
   assert.match(source, /已知长期规则源优先/);
+  assert.match(source, /结构探测/);
+  assert.match(source, /\.codex-plugin\/plugin\.json/);
+  assert.match(source, /skills\/\*\*\/SKILL\.md/);
+  assert.match(source, /只有确认存在 skill\/plugin 结构后，才进入 `skills\/\*\*` 和 plugin path 分支。/);
   assert.match(source, /grep 兜底/);
   assert.match(source, /禁止.*全库.*默认扫描/);
+  assert.match(source, /重复时合并，不追加第二份/);
+  assert.match(source, /冲突时输出冲突位置/);
 });
 
-test('validation reference defines all output contracts and event status marking', () => {
+test('validation reference defines event path contract, privacy gate, and event status marking', () => {
   const validation = read(validationPath);
+  assert.match(validation, /Event path: <path>/);
+  assert.match(validation, /mark <eventPath>/);
+  assert.match(validation, /blocked/);
+  assert.match(validation, /长期规则禁止保存/);
+  assert.match(validation, /私有 URL/);
   assert.match(validation, /Updated:/);
   assert.match(validation, /Proposed target:/);
   assert.match(validation, /No durable update made/);

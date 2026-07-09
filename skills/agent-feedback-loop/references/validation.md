@@ -41,6 +41,12 @@
 - 不使用“适当”“合理”“高质量”这类不可测词。
 - 不用示例替代规则。
 
+## 输入合同
+
+- Hook 额外上下文若出现 `Event path: <path>`，必须原样提取 `<path>`，保存为 `eventPath`。
+- 调用 `node hooks/agent-feedback-state.js mark` 时，必须使用这个 `eventPath`，不改写、不拼接、不猜测。
+- 如果存在 pending event 但没有可用 `eventPath`，不要补造路径；将处理判为 `blocked`，不要冒充已完成标记。
+
 ## 事件状态标记
 
 处理 hook event 后运行：

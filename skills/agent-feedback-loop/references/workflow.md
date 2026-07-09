@@ -8,6 +8,7 @@
 
 - 当前用户消息。
 - Hook 注入的 pending durable feedback event。
+- Hook 额外上下文中出现的 `Event path: <path>`。
 - 当前对话中可见的 correction、review、失败复盘或行为观察。
 - 当前项目已有规则、规范、手册、文档和配置。
 
@@ -16,6 +17,8 @@
 1. 提取 feedback signal。
    - 只使用当前对话、hook event、文件 diff、测试结果、review 输出或用户纠正中可见的证据。
    - 不用记忆补造 feedback。
+   - 如果 hook 额外上下文包含 `Event path: <path>`，原样提取为 `eventPath`；不改写、不补齐、不猜测。
+   - 如果有 pending event 但没有可用 `eventPath`，按 `validation.md` 处理为 blocked 或 no durable update，不要编造路径。
    - 没有可复用决策信号时，输出 `No durable update made`。
 
 2. 判断是否 durable。
@@ -45,10 +48,11 @@
    - feedback 不 durable 或会污染规则源时，输出不沉淀。
 
 7. 验证结果。
-   - 按 `validation.md` 运行编辑门、隐私门、重复门和输出门。
+   - 按 `validation.md` 运行编辑门、隐私门、规则质量门、输出格式和事件状态标记。
    - 改动指令或手册时，按本仓库的 `instruction-doc-audit` 规则做自检。
 
 8. 标记 hook event。
+   - 使用第 1 步提取的 `eventPath` 调用 `node hooks/agent-feedback-state.js mark <eventPath> <status>`。
    - 更新成功标记为 `updated`。
    - 提案标记为 `proposed`。
    - 不沉淀标记为 `no-durable-update`。
