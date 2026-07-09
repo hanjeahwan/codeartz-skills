@@ -1,3 +1,22 @@
+// @ts-check
+
+/**
+ * @typedef {'codex' | 'claude' | 'unknown'} Runtime
+ */
+
+/**
+ * @typedef {{
+ *   eventName: string;
+ *   additionalContext?: string;
+ *   systemMessage?: string;
+ *   env?: NodeJS.ProcessEnv;
+ * }} HookOutputOptions
+ */
+
+/**
+ * @param {NodeJS.ProcessEnv} [env] - Environment variables from the hook host.
+ * @returns {Runtime} Detected hook runtime.
+ */
 export function detectRuntime(env = process.env) {
   if (env.PLUGIN_DATA) {
     return 'codex';
@@ -8,8 +27,13 @@ export function detectRuntime(env = process.env) {
   return 'unknown';
 }
 
+/**
+ * @param {HookOutputOptions} options - Hook output fields.
+ * @returns {string} Serialized hook output, or an empty string when no output is needed.
+ */
 export function buildHookOutput({ eventName, additionalContext = '', systemMessage = '', env = process.env }) {
   const runtime = detectRuntime(env);
+  /** @type {Partial<{ systemMessage: string; hookSpecificOutput: { hookEventName: string; additionalContext: string } }>} */
   const output = {};
 
   if (runtime === 'codex' && systemMessage) {
@@ -26,6 +50,9 @@ export function buildHookOutput({ eventName, additionalContext = '', systemMessa
   return Object.keys(output).length > 0 ? JSON.stringify(output) : '';
 }
 
+/**
+ * @param {string} text - Text to write to stdout.
+ */
 export function writeStdoutSafely(text) {
   if (!text) {
     return;

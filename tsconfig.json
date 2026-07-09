@@ -7,8 +7,10 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
     "allowImportingTsExtensions": true,
     "types": ["node"]
   },
-  "include": ["scripts/**/*.ts"]
+  "include": ["hooks/**/*.js", "scripts/**/*.ts", "tests/**/*.ts"]
 }

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import type { SpawnSyncReturns } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -10,7 +11,7 @@ import { readEvent } from '../hooks/agent-feedback-state.js';
 
 const captureScript = path.join(process.cwd(), 'hooks', 'agent-feedback-capture.js');
 
-function runCapture(input, env = {}) {
+function runCapture(input: Record<string, unknown>, env: NodeJS.ProcessEnv = {}): SpawnSyncReturns<string> {
   return spawnSync(process.execPath, [captureScript], {
     encoding: 'utf8',
     env: { ...process.env, ...env },
@@ -68,8 +69,11 @@ test('capture hook writes a pending event and emits additional context', () => {
   assert.match(output.hookSpecificOutput.additionalContext, /Pending durable feedback event/);
   assert.match(output.hookSpecificOutput.additionalContext, /agent-feedback-loop/);
 
-  const eventPath = output.hookSpecificOutput.additionalContext.match(/Event path: (.+)$/m)[1];
+  const eventPathMatch = output.hookSpecificOutput.additionalContext.match(/Event path: (.+)$/m);
+  assert.ok(eventPathMatch);
+  const eventPath = eventPathMatch[1];
   const event = readEvent(eventPath);
+  assert.ok(event);
   assert.equal(event.status, 'pending');
   assert.equal(event.signal, 'durable-feedback');
   assert.equal(event.excerpt, '以后不要把未授权范围写成风险');

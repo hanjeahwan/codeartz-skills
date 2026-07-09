@@ -1,8 +1,22 @@
+// @ts-check
+
 import { buildHookOutput, writeStdoutSafely } from './agent-feedback-runtime.js';
 import { findPendingEvent, incrementAttempts, markEventStatus, readStdinWithTimeout } from './agent-feedback-state.js';
 
+/**
+ * @typedef {import('./agent-feedback-state.js').FeedbackEvent} FeedbackEvent
+ * @typedef {import('./agent-feedback-state.js').HookInput} HookInput
+ * @typedef {{ status?: unknown; attempts?: unknown }} AttemptStatusEvent
+ */
+
 const MAX_STOP_ATTEMPTS = 3;
 
+/**
+ * @param {HookInput} input - Stop hook payload.
+ * @param {AttemptStatusEvent | null | undefined} event - Pending event attempt state.
+ * @param {number} [maxAttempts] - Maximum reminder attempts before blocking.
+ * @returns {boolean} Whether the hook should request another agent turn.
+ */
 export function shouldContinueForEvent(input, event, maxAttempts = MAX_STOP_ATTEMPTS) {
   if (!event || event.status !== 'pending') {
     return false;
@@ -13,6 +27,10 @@ export function shouldContinueForEvent(input, event, maxAttempts = MAX_STOP_ATTE
   return Number(event.attempts || 0) < maxAttempts;
 }
 
+/**
+ * @param {FeedbackEvent} event - Pending event to surface to the agent.
+ * @returns {string} Additional context injected into the Stop hook response.
+ */
 function buildStopContext(event) {
   return [
     'Unprocessed durable feedback event is still pending.',
@@ -24,6 +42,10 @@ function buildStopContext(event) {
   ].join('\n');
 }
 
+/**
+ * @param {NodeJS.ProcessEnv} [env] - Environment variables from the hook host.
+ * @returns {Promise<void>} Resolves after Stop hook input is processed.
+ */
 export async function main(env = process.env) {
   const input = await readStdinWithTimeout(1000);
   if (!input || input.hook_event_name !== 'Stop') {

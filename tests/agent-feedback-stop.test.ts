@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import type { SpawnSyncReturns } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -10,7 +11,7 @@ import { shouldContinueForEvent } from '../hooks/agent-feedback-stop.js';
 
 const stopScript = path.join(process.cwd(), 'hooks', 'agent-feedback-stop.js');
 
-function runStop(input, env = {}) {
+function runStop(input: Record<string, unknown>, env: NodeJS.ProcessEnv = {}): SpawnSyncReturns<string> {
   return spawnSync(process.execPath, [stopScript], {
     encoding: 'utf8',
     env: { ...process.env, ...env },
@@ -66,6 +67,7 @@ test('Stop hook injects continuation context and increments attempts for pending
   assert.match(output.hookSpecificOutput.additionalContext, /agent-feedback-loop/);
 
   const updated = readEvent(event.eventPath);
+  assert.ok(updated);
   assert.equal(updated.attempts, 1);
   assert.equal(updated.status, 'pending');
 });
@@ -135,5 +137,7 @@ test('Stop hook marks event blocked after repeated unprocessed attempts', () => 
 
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stdout, '');
-  assert.equal(readEvent(event.eventPath).status, 'blocked');
+  const blocked = readEvent(event.eventPath);
+  assert.ok(blocked);
+  assert.equal(blocked.status, 'blocked');
 });

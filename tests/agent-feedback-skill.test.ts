@@ -7,8 +7,8 @@ const workflowPath = 'skills/agent-feedback-loop/references/workflow.md';
 const sourcePath = 'skills/agent-feedback-loop/references/source-discovery.md';
 const validationPath = 'skills/agent-feedback-loop/references/validation.md';
 
-function read(path) {
-  return fs.readFileSync(path, 'utf8');
+function read(filePath: string): string {
+  return fs.readFileSync(filePath, 'utf8');
 }
 
 test('agent-feedback-loop skill has required frontmatter and reference routing', () => {

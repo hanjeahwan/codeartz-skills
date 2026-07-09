@@ -1,5 +1,15 @@
+// @ts-check
+
 import { buildHookOutput, writeStdoutSafely } from './agent-feedback-runtime.js';
 import { createEvent, readStdinWithTimeout, writeEvent } from './agent-feedback-state.js';
+
+/**
+ * @typedef {import('./agent-feedback-state.js').FeedbackEvent} FeedbackEvent
+ */
+
+/**
+ * @typedef {{ signal: 'durable-feedback'; reason: 'explicit-rule-source' | 'future-behavior' | 'memory-to-rule' }} PromptClassification
+ */
 
 const EXPLICIT_SOURCE_RE =
   /\b(AGENTS\.md|CLAUDE\.md|README\.md|rules?|guide|handbook|manual|policy|conventions?|instructions?)\b/i;
@@ -9,6 +19,10 @@ const MEMORY_TO_RULE_RE = /(记住|沉淀|长期规则|写进|更新|放进|加�
 const ENGLISH_FEEDBACK_RE =
   /\b(remember this|next time|from now on|do not do this again|write this into|add this to|update the rule|update the docs|durable rule|long-term rule)\b/i;
 
+/**
+ * @param {string} prompt - User prompt text from the hook payload.
+ * @returns {PromptClassification | null} Durable feedback classification, or null for ordinary prompts.
+ */
 export function classifyPrompt(prompt) {
   const text = String(prompt || '').trim();
   if (!text) {
@@ -33,6 +47,11 @@ export function classifyPrompt(prompt) {
   return null;
 }
 
+/**
+ * @param {FeedbackEvent} event - Persisted feedback event.
+ * @param {string} reason - Classification reason to show the agent.
+ * @returns {string} Additional context injected into the hook response.
+ */
 function buildCaptureContext(event, reason) {
   return [
     'Pending durable feedback event detected.',
@@ -45,6 +64,10 @@ function buildCaptureContext(event, reason) {
   ].join('\n');
 }
 
+/**
+ * @param {NodeJS.ProcessEnv} [env] - Environment variables from the hook host.
+ * @returns {Promise<void>} Resolves after hook input is processed.
+ */
 export async function main(env = process.env) {
   const input = await readStdinWithTimeout(1000);
   if (!input || input.hook_event_name !== 'UserPromptSubmit') {

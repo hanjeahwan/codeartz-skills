@@ -97,6 +97,7 @@ test('createEvent and writeEvent store pending event under runtime state directo
   writeEvent(event);
   const stored = readEvent(event.eventPath);
 
+  assert.ok(stored);
   assert.equal(stored.id, event.id);
   assert.equal(stored.excerpt, '以后不要把未授权范围写成风险');
 });
@@ -157,6 +158,7 @@ test('findPendingEvent returns newest pending event for same cwd and session', (
     env,
   );
 
+  assert.ok(found);
   assert.equal(found.id, event.id);
 });
 
@@ -181,5 +183,7 @@ test('markEventStatus and incrementAttempts update existing event files', () => 
 
   const marked = markEventStatus(event.eventPath, 'updated');
   assert.equal(marked.status, 'updated');
-  assert.equal(readEvent(event.eventPath).status, 'updated');
+  const stored = readEvent(event.eventPath);
+  assert.ok(stored);
+  assert.equal(stored.status, 'updated');
 });

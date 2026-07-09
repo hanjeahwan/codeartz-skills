@@ -1,11 +1,50 @@
+// @ts-check
+
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+/**
+ * @typedef {'pending' | 'processing' | 'updated' | 'proposed' | 'no-durable-update' | 'blocked'} FeedbackStatus
+ */
+
+/**
+ * @typedef {{
+ *   cwd?: string;
+ *   hook_event_name?: string;
+ *   last_assistant_message?: string;
+ *   prompt?: string;
+ *   prompt_id?: string;
+ *   session_id?: string;
+ *   stop_hook_active?: boolean;
+ * }} HookInput
+ */
+
+/**
+ * @typedef {{
+ *   id: string;
+ *   cwd: string;
+ *   eventPath: string;
+ *   excerpt: string;
+ *   promptId: string;
+ *   sessionId: string;
+ *   signal: string;
+ *   status: FeedbackStatus;
+ *   attempts: number;
+ *   createdAt: string;
+ *   updatedAt: string;
+ * }} FeedbackEvent
+ */
+
+/** @type {Set<string>} */
 const VALID_STATUSES = new Set(['pending', 'processing', 'updated', 'proposed', 'no-durable-update', 'blocked']);
 
+/**
+ * @param {NodeJS.ProcessEnv} [env] - Environment variables from the hook host.
+ * @returns {string} Directory used to store feedback state.
+ */
 function stateRoot(env = process.env) {
   if (env.AGENT_FEEDBACK_STATE_DIR) {
     return env.AGENT_FEEDBACK_STATE_DIR;
@@ -22,10 +61,18 @@ function stateRoot(env = process.env) {
   return path.join(os.homedir(), '.claude', 'agent-feedback-loop');
 }
 
+/**
+ * @param {unknown} value - Value to hash.
+ * @returns {string} Stable short hash.
+ */
 function hash(value) {
   return crypto.createHash('sha256').update(String(value)).digest('hex').slice(0, 16);
 }
 
+/**
+ * @param {unknown} value - Value to convert into a path-safe segment.
+ * @returns {string} Safe path segment.
+ */
 function safeSegment(value) {
   return (
     String(value || 'unknown')
@@ -34,14 +81,66 @@ function safeSegment(value) {
   );
 }
 
+/**
+ * @param {NodeJS.ProcessEnv} [env] - Environment variables from the hook host.
+ * @returns {string} Directory that contains event JSON files.
+ */
 function eventsDir(env = process.env) {
   return path.join(stateRoot(env), 'events');
 }
 
+/**
+ * @returns {string} Current timestamp as an ISO string.
+ */
 function nowIso() {
   return new Date().toISOString();
 }
 
+/**
+ * @param {unknown} value - Value to test.
+ * @returns {value is Record<string, unknown>} Whether the value is a plain record.
+ */
+function isRecord(value) {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * @param {unknown} value - Value to test.
+ * @returns {value is FeedbackStatus} Whether the value is a supported event status.
+ */
+function isFeedbackStatus(value) {
+  return typeof value === 'string' && VALID_STATUSES.has(value);
+}
+
+/**
+ * @param {unknown} value - Parsed event JSON.
+ * @returns {FeedbackEvent | null} Feedback event when the parsed value has a valid status.
+ */
+function toFeedbackEvent(value) {
+  if (!isRecord(value) || !isFeedbackStatus(value.status)) {
+    return null;
+  }
+
+  return {
+    id: String(value.id || ''),
+    cwd: String(value.cwd || ''),
+    eventPath: String(value.eventPath || ''),
+    excerpt: String(value.excerpt || ''),
+    promptId: String(value.promptId || ''),
+    sessionId: String(value.sessionId || ''),
+    signal: String(value.signal || ''),
+    status: value.status,
+    attempts: Number(value.attempts || 0),
+    createdAt: String(value.createdAt || ''),
+    updatedAt: String(value.updatedAt || ''),
+  };
+}
+
+/**
+ * @param {unknown} text - Text to sanitize.
+ * @param {number} [maxLength] - Maximum output length.
+ * @returns {string} Sanitized excerpt.
+ */
 export function sanitizeExcerpt(text, maxLength = 500) {
   let sanitized = String(text || '')
     .replace(/sk-[A-Za-z0-9_-]{12,}/g, '[redacted-secret]')
@@ -57,6 +156,13 @@ export function sanitizeExcerpt(text, maxLength = 500) {
   return sanitized;
 }
 
+/**
+ * @param {HookInput} input - Hook input payload.
+ * @param {string} signal - Classified feedback signal.
+ * @param {string} prompt - Original prompt text.
+ * @param {NodeJS.ProcessEnv} [env] - Environment variables from the hook host.
+ * @returns {FeedbackEvent} New pending feedback event.
+ */
 export function createEvent(input, signal, prompt, env = process.env) {
   const sessionId = String(input.session_id || 'unknown-session');
   const promptId = String(input.prompt_id || hash(prompt || nowIso()));
@@ -79,28 +185,51 @@ export function createEvent(input, signal, prompt, env = process.env) {
   };
 }
 
+/**
+ * @param {FeedbackEvent} event - Event to persist.
+ * @returns {FeedbackEvent} Persisted event.
+ */
 export function writeEvent(event) {
   fs.mkdirSync(path.dirname(event.eventPath), { recursive: true });
   fs.writeFileSync(event.eventPath, `${JSON.stringify(event, null, 2)}\n`, 'utf8');
   return event;
 }
 
+/**
+ * @param {string} eventPath - Event JSON path.
+ * @returns {FeedbackEvent | null} Parsed event, or null when unavailable.
+ */
 export function readEvent(eventPath) {
   try {
-    return JSON.parse(fs.readFileSync(eventPath, 'utf8').replace(/^\uFEFF/, ''));
+    return toFeedbackEvent(JSON.parse(fs.readFileSync(eventPath, 'utf8').replace(/^\uFEFF/, '')));
   } catch {
     return null;
   }
 }
 
+/**
+ * @param {string} text - Raw JSON text.
+ * @returns {HookInput | null} Parsed hook input record, or null for invalid input.
+ */
 export function readJsonFromString(text) {
   try {
-    return JSON.parse(String(text || '').replace(/^\uFEFF/, ''));
+    const parsed = JSON.parse(String(text || '').replace(/^\uFEFF/, ''));
+    if (!isRecord(parsed)) {
+      return null;
+    }
+
+    /** @type {HookInput} */
+    const input = parsed;
+    return input;
   } catch {
     return null;
   }
 }
 
+/**
+ * @param {number} [timeoutMs] - Maximum wait time for stdin.
+ * @returns {Promise<HookInput | null>} Parsed stdin input, or null on timeout or invalid input.
+ */
 export function readStdinWithTimeout(timeoutMs = 1000) {
   return new Promise((resolve) => {
     let input = '';
@@ -123,10 +252,18 @@ export function readStdinWithTimeout(timeoutMs = 1000) {
   });
 }
 
+/**
+ * @param {number} [timeoutMs] - Maximum wait time for stdin.
+ * @returns {Promise<HookInput | null>} Parsed stdin input, or null on timeout or invalid input.
+ */
 export function readJsonFromStdin(timeoutMs = 1000) {
   return readStdinWithTimeout(timeoutMs);
 }
 
+/**
+ * @param {NodeJS.ProcessEnv} [env] - Environment variables from the hook host.
+ * @returns {FeedbackEvent[]} Stored feedback events.
+ */
 function listEvents(env = process.env) {
   const dir = eventsDir(env);
   try {
@@ -138,12 +275,19 @@ function listEvents(env = process.env) {
       .map((name) => {
         return readEvent(path.join(dir, name));
       })
-      .filter(Boolean);
+      .filter((event) => {
+        return event !== null;
+      });
   } catch {
     return [];
   }
 }
 
+/**
+ * @param {HookInput} input - Hook input used to match cwd and session.
+ * @param {NodeJS.ProcessEnv} [env] - Environment variables from the hook host.
+ * @returns {FeedbackEvent | null} Newest pending event for the input scope.
+ */
 export function findPendingEvent(input, env = process.env) {
   const cwd = String(input.cwd || process.cwd());
   const sessionId = String(input.session_id || 'unknown-session');
@@ -164,8 +308,13 @@ export function findPendingEvent(input, env = process.env) {
   );
 }
 
+/**
+ * @param {string} eventPath - Event JSON path.
+ * @param {unknown} status - Status to write after validation.
+ * @returns {FeedbackEvent} Updated event.
+ */
 export function markEventStatus(eventPath, status) {
-  if (!VALID_STATUSES.has(status)) {
+  if (!isFeedbackStatus(status)) {
     throw new Error(`Invalid feedback event status: ${status}`);
   }
 
@@ -179,6 +328,10 @@ export function markEventStatus(eventPath, status) {
   return writeEvent(event);
 }
 
+/**
+ * @param {string} eventPath - Event JSON path.
+ * @returns {FeedbackEvent} Event with incremented attempt count.
+ */
 export function incrementAttempts(eventPath) {
   const event = readEvent(eventPath);
   if (!event) {
@@ -190,12 +343,19 @@ export function incrementAttempts(eventPath) {
   return writeEvent(event);
 }
 
+/**
+ * @returns {void} No return value.
+ */
 function printUsage() {
   process.stderr.write(
     'Usage: node hooks/agent-feedback-state.js mark <eventPath> <pending|processing|updated|proposed|no-durable-update|blocked>\n',
   );
 }
 
+/**
+ * @param {string[]} argv - CLI arguments.
+ * @returns {number} Process exit code.
+ */
 function runCli(argv) {
   const args = argv.slice(2);
   const command = args[0];
@@ -216,7 +376,8 @@ if (process.argv[1] === currentFile) {
   try {
     process.exitCode = runCli(process.argv);
   } catch (error) {
-    process.stderr.write(`${error.message}\n`);
+    const message = error instanceof Error ? error.message : String(error);
+    process.stderr.write(`${message}\n`);
     process.exitCode = 1;
   }
 }
