@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "lint:all": "oxlint . --fix",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --test 'evals/**/*.test.ts'"
+    "test": "node --test 'tests/**/*.test.js'"
   },
   "devDependencies": {
     "@types/node": "^25.9.3",
