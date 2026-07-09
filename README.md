@@ -62,6 +62,13 @@
 
 ## Install
 
+### Claude Code
+
+```text
+/plugin marketplace add hanjeahwan/codeartz-skills
+/plugin install codeartz-skills@codeartz
+```
+
 ### Codex
 
 ```bash

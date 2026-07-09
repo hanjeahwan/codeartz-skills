@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "codeartz-skills",
+  "name": "codeartz",
   "description": "面向严肃 agent 工作流的 Codeartz 技能集。",
   "owner": {
     "name": "Codeartz",
