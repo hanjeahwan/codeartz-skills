@@ -1261,7 +1261,6 @@ Create `skills/agent-feedback-loop/references/source-discovery.md`:
 ```bash
 rg --files -g 'AGENTS.md' -g 'CLAUDE.md' -g 'README.md' -g 'docs/**' -g '.github/copilot-instructions.md' -g '.cursor/rules/**' -g '.windsurf/rules/**' -g '.clinerules'
 ```
-````
 
 如果候选文件或 manifest 证明当前项目存在 skill/plugin 结构，再追加技能规则候选：
 
@@ -1326,14 +1325,13 @@ rg -n "规则|手册|规范|指令|约定|长期|feedback|rule|guide|handbook|ma
 - 不随机写入 README。
 - 不随机创建 docs 文件。
 - 输出建议创建的最小规则源和原因。
-
 ````
 
 - [ ] **Step 6: Create the validation manual**
 
 Create `skills/agent-feedback-loop/references/validation.md`:
 
-```markdown
+````markdown
 # Validation
 
 ## 编辑门
@@ -1383,7 +1381,7 @@ Create `skills/agent-feedback-loop/references/validation.md`:
 
 ```bash
 node hooks/agent-feedback-state.js mark <eventPath> <updated|proposed|no-durable-update|blocked>
-````
+```
 
 状态含义：
 
@@ -1435,7 +1433,6 @@ npm run lint
 ```
 
 如果只修改 Markdown 且 lint 无匹配代码，仍运行 `npm test` 和 `npm run format:all`。
-
 ````
 
 - [ ] **Step 7: Run the skill tests**
@@ -1445,7 +1442,7 @@ Run:
 ```bash
 node --test tests/agent-feedback-skill.test.js
 npm test
-````
+```
 
 Expected: PASS for skill tests and all test files.
 
