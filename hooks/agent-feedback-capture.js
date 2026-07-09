@@ -11,7 +11,9 @@ const ENGLISH_FEEDBACK_RE =
 
 export function classifyPrompt(prompt) {
   const text = String(prompt || '').trim();
-  if (!text) {return null;}
+  if (!text) {
+    return null;
+  }
 
   if (
     (EXPLICIT_SOURCE_RE.test(text) || CHINESE_SOURCE_RE.test(text)) &&
@@ -45,11 +47,15 @@ function buildCaptureContext(event, reason) {
 
 export async function main(env = process.env) {
   const input = await readStdinWithTimeout(1000);
-  if (!input || input.hook_event_name !== 'UserPromptSubmit') {return;}
+  if (!input || input.hook_event_name !== 'UserPromptSubmit') {
+    return;
+  }
 
   const prompt = String(input.prompt || '');
   const classification = classifyPrompt(prompt);
-  if (!classification) {return;}
+  if (!classification) {
+    return;
+  }
 
   const event = writeEvent(createEvent(input, classification.signal, prompt, env));
   const output = buildHookOutput({

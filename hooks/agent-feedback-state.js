@@ -104,7 +104,9 @@ export function readStdinWithTimeout(timeoutMs = 1000) {
     let done = false;
 
     function finish() {
-      if (done) {return;}
+      if (done) {
+        return;
+      }
       done = true;
       resolve(readJsonFromString(input));
     }
