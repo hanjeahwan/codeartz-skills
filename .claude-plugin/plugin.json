@@ -9,5 +9,6 @@
   "homepage": "https://github.com/hanjeahwan/codeartz-skills",
   "repository": "https://github.com/hanjeahwan/codeartz-skills",
   "license": "MIT",
-  "keywords": ["claude-code", "codex", "skills", "agent-workflow", "技术方案"]
+  "keywords": ["claude-code", "codex", "skills", "agent-workflow", "技术方案"],
+  "hooks": "./hooks/claude-codex-hooks.json"
 }

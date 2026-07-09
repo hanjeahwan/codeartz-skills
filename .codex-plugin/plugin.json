@@ -11,18 +11,20 @@
   "license": "MIT",
   "keywords": ["codex", "skills", "agent-workflow", "技术方案"],
   "skills": "./skills/",
+  "hooks": "./hooks/claude-codex-hooks.json",
   "interface": {
     "displayName": "Codeartz 技能集",
     "shortDescription": "面向 agent 工作流的 Codeartz 技能集。",
-    "longDescription": "帮助 agent 把复杂需求、代码证据、评审意见和执行上下文收敛为有边界、可评审、可交接的工程工作流产物。",
+    "longDescription": "帮助 agent 把复杂需求、代码证据、评审意见、用户反馈和执行上下文收敛为有边界、可评审、可交接、可沉淀的工程工作流产物。",
     "developerName": "Codeartz",
     "category": "Productivity",
-    "capabilities": ["Instructions", "Planning", "Review"],
+    "capabilities": ["Instructions", "Planning", "Review", "Lifecycle hooks"],
     "websiteURL": "https://github.com/hanjeahwan/codeartz-skills",
     "defaultPrompt": [
       "分析这组需求和代码上下文的边界。",
       "把这些资料整理成可评审的技术方案。",
-      "为这个方案生成上下文交接文件。"
+      "为这个方案生成上下文交接文件。",
+      "把这条反馈沉淀成长期规则。"
     ],
     "brandColor": "#A11D5F",
     "composerIcon": "./assets/icon.png",

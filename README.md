@@ -43,6 +43,7 @@
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | [`target-boundary`](skills/target-boundary/)             | requirements、PRD、spec、issues、review notes、会话记录和仓库证据混在一起，需要分析边界、根因或技术方案 | 写入 `.codeartz/<topic>/target-boundary.md`；满足确认停靠点后生成 `.codeartz/<topic>/context-handoff.md` |
 | [`instruction-doc-audit`](skills/instruction-doc-audit/) | 指令、规范、规则手册、政策、提示词或技能文档有自述、空话、语言混杂、职责混杂、分支隐式或层级过深        | 给出命中项和改写建议，或按编辑模式直接改成可执行、语言一致的规则                                         |
+| [`agent-feedback-loop`](skills/agent-feedback-loop/)     | 用户给出行为纠正、失败复盘、review 结论或“以后 / 下次 / 记住 / 写进规则”这类反馈时                      | 抽象成可复用规则，优先合并到已知长期规则源；无法安全写入时输出提案或不沉淀原因                           |
 
 ## When to use
 
@@ -60,6 +61,13 @@
 - 中文正文混入可本地化英文，或英文正文混入可英文替换的中文说明词。
 - `SKILL.md`、阶段手册、参考文件之间职责混杂或重复维护同一条规则。
 
+使用 `agent-feedback-loop`：
+
+- 用户要求把反馈写进长期规则源。
+- 用户指出 agent 的重复错误或行为漂移。
+- 用户说“以后”“下次”“记住”“不要再”“写进规则”“更新手册”。
+- 需要先查重、查冲突，再把规则合并进已有 docs、手册、规范或 agent 指令。
+
 ## Install
 
 ### Claude Code
@@ -69,6 +77,8 @@
 /plugin install codeartz-skills@codeartz
 ```
 
+Claude Code 安装后打开 `/hooks`，review 并 trust Codeartz 的 lifecycle hooks；然后重启应用或开启新线程。
+
 ### Codex
 
 ```bash
@@ -76,7 +86,7 @@ codex plugin marketplace add hanjeahwan/codeartz-skills
 codex plugin add codeartz-skills@codeartz
 ```
 
-Codex Desktop 安装后重启应用，让新插件进入新线程上下文。
+Codex 安装后打开 `/hooks`，review 并 trust Codeartz 的 lifecycle hooks；然后重启应用或开启新线程。
 
 ### Standalone skills
 
@@ -89,7 +99,8 @@ npx skills add https://github.com/hanjeahwan/codeartz-skills --skill instruction
 
 ## Commands
 
-| 入口                    | 作用                                                               |
-| ----------------------- | ------------------------------------------------------------------ |
-| `target-boundary`       | 把混合资料、代码证据和风险收敛成目标边界、技术方案和上下文交接文件 |
-| `instruction-doc-audit` | 审查祈使型文档，找出不可执行、语言不一致和结构职责混杂的问题       |
+| 入口                    | 作用                                                                     |
+| ----------------------- | ------------------------------------------------------------------------ |
+| `target-boundary`       | 把混合资料、代码证据和风险收敛成目标边界、技术方案和上下文交接文件       |
+| `instruction-doc-audit` | 审查祈使型文档，找出不可执行、语言不一致和结构职责混杂的问题             |
+| `agent-feedback-loop`   | 把用户 feedback 抽象成长期规则，查重、查冲突后合并到已有规则源或输出提案 |
