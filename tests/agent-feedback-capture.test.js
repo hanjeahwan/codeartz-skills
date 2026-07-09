@@ -27,6 +27,10 @@ test('classifyPrompt detects explicit durable feedback in Chinese and English', 
     signal: 'durable-feedback',
     reason: 'explicit-rule-source',
   });
+  assert.deepEqual(classifyPrompt('remember this rule: check duplicate rules first'), {
+    signal: 'durable-feedback',
+    reason: 'future-behavior',
+  });
   assert.deepEqual(classifyPrompt('记住这个规则：先 grep 项目有没有已有手册'), {
     signal: 'durable-feedback',
     reason: 'memory-to-rule',
@@ -34,6 +38,9 @@ test('classifyPrompt detects explicit durable feedback in Chinese and English', 
 });
 
 test('classifyPrompt ignores ordinary implementation requests', () => {
+  assert.equal(classifyPrompt('add a feedback button to settings'), null);
+  assert.equal(classifyPrompt('summarize customer feedback from this issue'), null);
+  assert.equal(classifyPrompt('build a feedback form'), null);
   assert.equal(classifyPrompt('add a button to the settings page'), null);
   assert.equal(classifyPrompt('run npm test and show me the output'), null);
   assert.equal(classifyPrompt('explain this function'), null);

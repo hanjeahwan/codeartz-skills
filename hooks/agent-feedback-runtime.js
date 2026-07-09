@@ -2,7 +2,7 @@ export function detectRuntime(env = process.env) {
   if (env.PLUGIN_DATA) {
     return 'codex';
   }
-  if (env.CLAUDE_PLUGIN_ROOT || env.CLAUDE_CONFIG_DIR) {
+  if (env.CLAUDE_PLUGIN_ROOT || env.CLAUDE_PLUGIN_DATA || env.CLAUDE_CONFIG_DIR) {
     return 'claude';
   }
   return 'unknown';

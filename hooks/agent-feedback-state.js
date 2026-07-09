@@ -13,6 +13,9 @@ function stateRoot(env = process.env) {
   if (env.PLUGIN_DATA) {
     return path.join(env.PLUGIN_DATA, 'agent-feedback-loop');
   }
+  if (env.CLAUDE_PLUGIN_DATA) {
+    return path.join(env.CLAUDE_PLUGIN_DATA, 'agent-feedback-loop');
+  }
   if (env.CLAUDE_CONFIG_DIR) {
     return path.join(env.CLAUDE_CONFIG_DIR, 'agent-feedback-loop');
   }

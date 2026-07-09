@@ -23,6 +23,7 @@ function tempEnv() {
 test('detectRuntime identifies Codex, Claude Code, and unknown hosts', () => {
   assert.equal(detectRuntime({ PLUGIN_DATA: '/tmp/codex' }), 'codex');
   assert.equal(detectRuntime({ CLAUDE_PLUGIN_ROOT: '/tmp/plugin' }), 'claude');
+  assert.equal(detectRuntime({ CLAUDE_PLUGIN_DATA: '/tmp/claude-data' }), 'claude');
   assert.equal(detectRuntime({ CLAUDE_CONFIG_DIR: '/tmp/claude' }), 'claude');
   assert.equal(detectRuntime({}), 'unknown');
 });
@@ -98,6 +99,43 @@ test('createEvent and writeEvent store pending event under runtime state directo
 
   assert.equal(stored.id, event.id);
   assert.equal(stored.excerpt, '以后不要把未授权范围写成风险');
+});
+
+test('createEvent uses CLAUDE_PLUGIN_DATA unless AGENT_FEEDBACK_STATE_DIR overrides it', () => {
+  const claudeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-claude-'));
+  const overrideDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-override-'));
+
+  const claudeEvent = createEvent(
+    {
+      cwd: '/repo/project',
+      hook_event_name: 'UserPromptSubmit',
+      prompt_id: 'prompt-claude',
+      session_id: 'session-1',
+    },
+    'durable-feedback',
+    'remember this rule: check duplicate rules first',
+    { CLAUDE_PLUGIN_DATA: claudeDir },
+  );
+
+  assert.match(claudeEvent.eventPath, new RegExp(`^${claudeDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  assert.match(claudeEvent.eventPath, /agent-feedback-loop\/events\//);
+
+  const overriddenEvent = createEvent(
+    {
+      cwd: '/repo/project',
+      hook_event_name: 'UserPromptSubmit',
+      prompt_id: 'prompt-override',
+      session_id: 'session-1',
+    },
+    'durable-feedback',
+    'remember this rule: check duplicate rules first',
+    {
+      AGENT_FEEDBACK_STATE_DIR: overrideDir,
+      CLAUDE_PLUGIN_DATA: claudeDir,
+    },
+  );
+
+  assert.match(overriddenEvent.eventPath, new RegExp(`^${overrideDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
 });
 
 test('findPendingEvent returns newest pending event for same cwd and session', () => {

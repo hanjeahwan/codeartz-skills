@@ -7,7 +7,7 @@ const CHINESE_SOURCE_RE = /(规则源|规则|手册|规范|指令|约定|文档)
 const FUTURE_BEHAVIOR_RE = /(以后|下次|以后不要|不要再|应该先|必须先|刚才的问题|刚才错|这次的问题)/;
 const MEMORY_TO_RULE_RE = /(记住|沉淀|长期规则|写进|更新|放进|加到|合并到)/;
 const ENGLISH_FEEDBACK_RE =
-  /\b(remember this|next time|from now on|do not do this again|write this into|add this to|update the rule|update the docs|durable rule|long-term rule|feedback)\b/i;
+  /\b(remember this|next time|from now on|do not do this again|write this into|add this to|update the rule|update the docs|durable rule|long-term rule)\b/i;
 
 export function classifyPrompt(prompt) {
   const text = String(prompt || '').trim();
