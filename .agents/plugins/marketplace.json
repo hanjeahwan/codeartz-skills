@@ -1,0 +1,21 @@
+{
+  "name": "codeartz-skills",
+  "interface": {
+    "displayName": "Codeartz 技能集"
+  },
+  "plugins": [
+    {
+      "name": "codeartz-skills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/hanjeahwan/CodeartzSkills.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
