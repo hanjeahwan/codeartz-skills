@@ -21,7 +21,6 @@ interface TextUpdate {
 }
 
 const manifestPaths = ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json'];
-const readmePath = 'README.md';
 const supportedIncrements = new Set<ReleaseType>([
   'major',
   'minor',
@@ -72,23 +71,17 @@ if (lte(nextVersion, currentVersion)) {
   fail(`Next version must be greater than ${currentVersion}; got ${nextVersion}.`);
 }
 
-const updates: TextUpdate[] = [
-  ...manifests.map(({ filePath, text }) => {
-    return {
-      filePath,
-      nextText: replaceOrFail(
-        text,
-        new RegExp(`("version"\\s*:\\s*")${escapeRegExp(currentVersion)}(")`),
-        `$1${nextVersion}$2`,
-        `${filePath} version field`,
-      ),
-    };
-  }),
-  {
-    filePath: readmePath,
-    nextText: updateReadme(readFileSync(readmePath, 'utf8'), currentVersion, nextVersion),
-  },
-];
+const updates: TextUpdate[] = manifests.map(({ filePath, text }) => {
+  return {
+    filePath,
+    nextText: replaceOrFail(
+      text,
+      new RegExp(`("version"\\s*:\\s*")${escapeRegExp(currentVersion)}(")`),
+      `$1${nextVersion}$2`,
+      `${filePath} version field`,
+    ),
+  };
+});
 
 for (const { filePath, nextText } of updates) {
   if (!dryRun) {
@@ -158,22 +151,6 @@ function parseArgs(args: string[]): ParsedArgs {
   }
 
   return { dryRun, preid, target };
-}
-
-function updateReadme(text: string, currentVersion: string, nextVersion: string): string {
-  const withBadge = replaceOrFail(
-    text,
-    new RegExp(`version-${escapeRegExp(currentVersion)}-A11D5F`, 'g'),
-    `version-${nextVersion}-A11D5F`,
-    `${readmePath} version badge URL`,
-  );
-
-  return replaceOrFail(
-    withBadge,
-    new RegExp(`alt="Version ${escapeRegExp(currentVersion)}"`, 'g'),
-    `alt="Version ${nextVersion}"`,
-    `${readmePath} version badge alt text`,
-  );
 }
 
 function replaceOrFail(text: string, pattern: RegExp, replacement: string, label: string): string {
