@@ -1,7 +1,7 @@
 {
   "name": "codeartz-skills",
-  "version": "0.1.2",
-  "description": "面向 agent 工作流的 Codeartz 技能集，用于把复杂任务收敛为可执行、可评审、可交接的工作产物。",
+  "version": "0.1.0",
+  "description": "面向 Claude Code 与 Codex 的工程 workflow 技能集，支持边界分析、指令审查与 Agent Evolve。",
   "author": {
     "name": "Codeartz",
     "url": "https://github.com/hanjeahwan"
@@ -9,6 +9,6 @@
   "homepage": "https://github.com/hanjeahwan/codeartz-skills",
   "repository": "https://github.com/hanjeahwan/codeartz-skills",
   "license": "MIT",
-  "keywords": ["claude-code", "codex", "skills", "agent-workflow", "技术方案"],
+  "keywords": ["claude-code", "codex", "skills", "agent-workflow", "agent-evolve"],
   "hooks": "./hooks/claude-codex-hooks.json"
 }

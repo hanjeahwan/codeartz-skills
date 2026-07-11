@@ -109,10 +109,56 @@ test('hook source has no feedback classifier or event-state protocol', () => {
     'hooks/agent-evolve-activate.js',
     'hooks/agent-evolve-mode.js',
   ]
-    .map((filePath) => {return fs.readFileSync(filePath, 'utf8')})
+    .map((filePath) => {
+      return fs.readFileSync(filePath, 'utf8');
+    })
     .join('\n');
 
   assert.doesNotMatch(source, /classifyPrompt|durable-feedback|pending|attempts|eventPath|stop_hook_active/);
   assert.equal(source.includes(['agent', 'feedback', 'loop'].join('-')), false);
   assert.equal(source.includes(['AGENT', 'FEEDBACK'].join('-')), false);
+});
+
+test('README documents Agent Evolve modes, lifecycle hooks, and commands', () => {
+  const readme = fs.readFileSync('README.md', 'utf8');
+
+  assert.match(readme, /Agent Evolve/);
+  assert.match(readme, /默认 mode 是 `safe`/);
+  assert.match(readme, /\| `safe`/);
+  assert.match(readme, /\| `review`/);
+  assert.match(readme, /\| `off`/);
+  assert.match(readme, /\$agent-evolve default off/);
+  assert.match(readme, /SessionStart/);
+  assert.match(readme, /UserPromptSubmit/);
+  assert.match(readme, /Claude Code/);
+  assert.match(readme, /Codex/);
+});
+
+test('plugin metadata and README contain no legacy product identifier', () => {
+  const legacySkill = ['agent', 'feedback', 'loop'].join('-');
+  const legacyHook = ['agent', 'feedback'].join('-');
+  const files = [
+    'README.md',
+    '.codex-plugin/plugin.json',
+    '.claude-plugin/plugin.json',
+    '.claude-plugin/marketplace.json',
+    '.agents/plugins/marketplace.json',
+    'hooks/claude-codex-hooks.json',
+  ];
+
+  for (const filePath of files) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    assert.equal(content.includes(legacySkill), false, filePath);
+    assert.equal(content.includes(legacyHook), false, filePath);
+  }
+});
+
+test('README references only the renamed Agent Evolve illustration', () => {
+  const readme = fs.readFileSync('README.md', 'utf8');
+  const newAsset = 'assets/readme-illustrations/03-agent-evolve.png';
+  const legacyAsset = ['assets/readme-illustrations/03-agent', 'feedback', 'loop.png'].join('-');
+
+  assert.equal(fs.existsSync(newAsset), true);
+  assert.equal(fs.existsSync(legacyAsset), false);
+  assert.match(readme, /03-agent-evolve\.png/);
 });

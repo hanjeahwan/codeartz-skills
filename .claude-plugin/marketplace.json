@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "codeartz-skills",
-      "description": "把复杂需求、代码证据和执行上下文收敛为有边界、可评审、可交接的工作产物。",
+      "description": "边界分析、指令审查，以及用 Agent Evolve 把 human feedback 安全沉淀到项目规则。",
       "source": "./",
       "category": "productivity"
     }
