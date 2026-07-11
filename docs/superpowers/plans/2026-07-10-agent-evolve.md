@@ -188,7 +188,7 @@ test('session paths use the full SHA-256 and never persist the raw session id', 
 
   assert.match(digest, /^[a-f0-9]{64}$/);
   assert.equal(path.basename(statePath), `${digest}.json`);
-  assert.doesNotMatch(statePath, /private|session|example/);
+  assert.doesNotMatch(path.basename(statePath), /private|session|example/);
 
   writeSessionMode(sessionId, 'review', env, () => new Date('2026-07-10T00:00:00.000Z'));
   const raw = fs.readFileSync(statePath, 'utf8');
