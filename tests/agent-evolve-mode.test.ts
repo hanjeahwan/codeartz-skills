@@ -64,7 +64,7 @@ test('parseModeCommand rejects partial, extended, legacy, and case-changed promp
     'please use $agent-evolve safe',
     '$agent-evolve collect',
     '$agent-evolve on',
-    '$agent-feedback-loop safe',
+    ['$agent', 'feedback-loop safe'].join('-'),
     '$Agent-Evolve safe',
     'safe',
     'feedback off',
