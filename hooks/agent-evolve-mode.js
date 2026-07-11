@@ -7,7 +7,7 @@ import {
   buildFailureOutput,
   buildHookOutput,
   buildOffContext,
-  loadSkillBody,
+  loadInstructionBundle,
   readStdinWithTimeout,
   writeStdoutSafely,
 } from './agent-evolve-runtime.js';
@@ -57,7 +57,8 @@ function modeStatus(currentMode, defaultMode) {
  * @returns {string} Context applied after a current-session switch.
  */
 function sessionSwitchContext(mode, defaultMode, skillPath) {
-  const activeContext = mode === 'off' ? buildOffContext() : buildActivationContext(mode, loadSkillBody(skillPath));
+  const activeContext =
+    mode === 'off' ? buildOffContext() : buildActivationContext(mode, loadInstructionBundle(skillPath));
   return [
     activeContext,
     '',

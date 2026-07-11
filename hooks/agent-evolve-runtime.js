@@ -110,29 +110,48 @@ export function stripFrontmatter(markdown) {
 }
 
 /**
- * @param {string} [skillPath] - Skill path override for tests.
- * @returns {string} Frontmatter-free skill body.
+ * @param {string} filePath - Authority file path.
+ * @param {'skill' | 'workflow' | 'validation'} label - Authority source label.
+ * @returns {string} Trimmed normalized file body.
  */
-export function loadSkillBody(skillPath = defaultSkillPath) {
-  let markdown;
+function readInstructionSource(filePath, label) {
+  let body;
   try {
-    markdown = fs.readFileSync(skillPath, 'utf8');
+    body = fs.readFileSync(filePath, 'utf8');
   } catch (error) {
-    throw new Error(`Unable to read Agent Evolve skill at ${skillPath}: ${errorMessage(error)}`);
+    throw new Error(`Unable to read Agent Evolve ${label} at ${filePath}: ${errorMessage(error)}`);
   }
-  return stripFrontmatter(markdown);
+  const normalized = body.replace(/\r\n/g, '\n').trim();
+  if (!normalized) {
+    throw new Error(`Agent Evolve ${label} is empty at ${filePath}.`);
+  }
+  return normalized;
+}
+
+/**
+ * @param {string} [skillPath] - Skill path override for tests.
+ * @returns {string} Self-contained ruleset assembled from all authority files.
+ */
+export function loadInstructionBundle(skillPath = defaultSkillPath) {
+  const skillDirectory = path.dirname(skillPath);
+  const workflowPath = path.join(skillDirectory, 'references', 'workflow.md');
+  const validationPath = path.join(skillDirectory, 'references', 'validation.md');
+  const skillBody = stripFrontmatter(readInstructionSource(skillPath, 'skill'));
+  const workflow = readInstructionSource(workflowPath, 'workflow');
+  const validation = readInstructionSource(validationPath, 'validation');
+  return [skillBody, workflow, validation].join('\n\n');
 }
 
 /**
  * @param {Mode} mode - Active safe or review mode.
- * @param {string} skillBody - Frontmatter-free skill body.
+ * @param {string} bundle - Self-contained Agent Evolve ruleset.
  * @returns {string} Context injected into a main session.
  */
-export function buildActivationContext(mode, skillBody) {
+export function buildActivationContext(mode, bundle) {
   if (mode !== 'safe' && mode !== 'review') {
     throw new Error(`Cannot build Agent Evolve activation context for mode: ${mode}`);
   }
-  return `AGENT EVOLVE ACTIVE — mode: ${mode}\n\n${skillBody.trim()}`;
+  return `AGENT EVOLVE ACTIVE — mode: ${mode}\n\n${bundle.trim()}`;
 }
 
 /**

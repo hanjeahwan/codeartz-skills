@@ -6,7 +6,7 @@ import {
   buildActivationContext,
   buildFailureOutput,
   buildHookOutput,
-  loadSkillBody,
+  loadInstructionBundle,
   readStdinWithTimeout,
   writeStdoutSafely,
 } from './agent-evolve-runtime.js';
@@ -33,10 +33,10 @@ export function handleSessionStart(input, env = process.env, skillPath) {
     if (mode === 'off') {
       return '';
     }
-    const skillBody = loadSkillBody(skillPath);
+    const instructionBundle = loadInstructionBundle(skillPath);
     return buildHookOutput({
       eventName: 'SessionStart',
-      additionalContext: buildActivationContext(mode, skillBody),
+      additionalContext: buildActivationContext(mode, instructionBundle),
     });
   } catch (error) {
     return buildFailureOutput('SessionStart', 'session activation', error);

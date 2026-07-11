@@ -9,10 +9,24 @@ import {
   buildFailureOutput,
   buildHookOutput,
   buildOffContext,
-  loadSkillBody,
+  loadInstructionBundle,
   readJsonFromString,
   stripFrontmatter,
 } from '../hooks/agent-evolve-runtime.js';
+
+function writeInstructionSources(root: string): string {
+  const skillPath = path.join(root, 'SKILL.md');
+  const references = path.join(root, 'references');
+  fs.mkdirSync(references, { recursive: true });
+  fs.writeFileSync(
+    skillPath,
+    '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n\nUse the injected workflow.\n',
+    'utf8',
+  );
+  fs.writeFileSync(path.join(references, 'workflow.md'), '# Agent Evolve Workflow\n\nJudge feedback.\n', 'utf8');
+  fs.writeFileSync(path.join(references, 'validation.md'), '# Agent Evolve Validation\n\nReturn evidence.\n', 'utf8');
+  return skillPath;
+}
 
 test('readJsonFromString accepts only JSON records', () => {
   assert.deepEqual(readJsonFromString('{"hook_event_name":"SessionStart","session_id":"s1"}'), {
@@ -46,24 +60,39 @@ test('stripFrontmatter removes exactly the YAML envelope and keeps the skill bod
   }, /frontmatter is incomplete/);
 });
 
-test('loadSkillBody reads a complete skill and rejects unreadable or partial input', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-skill-'));
-  const skillPath = path.join(root, 'SKILL.md');
-  fs.writeFileSync(
-    skillPath,
-    '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n\nUse the workflow.\n',
-    'utf8',
+test('loadInstructionBundle materializes all authority files in order', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-bundle-'));
+  const bundle = loadInstructionBundle(writeInstructionSources(root));
+
+  assert.equal(
+    bundle,
+    [
+      '# Agent Evolve\n\nUse the injected workflow.',
+      '# Agent Evolve Workflow\n\nJudge feedback.',
+      '# Agent Evolve Validation\n\nReturn evidence.',
+    ].join('\n\n'),
   );
+  assert.doesNotMatch(bundle, /^---/m);
+});
 
-  assert.equal(loadSkillBody(skillPath), '# Agent Evolve\n\nUse the workflow.');
-  assert.throws(() => {
-    return loadSkillBody(path.join(root, 'missing.md'));
-  }, /Unable to read Agent Evolve skill/);
+test('loadInstructionBundle rejects a missing authority file without returning a partial bundle', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-missing-source-'));
+  const skillPath = writeInstructionSources(root);
+  fs.rmSync(path.join(root, 'references', 'workflow.md'));
 
-  fs.writeFileSync(skillPath, '---\nname: agent-evolve', 'utf8');
   assert.throws(() => {
-    return loadSkillBody(skillPath);
-  }, /frontmatter is incomplete/);
+    return loadInstructionBundle(skillPath);
+  }, /Unable to read Agent Evolve workflow/);
+});
+
+test('loadInstructionBundle rejects an empty authority file', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-empty-source-'));
+  const skillPath = writeInstructionSources(root);
+  fs.writeFileSync(path.join(root, 'references', 'validation.md'), '  \n', 'utf8');
+
+  assert.throws(() => {
+    return loadInstructionBundle(skillPath);
+  }, /Agent Evolve validation is empty/);
 });
 
 test('buildActivationContext uses the approved header and never leaks frontmatter', () => {

@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { parseModeCommand } from '../hooks/agent-evolve-mode.js';
+import { handleUserPromptSubmit, parseModeCommand } from '../hooks/agent-evolve-mode.js';
 import {
   getOrCreateSessionMode,
   readDefaultMode,
@@ -104,9 +104,35 @@ test('session safe and review commands update only the current session and reinj
     assert.equal(output.systemMessage, `Agent Evolve mode: ${mode}; default: off`);
     assert.match(output.hookSpecificOutput.additionalContext, new RegExp(`^AGENT EVOLVE ACTIVE — mode: ${mode}`));
     assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve/);
+    assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Workflow/);
+    assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Validation/);
     assert.equal(readSessionMode('current-session', env), mode);
     assert.equal(readDefaultMode(env), 'off');
   }
+});
+
+test('active mode switch rejects an incomplete bundle before changing session state', () => {
+  const env = tempEnv();
+  writeSessionMode('current-session', 'off', env);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-mode-missing-workflow-'));
+  const skillPath = path.join(root, 'SKILL.md');
+  fs.writeFileSync(skillPath, '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n', 'utf8');
+
+  const output = JSON.parse(
+    handleUserPromptSubmit(
+      {
+        hook_event_name: 'UserPromptSubmit',
+        prompt: '$agent-evolve safe',
+        session_id: 'current-session',
+      },
+      env,
+      skillPath,
+    ),
+  );
+
+  assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve workflow/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+  assert.equal(readSessionMode('current-session', env), 'off');
 });
 
 test('session off command disables automatic behavior and preserves manual invocation', () => {

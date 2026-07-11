@@ -46,6 +46,8 @@ test('new Codex session materializes safe and injects frontmatter-free skill wit
   assert.equal(output.hookSpecificOutput.hookEventName, 'SessionStart');
   assert.match(output.hookSpecificOutput.additionalContext, /^AGENT EVOLVE ACTIVE — mode: safe/);
   assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve/);
+  assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Workflow/);
+  assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Validation/);
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /^---/m);
   assert.equal(readSessionMode('codex-session', env), 'safe');
 });
@@ -194,6 +196,19 @@ test('missing skill fails visibly and never injects a partial rule set', () => {
   assert.match(output.systemMessage, /Agent Evolve failed: session activation/);
   assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve skill/);
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+});
+
+test('missing workflow fails visibly and never injects a partial rule set', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-missing-workflow-'));
+  const skillPath = path.join(root, 'SKILL.md');
+  fs.writeFileSync(skillPath, '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n', 'utf8');
+  const output = JSON.parse(
+    handleSessionStart({ hook_event_name: 'SessionStart', session_id: 'missing-workflow' }, tempEnv(), skillPath),
+  );
+
+  assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve workflow/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve$/m);
 });
 
 test('non-SessionStart and invalid JSON inputs stay silent', () => {
