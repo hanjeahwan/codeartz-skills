@@ -56,10 +56,10 @@
 **文件：**
 
 - 创建：`tests/agent-evolve/scenarios/manual-proposal.scenario.json`
-- 创建：`tests/agent-evolve/scenarios/manual-write.scenario.json`
+- 创建：`tests/agent-evolve/scenarios/manual-already-covered.scenario.json`
 
 - [ ] 创建 smoke 场景：明确不写入，要求 Proposed 回执，并检查 `AGENTS.md` 未变化。
-- [ ] 创建 full 场景：明确要求写入，要求 Updated 回执，并检查 `AGENTS.md` 包含抽象规则。
+- [ ] 创建 full 场景：fixture 已含同语义规则，要求 Already covered 回执，并检查 `AGENTS.md` 未变化。
 - [ ] 每个场景提供非空 criteria，供可选语义裁判逐项判断。
 - [ ] 运行 `node --test tests/live-eval/live-eval.test.ts`，预期通过。
 - [ ] 运行 `npm run eval:live:check -- --skill agent-evolve --tier all`，预期矩阵检查通过且不调用模型。
@@ -74,7 +74,7 @@
 - [ ] 运行 `npm run typecheck`。
 - [ ] 运行 `npm run lint`。
 - [ ] 运行 `git diff --check`。
-- [ ] 运行 `npm run eval:live -- --skill agent-evolve --tier all --agent codex,claude --judge claude`。
+- [ ] 运行 `npm run eval:live -- --skill agent-evolve --tier all --agent codex,claude`。
 - [ ] 记录每个宿主与场景的实际 verdict；任何失败都先按证据诊断。
 - [ ] 在 feature 已基于最新 `main` 的前提下，把 `main` rebase 到 feature branch。
 - [ ] 在 merged `main` 上重新运行 `npm test` 与 `npm run eval:live:check -- --skill agent-evolve --tier all`。
