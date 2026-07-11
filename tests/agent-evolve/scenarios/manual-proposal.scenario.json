@@ -1,0 +1,31 @@
+{
+  "id": "manual-proposal",
+  "skill": "agent-evolve",
+  "tier": "smoke",
+  "description": "没有 ACTIVE header 的手动调用必须进入 manual-off，只提案且不修改规则源。",
+  "files": {
+    "AGENTS.md": "# Project Agent Rules\n\n## Architecture\n\n- Keep project-wide architecture decisions in this section.\n"
+  },
+  "turns": [
+    {
+      "prompt": "$agent-evolve：请评估这条 feedback，但不要修改任何文件：底层解析器不应直接抛出可预期的输入错误，应让调用者决定如何处理。AGENTS.md 是未来 agent 自动加载的唯一项目规则源。",
+      "checks": [
+        { "type": "responseIncludes", "value": "Feedback decision: Proposed" },
+        { "type": "responseIncludes", "value": "Why:" },
+        { "type": "responseIncludes", "value": "Evidence:" },
+        { "type": "responseIncludes", "value": "Target:" },
+        { "type": "responseIncludes", "value": "Change:" }
+      ]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "agent-evolve" }
+  ],
+  "criteria": [
+    "回应把无 ACTIVE header 的手动调用路由到 manual-off，而不是假定 safe 或 review。",
+    "回应给出 Proposed、Why、Evidence、Target 与精确 Change，没有声称已经写入。",
+    "回应识别 AGENTS.md 是唯一候选规则源，并说明未来 agent 的读取路径证据。",
+    "AGENTS.md 保持不变。"
+  ]
+}

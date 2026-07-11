@@ -4,9 +4,9 @@ import test from 'node:test';
 import { parseCli } from './run.ts';
 import { evaluateChecks, loadScenarios, parseScenario } from './scenarios.ts';
 
-test('三个目标 Skill 都包含有效的冒烟场景和完整场景', async () => {
+test('四个目标 Skill 都包含有效的冒烟场景和完整场景', async () => {
   const scenarios = await loadScenarios(process.cwd(), undefined, 'all');
-  const requestedSkills = ['agentic-design-navigator', 'instruction-doc-audit', 'target-boundary'];
+  const requestedSkills = ['agent-evolve', 'agentic-design-navigator', 'instruction-doc-audit', 'target-boundary'];
   for (const skill of requestedSkills) {
     const skillScenarios = scenarios.filter((scenario) => {
       return scenario.skill === skill;
