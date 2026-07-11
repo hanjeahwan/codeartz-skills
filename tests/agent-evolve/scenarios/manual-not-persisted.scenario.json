@@ -2,19 +2,19 @@
   "id": "manual-not-persisted",
   "skill": "agent-evolve",
   "tier": "full",
-  "description": "Manual-off 遇到明确只适用于当前任务的一次性选择时，返回 Not persisted 且不修改规则源。",
+  "description": "关闭模式下的手动调用遇到明确只适用于当前任务的一次性选择时，返回不沉淀且不修改规则源。",
   "files": {
     "AGENTS.md": "# Project Agent Rules\n\n## Naming\n\n- 项目级命名约定必须能够跨任务复用。\n"
   },
   "turns": [
     {
-      "prompt": "$agent-evolve：请评估这条 feedback，但不要修改任何文件：这次演示临时把 src/demo.ts 里的 result 变量改名为 previewResult；这个选择只适用于当前演示文件，后续任务不需要遵循。",
+      "prompt": "$agent-evolve：请评估这条反馈，但不要修改任何文件：这次演示临时把 src/demo.ts 里的 result 变量改名为 previewResult；这个选择只适用于当前演示文件，后续任务不需要遵循。",
       "checks": [
-        { "type": "responseIncludes", "value": "Feedback decision: Not persisted" },
-        { "type": "responseIncludes", "value": "Why:" },
-        { "type": "responseIncludes", "value": "Evidence:" },
-        { "type": "responseIncludes", "value": "Target: 不适用" },
-        { "type": "responseIncludes", "value": "Change: 不适用" }
+        { "type": "responseIncludes", "value": "反馈结论：不沉淀" },
+        { "type": "responseIncludes", "value": "原因：" },
+        { "type": "responseIncludes", "value": "证据：" },
+        { "type": "responseIncludes", "value": "目标位置：不适用" },
+        { "type": "responseIncludes", "value": "建议变更：不适用" }
       ]
     }
   ],
@@ -23,8 +23,8 @@
     { "type": "trajectoryIncludes", "value": "agent-evolve" }
   ],
   "criteria": [
-    "回应识别该选择被 human 明确限定为当前演示文件的一次性要求。",
-    "回应返回 Not persisted、Why、Evidence、Target: 不适用与 Change: 不适用。",
+    "回应识别该选择被用户明确限定为当前演示文件的一次性要求。",
+    "回应返回不沉淀、原因、证据、目标位置：不适用与建议变更：不适用。",
     "回应没有把具体文件名和变量名抽象成虚假的项目长期规则。",
     "AGENTS.md 保持不变。"
   ]

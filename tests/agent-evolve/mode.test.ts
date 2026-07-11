@@ -104,8 +104,8 @@ test('session safe 与 review 命令只更新当前 session 并重新注入 skil
     assert.equal(output.systemMessage, `Agent Evolve mode: ${mode}; default: off`);
     assert.match(output.hookSpecificOutput.additionalContext, new RegExp(`^AGENT EVOLVE ACTIVE — mode: ${mode}`));
     assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve/);
-    assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Workflow/);
-    assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Validation/);
+    assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve 工作流/);
+    assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve 安全验证/);
     assert.equal(readSessionMode('current-session', env), mode);
     assert.equal(readDefaultMode(env), 'off');
   }

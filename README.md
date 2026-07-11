@@ -36,21 +36,21 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme-illustrations/03-agent-evolve.png" alt="Agent Evolve 把 human feedback 安全合并到项目长期规则源">
+  <img src="assets/readme-illustrations/03-agent-evolve.png" alt="Agent Evolve 把用户反馈安全合并到项目长期规则源">
   <br>
-  <sub>4. Agent Evolve：主 agent 识别可复用 human feedback，查重、过滤隐私，再用 Why + Evidence 安全合并。</sub>
+  <sub>4. Agent Evolve：主 agent 识别可复用用户反馈，查重、过滤隐私，再用原因与证据安全合并。</sub>
 </p>
 
 ## What it is
 
-这不是一个“让 agent 更努力”的 prompt 包。它是一组把复杂输入收敛为工程产物，并让项目规则持续吸收 human feedback 的 skills：
+这不是一个“让 agent 更努力”的 prompt 包。它是一组把复杂输入收敛为工程产物，并让项目规则持续吸收用户反馈的 skills：
 
 | Skill                                                          | 用在什么时候                                                                                            | 结果                                                                                                     |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | [`agentic-design-navigator`](skills/agentic-design-navigator/) | 用户只给出模糊想法、感觉、问题或关键词，或设计讨论发生明显变化，需要稳定意图并检查偏离                  | 逐阶段稳定意图、建立设计理解、生成方案，并在讨论变化时显式指出意图漂移                                   |
 | [`target-boundary`](skills/target-boundary/)                   | requirements、PRD、spec、issues、review notes、会话记录和仓库证据混在一起，需要分析边界、根因或技术方案 | 写入 `.codeartz/<topic>/target-boundary.md`；满足确认停靠点后生成 `.codeartz/<topic>/context-handoff.md` |
 | [`instruction-doc-audit`](skills/instruction-doc-audit/)       | 指令、规范、规则手册、政策、提示词或技能文档存在职责混杂、分支隐式或层级过深                            | 给出命中项和改写建议，或按编辑模式改成可执行、语言一致的规则                                             |
-| [`agent-evolve`](skills/agent-evolve/)                         | 主 session 中的 human feedback 会改变未来代码模式、架构、规范、边界或实践决策                           | 按当前 mode 更新或提案到未来 agent 会读取的项目已有规则源；每条候选都输出 Why + Evidence                 |
+| [`agent-evolve`](skills/agent-evolve/)                         | 主会话中的用户反馈会改变未来代码模式、架构、规范、边界或实践决策                                        | 按当前模式更新或提案到未来 agent 会读取的项目已有规则源；每条候选都输出原因与证据                        |
 
 ## When to use
 
@@ -77,24 +77,24 @@
 
 使用 `agent-evolve`：
 
-- 用户在主 session 中纠正代码 pattern、架构、规范、边界或好实践。
-- Feedback 会改变后续项目任务中的 agent 决策。
-- 需要把规则合并到未来 agent 已有读取路径，并证明唯一 owner、无重复、无冲突。
-- 需要为沉淀或不沉淀展示 `Decision`、`Why` 与 `Evidence`。
+- 用户在主会话中纠正代码 pattern、架构、规范、边界或好实践。
+- 反馈会改变后续项目任务中的 agent 决策。
+- 需要把规则合并到未来 agent 已有读取路径，并证明唯一权威落点、无重复、无冲突。
+- 需要为沉淀或不沉淀展示反馈结论、原因与证据。
 
-## Agent Evolve modes
+## Agent Evolve 模式
 
-默认 mode 是 `safe`。新 session 在 `SessionStart` 固化当前 mode；`UserPromptSubmit` 只处理下列完整控制命令，不分类普通消息。
+默认模式是 `safe`。新会话在 `SessionStart` 固化当前模式；`UserPromptSubmit` 只处理下列完整控制命令，不分类普通消息。
 
-| Mode     | 自动识别 | 默认处理                                      | 用户后续动作                             | 自动注入 |
-| -------- | -------- | --------------------------------------------- | ---------------------------------------- | -------- |
-| `safe`   | 是       | 安全门全部通过时自动写入；否则输出 `Proposed` | 按 `Recommended action` 解除具体阻塞条件 | 是       |
-| `review` | 是       | 只输出 `Proposed`                             | 批准精确的 `Target` 与 `Change`          | 是       |
-| `off`    | 否       | 不自动处理                                    | 手动调用 Skill                           | 否       |
+| 模式     | 自动识别 | 默认处理                                   | 用户后续动作                     | 自动注入 |
+| -------- | -------- | ------------------------------------------ | -------------------------------- | -------- |
+| `safe`   | 是       | 安全门全部通过时自动写入；否则输出“已提案” | 按“推荐操作”解除具体阻塞条件     | 是       |
+| `review` | 是       | 只输出“已提案”                             | 批准精确的“目标位置”与“建议变更” | 是       |
+| `off`    | 否       | 不自动处理                                 | 手动调用 Skill                   | 否       |
 
-`safe` 不需要预先批准。`Proposed` 表示至少一个写入条件尚未满足；回执中的 `Recommended action` 会说明下一步是批准精确提案、指定 owner、补足读取路径，还是裁决规则冲突。普通批准不能替代尚未满足的其他安全门。
+`safe` 不需要预先批准。“已提案”表示至少一个写入条件尚未满足；回执中的“推荐操作”会说明下一步是批准精确提案、指定权威落点、补足读取路径，还是裁决规则冲突。普通批准不能替代尚未满足的其他安全门。
 
-当前 session：
+当前会话：
 
 ```text
 $agent-evolve safe
@@ -102,7 +102,7 @@ $agent-evolve review
 $agent-evolve off
 ```
 
-后续新 session 的持久默认值：
+后续新会话的持久默认值：
 
 ```text
 $agent-evolve default safe
@@ -110,7 +110,7 @@ $agent-evolve default review
 $agent-evolve default off
 ```
 
-宿主提供的 `/agent-evolve` 或 `@agent-evolve` 前缀也可以调用同一组命令。`default` 命令不改变当前 session。
+宿主提供的 `/agent-evolve` 或 `@agent-evolve` 前缀也可以调用同一组命令。`default` 命令不改变当前会话。
 
 ## Install
 
@@ -121,7 +121,7 @@ $agent-evolve default off
 /plugin install codeartz-skills@codeartz
 ```
 
-Claude Code 安装后打开 `/hooks`，review 并 trust Codeartz 的 `SessionStart` 与 `UserPromptSubmit` hook；然后重启应用或开启新 session。
+Claude Code 安装后打开 `/hooks`，审查并信任 Codeartz 的 `SessionStart` 与 `UserPromptSubmit` hook；然后重启应用或开启新会话。
 
 ### Codex
 
@@ -130,7 +130,7 @@ codex plugin marketplace add hanjeahwan/codeartz-skills
 codex plugin add codeartz-skills@codeartz
 ```
 
-Codex 安装后打开 `/hooks`，review 并 trust Codeartz 的 `SessionStart` 与 `UserPromptSubmit` hook；然后重启应用或开启新 session。
+Codex 安装后打开 `/hooks`，审查并信任 Codeartz 的 `SessionStart` 与 `UserPromptSubmit` hook；然后重启应用或开启新会话。
 
 ### Standalone skills
 
@@ -147,9 +147,9 @@ Standalone 安装不包含 lifecycle hook；`agent-evolve` 仍可由用户手动
 
 ## Commands
 
-| 入口                       | 作用                                                                       |
-| -------------------------- | -------------------------------------------------------------------------- |
-| `agentic-design-navigator` | 从模糊输入中稳定用户意图，建立设计理解、生成方案并检查意图漂移             |
-| `target-boundary`          | 把混合资料、代码证据和风险收敛成目标边界、技术方案和上下文交接文件         |
-| `instruction-doc-audit`    | 审查祈使型文档，找出不可执行、语言不一致和结构职责混杂的问题               |
-| `agent-evolve`             | 语义判断直接 human feedback，并按 safe/review/off 合并、提案或停止自动沉淀 |
+| 入口                       | 作用                                                                |
+| -------------------------- | ------------------------------------------------------------------- |
+| `agentic-design-navigator` | 从模糊输入中稳定用户意图，建立设计理解、生成方案并检查意图漂移      |
+| `target-boundary`          | 把混合资料、代码证据和风险收敛成目标边界、技术方案和上下文交接文件  |
+| `instruction-doc-audit`    | 审查祈使型文档，找出不可执行、语言不一致和结构职责混杂的问题        |
+| `agent-evolve`             | 语义判断用户直接反馈，并按 safe/review/off 合并、提案或停止自动沉淀 |

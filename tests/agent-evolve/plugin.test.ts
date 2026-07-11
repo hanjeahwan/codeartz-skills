@@ -119,11 +119,11 @@ test('hook 源码不包含 feedback classifier 或 event-state 协议', () => {
   assert.equal(source.includes(['AGENT', 'FEEDBACK'].join('-')), false);
 });
 
-test('README 说明 Agent Evolve mode、lifecycle hook 与命令', () => {
+test('README 说明 Agent Evolve 模式、lifecycle hook 与命令', () => {
   const readme = fs.readFileSync('README.md', 'utf8');
 
   assert.match(readme, /Agent Evolve/);
-  assert.match(readme, /默认 mode 是 `safe`/);
+  assert.match(readme, /默认模式是 `safe`/);
   assert.match(readme, /\| `safe`/);
   assert.match(readme, /\| `review`/);
   assert.match(readme, /\| `off`/);

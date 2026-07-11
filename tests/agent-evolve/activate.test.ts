@@ -51,8 +51,8 @@ test('新 Codex session 固化 safe 并无 badge 注入已移除 frontmatter 的
   assert.equal(output.hookSpecificOutput.hookEventName, 'SessionStart');
   assert.match(output.hookSpecificOutput.additionalContext, /^AGENT EVOLVE ACTIVE — mode: safe/);
   assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve/);
-  assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Workflow/);
-  assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Validation/);
+  assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve 工作流/);
+  assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve 安全验证/);
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /^---/m);
   assert.equal(readSessionMode('codex-session', env), 'safe');
 });

@@ -2,19 +2,21 @@
   "id": "manual-proposal",
   "skill": "agent-evolve",
   "tier": "smoke",
-  "description": "没有 ACTIVE header 的手动调用必须进入 manual-off，只提案且不修改规则源。",
+  "description": "没有 ACTIVE header 的手动调用必须进入关闭模式，只提案且不修改规则源。",
   "files": {
     "AGENTS.md": "# Project Agent Rules\n\n## Architecture\n\n- Keep project-wide architecture decisions in this section.\n"
   },
   "turns": [
     {
-      "prompt": "$agent-evolve：请评估这条 feedback，但不要修改任何文件：底层解析器不应直接抛出可预期的输入错误，应让调用者决定如何处理。AGENTS.md 是未来 agent 自动加载的唯一项目规则源。",
+      "prompt": "$agent-evolve：请评估这条反馈，但不要修改任何文件：底层解析器不应直接抛出可预期的输入错误，应让调用者决定如何处理。AGENTS.md 是未来 agent 自动加载的唯一项目规则源。",
       "checks": [
-        { "type": "responseIncludes", "value": "Feedback decision: Proposed" },
-        { "type": "responseIncludes", "value": "Why:" },
-        { "type": "responseIncludes", "value": "Evidence:" },
-        { "type": "responseIncludes", "value": "Target:" },
-        { "type": "responseMatches", "pattern": "Change(?:（[^）]+）)?[:：]" }
+        { "type": "responseIncludes", "value": "反馈结论：已提案" },
+        { "type": "responseIncludes", "value": "原因：" },
+        { "type": "responseIncludes", "value": "证据：" },
+        { "type": "responseIncludes", "value": "目标位置：" },
+        { "type": "responseIncludes", "value": "建议变更：" },
+        { "type": "responseIncludes", "value": "推荐操作：" },
+        { "type": "responseMatches", "pattern": "推荐操作：[\\s\\S]*批准" }
       ]
     }
   ],
@@ -24,7 +26,8 @@
   ],
   "criteria": [
     "回应把无 ACTIVE header 的手动调用路由到 manual-off，而不是假定 safe 或 review。",
-    "回应给出 Proposed、Why、Evidence、Target 与精确 Change，没有声称已经写入。",
+    "回应给出已提案、原因、证据、目标位置、精确建议变更与推荐操作，没有声称已经写入。",
+    "推荐操作明确说明用户如何解除当前阻塞条件，而不是笼统要求批准。",
     "回应识别 AGENTS.md 是唯一候选规则源，并说明未来 agent 的读取路径证据。",
     "AGENTS.md 保持不变。"
   ]
