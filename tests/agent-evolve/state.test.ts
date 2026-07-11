@@ -26,7 +26,7 @@ function codexEnv(root: string): NodeJS.ProcessEnv {
   };
 }
 
-test('defaultConfigPath follows Unix and Windows contracts', () => {
+test('defaultConfigPath 遵守 Unix 与 Windows 路径合同', () => {
   assert.equal(
     defaultConfigPath({ XDG_CONFIG_HOME: '/tmp/xdg' }, 'darwin', '/Users/tester'),
     '/tmp/xdg/codeartz-skills/agent-evolve/config.json',
@@ -44,7 +44,7 @@ test('defaultConfigPath follows Unix and Windows contracts', () => {
   }, /APPDATA is required/);
 });
 
-test('missing default config resolves to built-in safe and valid config round-trips', () => {
+test('缺失默认配置时使用内建 safe 且有效配置可往返读写', () => {
   const root = tempRoot('agent-evolve-default');
   const env = codexEnv(root);
 
@@ -56,7 +56,7 @@ test('missing default config resolves to built-in safe and valid config round-tr
   });
 });
 
-test('default config rejects corrupt JSON, unsupported modes, and extra fields', () => {
+test('默认配置拒绝损坏 JSON、不支持的 mode 与额外字段', () => {
   const root = tempRoot('agent-evolve-invalid-default');
   const env = codexEnv(root);
   const configPath = defaultConfigPath(env);
@@ -78,7 +78,7 @@ test('default config rejects corrupt JSON, unsupported modes, and extra fields',
   }, /Invalid Agent Evolve default config/);
 });
 
-test('unreadable default config path fails instead of guessing safe', () => {
+test('默认配置路径不可读时失败而不是猜测 safe', () => {
   const root = tempRoot('agent-evolve-unreadable-default');
   const configRoot = path.join(root, 'config-as-file');
   fs.writeFileSync(configRoot, 'not a directory', 'utf8');
@@ -88,7 +88,7 @@ test('unreadable default config path fails instead of guessing safe', () => {
   }, /Unable to read Agent Evolve default config/);
 });
 
-test('session paths use the full SHA-256 and never persist the raw session id', () => {
+test('session 路径使用完整 SHA-256 且不持久化原始 session id', () => {
   const root = tempRoot('agent-evolve-hash');
   const env = codexEnv(root);
   const sessionId = 'private/session:id@example.com';
@@ -110,7 +110,7 @@ test('session paths use the full SHA-256 and never persist the raw session id', 
   });
 });
 
-test('Codex and Claude Code session state use their own plugin data roots', () => {
+test('Codex 与 Claude Code 的 session 状态使用各自 plugin data 根目录', () => {
   const root = tempRoot('agent-evolve-hosts');
   const codexPath = sessionStatePath('same-session', {
     PLUGIN_DATA: path.join(root, 'codex'),
@@ -127,7 +127,7 @@ test('Codex and Claude Code session state use their own plugin data roots', () =
   }, /plugin data directory is unavailable/);
 });
 
-test('getOrCreateSessionMode pins the effective default once per session', () => {
+test('getOrCreateSessionMode 为每个 session 固定一次有效默认 mode', () => {
   const root = tempRoot('agent-evolve-pin');
   const env = codexEnv(root);
 
@@ -144,7 +144,7 @@ test('getOrCreateSessionMode pins the effective default once per session', () =>
   assert.equal(getOrCreateSessionMode('session-b', env), 'off');
 });
 
-test('different session ids have isolated modes', () => {
+test('不同 session id 的 mode 相互隔离', () => {
   const root = tempRoot('agent-evolve-isolation');
   const env = codexEnv(root);
 
@@ -155,7 +155,7 @@ test('different session ids have isolated modes', () => {
   assert.equal(readSessionMode('session-b', env), 'review');
 });
 
-test('session state rejects corrupt JSON, invalid timestamps, and extra fields', () => {
+test('session 状态拒绝损坏 JSON、无效时间戳与额外字段', () => {
   const root = tempRoot('agent-evolve-invalid-session');
   const env = codexEnv(root);
   const statePath = sessionStatePath('session-a', env);
@@ -181,7 +181,7 @@ test('session state rejects corrupt JSON, invalid timestamps, and extra fields',
   }, /Invalid Agent Evolve session state/);
 });
 
-test('failed atomic session write preserves the previous state', { skip: process.platform === 'win32' }, () => {
+test('session 原子写入失败时保留旧状态', { skip: process.platform === 'win32' }, () => {
   const root = tempRoot('agent-evolve-atomic');
   const env = codexEnv(root);
   const statePath = sessionStatePath('session-a', env);

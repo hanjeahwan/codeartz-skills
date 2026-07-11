@@ -27,7 +27,7 @@ function readJson<T>(filePath: string): T {
   return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
 }
 
-test('Codex and Claude plugin manifests use the shared hook config', () => {
+test('Codex 与 Claude plugin manifest 使用共用 hook 配置', () => {
   const codex = readJson<PluginManifest>('.codex-plugin/plugin.json');
   const claude = readJson<PluginManifest>('.claude-plugin/plugin.json');
 
@@ -35,7 +35,7 @@ test('Codex and Claude plugin manifests use the shared hook config', () => {
   assert.equal(claude.hooks, './hooks/claude-codex-hooks.json');
 });
 
-test('shared hook config contains only SessionStart and UserPromptSubmit', () => {
+test('共用 hook 配置只包含 SessionStart 与 UserPromptSubmit', () => {
   const config = readJson<HookConfig>('hooks/claude-codex-hooks.json');
 
   assert.deepEqual(Object.keys(config.hooks).sort(), ['SessionStart', 'UserPromptSubmit']);
@@ -45,7 +45,7 @@ test('shared hook config contains only SessionStart and UserPromptSubmit', () =>
   assert.equal(config.hooks.UserPromptSubmit[0].matcher, undefined);
 });
 
-test('manifest runs the activation and exact-mode scripts on Unix and Windows', () => {
+test('manifest 在 Unix 与 Windows 运行 activation 和精确 mode 脚本', () => {
   const config = readJson<HookConfig>('hooks/claude-codex-hooks.json');
   const sessionHook = config.hooks.SessionStart[0].hooks[0];
   const promptHook = config.hooks.UserPromptSubmit[0].hooks[0];
@@ -63,7 +63,7 @@ test('manifest runs the activation and exact-mode scripts on Unix and Windows', 
   assert.equal(promptHook.statusMessage, undefined);
 });
 
-test('new runtime ships four typed JSDoc hook files', () => {
+test('新 runtime 提供四个带类型 JSDoc 的 hook 文件', () => {
   const files = [
     'hooks/agent-evolve-state.js',
     'hooks/agent-evolve-runtime.js',
@@ -80,7 +80,7 @@ test('new runtime ships four typed JSDoc hook files', () => {
   }
 });
 
-test('old feedback runtime, tests, skill, and plan are absent', () => {
+test('旧 feedback runtime、tests、skill 与 plan 均不存在', () => {
   const legacyHook = ['agent', 'feedback'].join('-');
   const legacySkill = `${legacyHook}-loop`;
   const removed = [
@@ -102,7 +102,7 @@ test('old feedback runtime, tests, skill, and plan are absent', () => {
   }
 });
 
-test('hook source has no feedback classifier or event-state protocol', () => {
+test('hook 源码不包含 feedback classifier 或 event-state 协议', () => {
   const source = [
     'hooks/agent-evolve-state.js',
     'hooks/agent-evolve-runtime.js',
@@ -119,7 +119,7 @@ test('hook source has no feedback classifier or event-state protocol', () => {
   assert.equal(source.includes(['AGENT', 'FEEDBACK'].join('-')), false);
 });
 
-test('README documents Agent Evolve modes, lifecycle hooks, and commands', () => {
+test('README 说明 Agent Evolve mode、lifecycle hook 与命令', () => {
   const readme = fs.readFileSync('README.md', 'utf8');
 
   assert.match(readme, /Agent Evolve/);
@@ -134,7 +134,7 @@ test('README documents Agent Evolve modes, lifecycle hooks, and commands', () =>
   assert.match(readme, /Codex/);
 });
 
-test('plugin metadata and README contain no legacy product identifier', () => {
+test('plugin metadata 与 README 不包含旧产品标识', () => {
   const legacySkill = ['agent', 'feedback', 'loop'].join('-');
   const legacyHook = ['agent', 'feedback'].join('-');
   const files = [
@@ -153,7 +153,7 @@ test('plugin metadata and README contain no legacy product identifier', () => {
   }
 });
 
-test('README references only the renamed Agent Evolve illustration', () => {
+test('README 只引用重命名后的 Agent Evolve 插图', () => {
   const readme = fs.readFileSync('README.md', 'utf8');
   const newAsset = 'assets/readme-illustrations/03-agent-evolve.png';
   const legacyAsset = ['assets/readme-illustrations/03-agent', 'feedback', 'loop.png'].join('-');

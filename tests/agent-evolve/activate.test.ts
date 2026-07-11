@@ -33,7 +33,7 @@ function runActivate(input: Record<string, unknown> | string, env: NodeJS.Proces
   });
 }
 
-test('new Codex session materializes safe and injects frontmatter-free skill without a badge', () => {
+test('新 Codex session 固化 safe 并无 badge 注入已移除 frontmatter 的 skill', () => {
   const env = tempEnv('codex');
   const result = runActivate(
     {
@@ -57,7 +57,7 @@ test('new Codex session materializes safe and injects frontmatter-free skill wit
   assert.equal(readSessionMode('codex-session', env), 'safe');
 });
 
-test('new Claude Code session uses review default and the common hook output shape', () => {
+test('新 Claude Code session 使用 review 默认值与共用 hook 输出结构', () => {
   const env = tempEnv('claude');
   writeDefaultMode('review', env);
 
@@ -78,7 +78,7 @@ test('new Claude Code session uses review default and the common hook output sha
   assert.equal(readSessionMode('claude-session', env), 'review');
 });
 
-test('off default materializes session state and emits no SessionStart output', () => {
+test('off 默认值会固化 session 状态且不输出 SessionStart 内容', () => {
   const env = tempEnv();
   writeDefaultMode('off', env);
 
@@ -96,7 +96,7 @@ test('off default materializes session state and emits no SessionStart output', 
   assert.equal(readSessionMode('off-session', env), 'off');
 });
 
-test('resume, clear, and compact preserve the already-materialized session mode', () => {
+test('resume、clear 与 compact 保留已固化的 session mode', () => {
   for (const source of ['resume', 'clear', 'compact']) {
     const env = tempEnv();
     writeDefaultMode('off', env);
@@ -117,7 +117,7 @@ test('resume, clear, and compact preserve the already-materialized session mode'
   }
 });
 
-test('corrupt default config produces visible evidence and does not create session state', () => {
+test('损坏的默认配置产生可见证据且不创建 session 状态', () => {
   const env = tempEnv();
   const configPath = path.join(env.XDG_CONFIG_HOME as string, 'codeartz-skills', 'agent-evolve', 'config.json');
   fs.mkdirSync(path.dirname(configPath), { recursive: true });
@@ -140,7 +140,7 @@ test('corrupt default config produces visible evidence and does not create sessi
   assert.equal(fs.existsSync(sessionStatePath('broken-default', env)), false);
 });
 
-test('corrupt session state produces visible evidence instead of guessing the mode', () => {
+test('损坏的 session 状态产生可见证据而不是猜测 mode', () => {
   const env = tempEnv();
   const statePath = sessionStatePath('broken-session', env);
   fs.mkdirSync(path.dirname(statePath), { recursive: true });
@@ -161,7 +161,7 @@ test('corrupt session state produces visible evidence instead of guessing the mo
   assert.match(output.hookSpecificOutput.additionalContext, /Invalid Agent Evolve session state/);
 });
 
-test('unreadable session state path produces visible evidence instead of built-in fallback', () => {
+test('session 状态路径不可读时产生可见证据而不是使用内建 fallback', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-unreadable-session-'));
   const pluginData = path.join(root, 'plugin-data-as-file');
   fs.writeFileSync(pluginData, 'not a directory', 'utf8');
@@ -185,7 +185,7 @@ test('unreadable session state path produces visible evidence instead of built-i
   assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve session state/);
 });
 
-test('missing skill fails visibly and never injects a partial rule set', () => {
+test('skill 缺失时可见失败且不注入部分规则集', () => {
   const env = tempEnv();
   const output = JSON.parse(
     handleSessionStart(
@@ -203,7 +203,7 @@ test('missing skill fails visibly and never injects a partial rule set', () => {
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
 });
 
-test('missing workflow fails visibly and never injects a partial rule set', () => {
+test('workflow 缺失时可见失败且不注入部分规则集', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-missing-workflow-'));
   const skillPath = path.join(root, 'SKILL.md');
   fs.writeFileSync(skillPath, '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n', 'utf8');
@@ -216,7 +216,7 @@ test('missing workflow fails visibly and never injects a partial rule set', () =
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve$/m);
 });
 
-test('non-SessionStart and invalid JSON inputs stay silent', () => {
+test('非 SessionStart 与无效 JSON 输入保持静默', () => {
   const env = tempEnv();
   const wrongEvent = runActivate(
     {
@@ -232,7 +232,7 @@ test('non-SessionStart and invalid JSON inputs stay silent', () => {
   assert.equal(invalidJson.stdout, '');
 });
 
-test('activation source never reads prompt or edits project files', () => {
+test('activation 源码不读取 prompt 且不编辑项目文件', () => {
   const source = fs.readFileSync(activateScript, 'utf8');
   assert.doesNotMatch(source, /input\.prompt/);
   assert.doesNotMatch(source, /writeFile|appendFile|renameSync|rmSync/);

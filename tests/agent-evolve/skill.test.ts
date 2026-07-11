@@ -10,7 +10,7 @@ function read(filePath: string): string {
   return fs.readFileSync(filePath, 'utf8');
 }
 
-test('agent-evolve has the approved name and routes only to workflow and validation', () => {
+test('agent-evolve 使用批准名称且只路由到 workflow 与 validation', () => {
   const skill = read(skillPath);
 
   assert.match(skill, /^---\nname: agent-evolve\n/);
@@ -20,7 +20,7 @@ test('agent-evolve has the approved name and routes only to workflow and validat
   assert.equal(fs.existsSync('skills/agent-evolve/references/source-discovery.md'), false);
 });
 
-test('SKILL contains only triggers, mode routing, global boundaries, and prohibitions', () => {
+test('SKILL 只包含触发条件、mode 路由、全局边界与禁止动作', () => {
   const skill = read(skillPath);
 
   assert.match(skill, /## 触发条件/);
@@ -32,7 +32,7 @@ test('SKILL contains only triggers, mode routing, global boundaries, and prohibi
   assert.doesNotMatch(skill, /rg --files/);
 });
 
-test('active routes use injected chapters and never reread plugin references', () => {
+test('active route 使用已注入章节且不重新读取 plugin references', () => {
   const skill = read(skillPath);
 
   assert.match(skill, /`safe`：[\s\S]*当前上下文已注入的 `# Agent Evolve Workflow` 与 `# Agent Evolve Validation`/);
@@ -40,7 +40,7 @@ test('active routes use injected chapters and never reread plugin references', (
   assert.match(skill, /Active route 禁止再次读取 plugin-relative `references\/\*`/);
 });
 
-test('manual invocation without an ACTIVE header explicitly routes to manual-off', () => {
+test('缺少 ACTIVE header 的手动调用显式路由到 manual-off', () => {
   const skill = read(skillPath);
   const workflow = read(workflowPath);
 
@@ -56,7 +56,7 @@ test('manual invocation without an ACTIVE header explicitly routes to manual-off
   assert.match(workflow, /用户未明确要求写入或批准精确变更时，只输出精确提案/);
 });
 
-test('workflow recognizes only direct human feedback without trigger-word dependence', () => {
+test('workflow 只识别直接 human feedback 且不依赖触发词', () => {
   const workflow = read(workflowPath);
 
   assert.match(workflow, /直接来自 human/);
@@ -70,7 +70,7 @@ test('workflow recognizes only direct human feedback without trigger-word depend
   assert.match(workflow, /mode 控制命令/);
 });
 
-test('workflow owns target discovery, duplicate/conflict checks, and future-read proof', () => {
+test('workflow 独占落点发现、查重查冲突与未来读取证明', () => {
   const workflow = read(workflowPath);
 
   assert.match(workflow, /## 落点发现/);
@@ -87,7 +87,7 @@ test('workflow owns target discovery, duplicate/conflict checks, and future-read
   assert.match(workflow, /验证实际 diff/);
 });
 
-test('workflow routes safe, review, and manual-off behavior without hook event state', () => {
+test('workflow 不依赖 hook event 状态路由 safe、review 与 manual-off', () => {
   const workflow = read(workflowPath);
 
   assert.match(workflow, /### Safe mode/);
@@ -97,14 +97,14 @@ test('workflow routes safe, review, and manual-off behavior without hook event s
   assert.doesNotMatch(workflow, /eventPath|attempts|mark <eventPath>|pending event/);
 });
 
-test('workflow uses the injected Validation chapter without instructing a file reread', () => {
+test('workflow 使用已注入的 Validation 章节且不要求重新读文件', () => {
   const workflow = read(workflowPath);
 
   assert.match(workflow, /当前上下文中的 `# Agent Evolve Validation`/);
   assert.doesNotMatch(workflow, /读取 `?validation\.md`?/);
 });
 
-test('validation owns safety gates, redaction, and per-candidate receipts', () => {
+test('validation 独占安全门、脱敏与逐候选回执', () => {
   const validation = read(validationPath);
 
   assert.match(validation, /## 安全门/);
@@ -125,7 +125,7 @@ test('validation owns safety gates, redaction, and per-candidate receipts', () =
   assert.match(validation, /Change/);
 });
 
-test('validation defines all five decisions and explicit not-applicable fields', () => {
+test('validation 定义五类决策与显式不适用字段', () => {
   const validation = read(validationPath);
 
   for (const decision of ['Updated', 'Already covered', 'Proposed', 'Not persisted', 'Failed']) {
@@ -138,7 +138,7 @@ test('validation defines all five decisions and explicit not-applicable fields',
   assert.match(validation, /禁止翻译、改写或追加括号说明/);
 });
 
-test('new skill contains no old runtime protocol or forbidden extra audit', () => {
+test('新 skill 不包含旧 runtime 协议或禁止的额外审查', () => {
   const combined = [skillPath, workflowPath, validationPath].map(read).join('\n');
 
   assert.equal(combined.includes(['agent', 'feedback', 'loop'].join('-')), false);
@@ -147,7 +147,7 @@ test('new skill contains no old runtime protocol or forbidden extra audit', () =
   assert.doesNotMatch(combined, /rule-sources\.json/);
 });
 
-test('executable rules have one authoritative owner', () => {
+test('可执行规则只有一个权威 owner', () => {
   const skill = read(skillPath);
   const workflow = read(workflowPath);
   const validation = read(validationPath);

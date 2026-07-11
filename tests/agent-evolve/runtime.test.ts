@@ -28,7 +28,7 @@ function writeInstructionSources(root: string): string {
   return skillPath;
 }
 
-test('readJsonFromString accepts only JSON records', () => {
+test('readJsonFromString 只接受 JSON record', () => {
   assert.deepEqual(readJsonFromString('{"hook_event_name":"SessionStart","session_id":"s1"}'), {
     hook_event_name: 'SessionStart',
     session_id: 's1',
@@ -38,7 +38,7 @@ test('readJsonFromString accepts only JSON records', () => {
   assert.equal(readJsonFromString('"text"'), null);
 });
 
-test('stripFrontmatter removes exactly the YAML envelope and keeps the skill body', () => {
+test('stripFrontmatter 精确移除 YAML 包络并保留 skill 正文', () => {
   const markdown = [
     '---',
     'name: agent-evolve',
@@ -60,7 +60,7 @@ test('stripFrontmatter removes exactly the YAML envelope and keeps the skill bod
   }, /frontmatter is incomplete/);
 });
 
-test('loadInstructionBundle materializes all authority files in order', () => {
+test('loadInstructionBundle 按顺序 materialize 全部权威文件', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-bundle-'));
   const bundle = loadInstructionBundle(writeInstructionSources(root));
 
@@ -75,7 +75,7 @@ test('loadInstructionBundle materializes all authority files in order', () => {
   assert.doesNotMatch(bundle, /^---/m);
 });
 
-test('loadInstructionBundle rejects a missing authority file without returning a partial bundle', () => {
+test('loadInstructionBundle 拒绝缺失的权威文件且不返回部分 bundle', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-missing-source-'));
   const skillPath = writeInstructionSources(root);
   fs.rmSync(path.join(root, 'references', 'workflow.md'));
@@ -85,7 +85,7 @@ test('loadInstructionBundle rejects a missing authority file without returning a
   }, /Unable to read Agent Evolve workflow/);
 });
 
-test('loadInstructionBundle rejects an empty authority file', () => {
+test('loadInstructionBundle 拒绝空权威文件', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-empty-source-'));
   const skillPath = writeInstructionSources(root);
   fs.writeFileSync(path.join(root, 'references', 'validation.md'), '  \n', 'utf8');
@@ -95,21 +95,21 @@ test('loadInstructionBundle rejects an empty authority file', () => {
   }, /Agent Evolve validation is empty/);
 });
 
-test('buildActivationContext uses the approved header and never leaks frontmatter', () => {
+test('buildActivationContext 使用批准的 header 且不泄露 frontmatter', () => {
   const context = buildActivationContext('review', '# Agent Evolve\n\nRead `references/workflow.md`.');
 
   assert.equal(context, 'AGENT EVOLVE ACTIVE — mode: review\n\n# Agent Evolve\n\nRead `references/workflow.md`.');
   assert.doesNotMatch(context, /^---/m);
 });
 
-test('buildOffContext disables automatic behavior but preserves manual invocation', () => {
+test('buildOffContext 关闭自动行为但保留手动调用', () => {
   const context = buildOffContext();
   assert.match(context, /AGENT EVOLVE OFF/);
   assert.match(context, /automatic feedback recognition and persistence are disabled/);
   assert.match(context, /Manual \$agent-evolve invocation remains available/);
 });
 
-test('buildHookOutput uses a shape supported by Codex and Claude Code', () => {
+test('buildHookOutput 使用 Codex 与 Claude Code 都支持的结构', () => {
   const output = JSON.parse(
     buildHookOutput({
       eventName: 'SessionStart',
@@ -126,7 +126,7 @@ test('buildHookOutput uses a shape supported by Codex and Claude Code', () => {
   assert.equal(buildHookOutput({ eventName: 'UserPromptSubmit' }), '');
 });
 
-test('buildHookOutput includes systemMessage only when explicitly requested', () => {
+test('buildHookOutput 仅在明确请求时包含 systemMessage', () => {
   const output = JSON.parse(
     buildHookOutput({
       eventName: 'UserPromptSubmit',
@@ -139,7 +139,7 @@ test('buildHookOutput includes systemMessage only when explicitly requested', ()
   assert.equal(output.hookSpecificOutput.hookEventName, 'UserPromptSubmit');
 });
 
-test('buildFailureOutput provides visible, non-blocking evidence', () => {
+test('buildFailureOutput 提供可见且非阻塞的证据', () => {
   const output = JSON.parse(
     buildFailureOutput('SessionStart', 'session activation', new Error('config.json is invalid')),
   );

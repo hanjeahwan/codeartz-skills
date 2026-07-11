@@ -39,7 +39,7 @@ function runMode(prompt: string, sessionId: string, env: NodeJS.ProcessEnv): Spa
   });
 }
 
-test('parseModeCommand accepts only the six approved commands and host prefixes', () => {
+test('parseModeCommand 只接受六条批准命令与宿主前缀', () => {
   assert.deepEqual(parseModeCommand('$agent-evolve safe'), { scope: 'session', mode: 'safe' });
   assert.deepEqual(parseModeCommand('/agent-evolve review'), { scope: 'session', mode: 'review' });
   assert.deepEqual(parseModeCommand('@agent-evolve off'), { scope: 'session', mode: 'off' });
@@ -57,7 +57,7 @@ test('parseModeCommand accepts only the six approved commands and host prefixes'
   });
 });
 
-test('parseModeCommand rejects partial, extended, legacy, and case-changed prompts', () => {
+test('parseModeCommand 拒绝不完整、扩展、旧版与大小写变化的 prompt', () => {
   for (const prompt of [
     '$agent-evolve',
     '$agent-evolve safe now',
@@ -73,7 +73,7 @@ test('parseModeCommand rejects partial, extended, legacy, and case-changed promp
   }
 });
 
-test('ordinary prompts stay silent and never touch state even when state paths are unusable', () => {
+test('普通 prompt 即使状态路径不可用也保持静默且不触碰状态', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-mode-silent-'));
   const env = { XDG_CONFIG_HOME: path.join(root, 'config') };
   const prompts = [
@@ -91,7 +91,7 @@ test('ordinary prompts stay silent and never touch state even when state paths a
   }
 });
 
-test('session safe and review commands update only the current session and reinject the skill', () => {
+test('session safe 与 review 命令只更新当前 session 并重新注入 skill', () => {
   for (const mode of ['safe', 'review'] as const) {
     const env = tempEnv();
     writeDefaultMode('off', env);
@@ -111,7 +111,7 @@ test('session safe and review commands update only the current session and reinj
   }
 });
 
-test('active mode switch rejects an incomplete bundle before changing session state', () => {
+test('active mode 切换在修改 session 状态前拒绝不完整 bundle', () => {
   const env = tempEnv();
   writeSessionMode('current-session', 'off', env);
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-mode-missing-workflow-'));
@@ -135,7 +135,7 @@ test('active mode switch rejects an incomplete bundle before changing session st
   assert.equal(readSessionMode('current-session', env), 'off');
 });
 
-test('session off command disables automatic behavior and preserves manual invocation', () => {
+test('session off 命令关闭自动行为并保留手动调用', () => {
   const env = tempEnv();
   writeSessionMode('current-session', 'safe', env);
 
@@ -150,7 +150,7 @@ test('session off command disables automatic behavior and preserves manual invoc
   assert.equal(readSessionMode('current-session', env), 'off');
 });
 
-test('default commands update only future sessions and keep current session pinned', () => {
+test('default 命令只更新未来 session 并保持当前 session 固定', () => {
   for (const mode of ['safe', 'review', 'off'] as const) {
     const env = tempEnv();
     writeDefaultMode('safe', env);
@@ -168,7 +168,7 @@ test('default commands update only future sessions and keep current session pinn
   }
 });
 
-test('default command visibly fails when current session state is missing and preserves default', () => {
+test('当前 session 状态缺失时 default 命令可见失败且保留默认值', () => {
   const env = tempEnv();
   writeDefaultMode('review', env);
 
@@ -182,7 +182,7 @@ test('default command visibly fails when current session state is missing and pr
   assert.equal(readDefaultMode(env), 'review');
 });
 
-test('different sessions keep independent modes after a command', () => {
+test('执行命令后不同 session 仍保持独立 mode', () => {
   const env = tempEnv();
   writeSessionMode('session-a', 'safe', env);
   writeSessionMode('session-b', 'review', env);
@@ -194,7 +194,7 @@ test('different sessions keep independent modes after a command', () => {
   assert.equal(readSessionMode('session-b', env), 'review');
 });
 
-test('corrupt default state produces visible evidence and does not change session mode', () => {
+test('损坏的默认状态产生可见证据且不改变 session mode', () => {
   const env = tempEnv();
   writeSessionMode('current-session', 'review', env);
   const configPath = path.join(env.XDG_CONFIG_HOME as string, 'codeartz-skills', 'agent-evolve', 'config.json');
@@ -210,58 +210,50 @@ test('corrupt default state produces visible evidence and does not change sessio
   assert.equal(readSessionMode('current-session', env), 'review');
 });
 
-test(
-  'failed session-state write keeps the previous mode and never claims success',
-  { skip: process.platform === 'win32' },
-  () => {
-    const env = tempEnv();
-    writeSessionMode('current-session', 'safe', env);
-    const statePath = sessionStatePath('current-session', env);
-    fs.chmodSync(path.dirname(statePath), 0o500);
+test('session 状态写入失败时保留旧 mode 且不声称成功', { skip: process.platform === 'win32' }, () => {
+  const env = tempEnv();
+  writeSessionMode('current-session', 'safe', env);
+  const statePath = sessionStatePath('current-session', env);
+  fs.chmodSync(path.dirname(statePath), 0o500);
 
-    const result = (() => {
-      try {
-        return runMode('$agent-evolve review', 'current-session', env);
-      } finally {
-        fs.chmodSync(path.dirname(statePath), 0o700);
-      }
-    })();
+  const result = (() => {
+    try {
+      return runMode('$agent-evolve review', 'current-session', env);
+    } finally {
+      fs.chmodSync(path.dirname(statePath), 0o700);
+    }
+  })();
 
-    assert.equal(result.status, 0, result.stderr);
-    const output = JSON.parse(result.stdout);
-    assert.match(output.systemMessage, /Agent Evolve failed: mode switch/);
-    assert.doesNotMatch(output.systemMessage, /mode: review; default/);
-    assert.equal(readSessionMode('current-session', env), 'safe');
-  },
-);
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.match(output.systemMessage, /Agent Evolve failed: mode switch/);
+  assert.doesNotMatch(output.systemMessage, /mode: review; default/);
+  assert.equal(readSessionMode('current-session', env), 'safe');
+});
 
-test(
-  'failed default-state write keeps the previous default and current session',
-  { skip: process.platform === 'win32' },
-  () => {
-    const env = tempEnv();
-    writeDefaultMode('safe', env);
-    writeSessionMode('current-session', 'review', env);
-    const configPath = path.join(env.XDG_CONFIG_HOME as string, 'codeartz-skills', 'agent-evolve', 'config.json');
-    fs.chmodSync(path.dirname(configPath), 0o500);
+test('默认状态写入失败时保留旧默认值与当前 session', { skip: process.platform === 'win32' }, () => {
+  const env = tempEnv();
+  writeDefaultMode('safe', env);
+  writeSessionMode('current-session', 'review', env);
+  const configPath = path.join(env.XDG_CONFIG_HOME as string, 'codeartz-skills', 'agent-evolve', 'config.json');
+  fs.chmodSync(path.dirname(configPath), 0o500);
 
-    const result = (() => {
-      try {
-        return runMode('$agent-evolve default off', 'current-session', env);
-      } finally {
-        fs.chmodSync(path.dirname(configPath), 0o700);
-      }
-    })();
+  const result = (() => {
+    try {
+      return runMode('$agent-evolve default off', 'current-session', env);
+    } finally {
+      fs.chmodSync(path.dirname(configPath), 0o700);
+    }
+  })();
 
-    assert.equal(result.status, 0, result.stderr);
-    const output = JSON.parse(result.stdout);
-    assert.match(output.systemMessage, /Agent Evolve failed: mode switch/);
-    assert.equal(readDefaultMode(env), 'safe');
-    assert.equal(readSessionMode('current-session', env), 'review');
-  },
-);
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.match(output.systemMessage, /Agent Evolve failed: mode switch/);
+  assert.equal(readDefaultMode(env), 'safe');
+  assert.equal(readSessionMode('current-session', env), 'review');
+});
 
-test('non-UserPromptSubmit and invalid JSON inputs stay silent', () => {
+test('非 UserPromptSubmit 与无效 JSON 输入保持静默', () => {
   const env = tempEnv();
   const wrongEvent = spawnSync(process.execPath, [modeScript], {
     encoding: 'utf8',
