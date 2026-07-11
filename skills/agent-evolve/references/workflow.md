@@ -34,7 +34,6 @@
 - 不要求 human 使用“以后”“记住”“不要再”或“写进规则”。
 - 不因消息出现上述词语就判定为候选。
 - 使用当前 human 消息、可见对话、代码事实、diff、测试和 review 证据判断。
-- 禁止使用模型记忆补造 feedback。
 
 ## 原则抽象
 
@@ -103,7 +102,7 @@ rg --files -g 'skills/**/SKILL.md' -g 'skills/**/references/**' -g '.codex-plugi
 
 ### Safe mode
 
-- 把候选、抽象规则、唯一 owner、未来读取路径、查重结果与冲突结果交给 `validation.md`。
+- 把候选、抽象规则、唯一 owner、未来读取路径、查重结果与冲突结果交给当前上下文中的 `# Agent Evolve Validation`。
 - 全部安全门通过时直接更新项目已有规则源。
 - 安全门失败分支
   - 失败条件：任一安全门不通过。
@@ -119,8 +118,9 @@ rg --files -g 'skills/**/SKILL.md' -g 'skills/**/references/**' -g '.codex-plugi
 ### Off mode 的手动调用
 
 - 只处理用户本次手动指定的 feedback。
-- 用户明确要求写入时，仍须通过 `validation.md` 全部安全门。
-- 用户未明确要求写入时，只输出精确提案。
+- 用户明确要求写入或批准精确变更时，才进入写入步骤。
+- 写入仍须通过当前上下文中的 `# Agent Evolve Validation` 全部安全门。
+- 用户未明确要求写入或批准精确变更时，只输出精确提案。
 
 ## 写入流程
 
@@ -136,5 +136,4 @@ rg --files -g 'skills/**/SKILL.md' -g 'skills/**/references/**' -g '.codex-plugi
 - 禁止回退、覆盖或清理无关用户改动。
 - 写入后重新读取目标规则。
 - 使用 `git diff -- <target>` 验证实际 diff。
-- 不自动提交 git commit。
-- 最后读取 `validation.md`，选择并输出每条候选的回执。
+- 最后按当前上下文中的 `# Agent Evolve Validation` 选择并输出每条候选的回执。

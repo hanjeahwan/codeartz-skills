@@ -32,6 +32,28 @@ test('SKILL contains only triggers, mode routing, global boundaries, and prohibi
   assert.doesNotMatch(skill, /rg --files/);
 });
 
+test('active routes use injected chapters and never reread plugin references', () => {
+  const skill = read(skillPath);
+
+  assert.match(skill, /`safe`：[\s\S]*当前上下文已注入的 `# Agent Evolve Workflow` 与 `# Agent Evolve Validation`/);
+  assert.match(skill, /`review`：[\s\S]*当前上下文已注入的 `# Agent Evolve Workflow` 与 `# Agent Evolve Validation`/);
+  assert.match(skill, /Active route 禁止再次读取 plugin-relative `references\/\*`/);
+});
+
+test('manual invocation without an ACTIVE header explicitly routes to manual-off', () => {
+  const skill = read(skillPath);
+
+  assert.match(skill, /没有 `AGENT EVOLVE ACTIVE — mode: safe\|review`/);
+  assert.match(skill, /进入 `Off mode 的手动调用`/);
+  assert.match(skill, /只处理本次显式 feedback/);
+  assert.match(skill, /未明确要求写入或批准精确变更时，只输出提案/);
+  assert.match(skill, /写入仍须通过 `# Agent Evolve Validation` 的全部安全门/);
+  assert.match(
+    skill,
+    /当前上下文缺少完整章节时，才读取相对 `references\/workflow\.md` 与 `references\/validation\.md`/,
+  );
+});
+
 test('workflow recognizes only direct human feedback without trigger-word dependence', () => {
   const workflow = read(workflowPath);
 
@@ -73,6 +95,13 @@ test('workflow routes safe, review, and manual-off behavior without hook event s
   assert.doesNotMatch(workflow, /eventPath|attempts|mark <eventPath>|pending event/);
 });
 
+test('workflow uses the injected Validation chapter without instructing a file reread', () => {
+  const workflow = read(workflowPath);
+
+  assert.match(workflow, /当前上下文中的 `# Agent Evolve Validation`/);
+  assert.doesNotMatch(workflow, /读取 `?validation\.md`?/);
+});
+
 test('validation owns safety gates, redaction, and per-candidate receipts', () => {
   const validation = read(validationPath);
 
@@ -112,4 +141,35 @@ test('new skill contains no old runtime protocol or forbidden extra audit', () =
   assert.equal(combined.includes(['agent', 'feedback', 'state'].join('-')), false);
   assert.doesNotMatch(combined, /instruction-doc-audit/);
   assert.doesNotMatch(combined, /rule-sources\.json/);
+});
+
+test('executable rules have one authoritative owner', () => {
+  const skill = read(skillPath);
+  const workflow = read(workflowPath);
+  const validation = read(validationPath);
+
+  // Workflow exclusively owns candidate/source qualification and write operations.
+  assert.doesNotMatch(skill, /候选 feedback 必须同时满足/);
+  assert.doesNotMatch(skill, /Subagent 产生的观察/);
+  assert.doesNotMatch(skill, /没有得到 human 确认的 review finding/);
+  assert.doesNotMatch(skill, /找不到唯一 owner 时不随机/);
+  assert.doesNotMatch(skill, /用户明确批准后才进入写入步骤/);
+  assert.doesNotMatch(skill, /修改前重新读取目标文件/);
+
+  // SKILL exclusively owns model-memory and commit prohibitions.
+  assert.doesNotMatch(workflow, /模型记忆/);
+  assert.doesNotMatch(workflow, /自动提交 git commit/);
+
+  // Workflow exclusively owns mode decisions, rereads, concurrency, and workspace preservation.
+  assert.doesNotMatch(validation, /review\/off 手动流程已经获得 human 明确批准/);
+  assert.doesNotMatch(validation, /Mode 是 `review` 且未获批准/);
+  assert.doesNotMatch(validation, /重新读取目标文件/);
+  assert.doesNotMatch(validation, /并发变化/);
+  assert.doesNotMatch(validation, /保留失败前已有的用户工作区改动/);
+
+  // Workflow exclusively owns owner discovery; Validation only consumes its result.
+  assert.doesNotMatch(validation, /创建随机规则源/);
+
+  // Validation exclusively owns failure receipts and failure boundaries.
+  assert.doesNotMatch(skill, /Feedback 处理失败不得阻止当前用户任务继续完成/);
 });
