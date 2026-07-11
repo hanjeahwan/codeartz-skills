@@ -25,6 +25,18 @@
     { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "test:unit" },
     { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "国际化" },
     { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "待裁决" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "### E1" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "### T1" },
+    {
+      "type": "fileExcludes",
+      "path": ".codeartz/project-foundation/draft.md",
+      "value": "<merge 时刻>"
+    },
+    {
+      "type": "fileExcludes",
+      "path": ".codeartz/project-foundation/draft.md",
+      "value": "待裁决后填充"
+    },
     { "type": "trajectoryIncludes", "value": "project-foundation" }
   ],
   "criteria": [

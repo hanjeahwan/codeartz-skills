@@ -24,9 +24,9 @@
 </p>
 
 <p align="center">
-  <img src="assets/readme-illustrations/05-project-foundation.png" alt="project-foundation 从代码证据建立经批准的项目知识基础">
+  <img src="assets/readme-illustrations/05-project-foundation.png" alt="project-foundation 让未来 agent 看懂可追溯的项目全貌">
   <br>
-  <sub>2. project-foundation：从代码证据建立持久草稿，隔离待裁决项，经用户批准后落成未来 agent 可读的项目知识。</sub>
+  <sub>2. project-foundation：把散落在代码里的架构、领域与开发约定沉淀为可追溯、可刷新的项目全貌，让未来 agent 不再猜项目。</sub>
 </p>
 
 <p align="center">
@@ -56,7 +56,7 @@
 | [`agentic-design-navigator`](skills/agentic-design-navigator/) | 用户只给出模糊想法、感觉、问题或关键词，或设计讨论发生明显变化，需要稳定意图并检查偏离                  | 逐阶段稳定意图、建立设计理解、生成方案，并在讨论变化时显式指出意图漂移                                   |
 | [`target-boundary`](skills/target-boundary/)                   | requirements、PRD、spec、issues、review notes、会话记录和仓库证据混在一起，需要分析边界、根因或技术方案 | 写入 `.codeartz/<topic>/target-boundary.md`；满足确认停靠点后生成 `.codeartz/<topic>/context-handoff.md` |
 | [`instruction-doc-audit`](skills/instruction-doc-audit/)       | 指令、规范、规则手册、政策、提示词或技能文档存在职责混杂、分支隐式或层级过深                            | 给出命中项和改写建议，或按编辑模式改成可执行、语言一致的规则                                             |
-| [`project-foundation`](skills/project-foundation/)             | 现有仓库缺少 Agent 读取入口、架构、领域、开发约定等项目知识，或正式知识需要跟随代码演进进行刷新         | 从仓库证据建立持久草稿；逐项裁决并批准后，建立或刷新正式项目知识与读取路由                               |
+| [`project-foundation`](skills/project-foundation/)             | 现有仓库缺少 Agent 读取入口、架构、领域、开发约定等项目知识，或正式知识需要跟随代码演进进行刷新         | 从仓库证据建立当前草稿；逐项裁决并批准后，建立或刷新正式项目知识与读取路由                               |
 | [`agent-evolve`](skills/agent-evolve/)                         | 主会话中的用户反馈会改变未来代码模式、架构、规范、边界或实践决策                                        | 按当前模式更新或提案到未来 agent 会读取的项目已有规则源；每条候选都输出原因与证据                        |
 
 ## When to use
@@ -87,7 +87,7 @@
 - 项目已有代码，但没有可靠的 `AGENTS.md`、`CLAUDE.md` 或项目知识文档。
 - 需要区分代码事实、稳定模式、设计推断、冲突、知识缺口与技术债。
 - 需要根据知识主题、适用范围和读取情境设计最小项目知识结构。
-- 需要用持久草稿跟踪证据、完整内容、待裁决项、批准与合并结果。
+- 需要用可跨会话跟踪的当前草稿记录证据、完整内容、待裁决项、批准与合并结果。
 - 已有正式项目知识需要对账当前代码，并发现代码演进产生的新知识。
 
 使用 `agent-evolve`：

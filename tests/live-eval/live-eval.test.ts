@@ -90,6 +90,7 @@ test('确定性响应检查会报告证据', async () => {
     [
       { type: 'responseIncludes', value: '已确认' },
       { type: 'questionCountAtMost', max: 1 },
+      { type: 'fileExcludes', path: 'package.json', value: '不存在的内容' },
     ],
     process.cwd(),
     [{ response: '已确认。下一步是什么？', rawEvents: [], stderr: '', durationMs: 1 }],
@@ -99,7 +100,7 @@ test('确定性响应检查会报告证据', async () => {
     results.map((result) => {
       return result.passed;
     }),
-    [true, true],
+    [true, true, true],
   );
 });
 

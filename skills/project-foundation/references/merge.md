@@ -1,4 +1,4 @@
-# 第三阶段：合并正式文件
+# 第二阶段：合并正式文件
 
 ## 目标
 
@@ -10,7 +10,7 @@
 - 检查草稿的批准状态是 `已批准`，或当前用户消息明确批准精确目标与完整内容。
 - 检查全部待裁决项已经解决。
 - 检查批准范围覆盖准备写入的每个目标。
-- 任一检查失败时返回第二阶段。
+- 任一检查失败时返回第一阶段。
 - 禁止用普通同意、部分裁决或早期草稿的批准替代最终批准。
 
 ## 合并前检查
@@ -53,7 +53,7 @@
   "version": 1,
   "updatedAt": "<ISO 8601>",
   "repository": {
-    "gitCommit": "<commit or null>",
+    "gitCommit": null,
     "checkedScopes": ["<path>"],
     "uncheckedScopes": ["<path>"]
   },
@@ -71,6 +71,7 @@
 ```
 
 - 非 Git 仓库将 `gitCommit` 写为 `null`。
+- Git 仓库将 `gitCommit` 写为完整提交标识。
 - `checkedScopes` 与 `uncheckedScopes` 必须显式记录。
 - `knowledgeFiles` 只列成功合并并重新读取的正式知识文件。
 - `knowledge` 只保存抽象结论、正式位置、证据位置与上次验证时间。

@@ -4,6 +4,7 @@ export type ScenarioTier = 'full' | 'smoke';
 
 export type ScenarioCheck =
   | { type: 'fileContains'; path: string; value: string }
+  | { type: 'fileExcludes'; path: string; value: string }
   | { type: 'fileExists'; path: string }
   | { type: 'fileNotExists'; path: string }
   | { type: 'fileUnchanged'; path: string }

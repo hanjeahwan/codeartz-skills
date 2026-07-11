@@ -29,6 +29,7 @@ function parseCheck(value: unknown, field: string): ScenarioCheck {
 
   switch (type) {
     case 'fileContains':
+    case 'fileExcludes':
       return {
         type,
         path: requireString(value.path, `${field}.path`),
@@ -276,6 +277,17 @@ export async function evaluateChecks(
           check,
           passed,
           evidence: `${check.path} ${passed ? 'contains' : 'does not contain'} ${check.value}`,
+        });
+        break;
+      }
+      case 'fileExcludes': {
+        const target = resolveWorkspacePath(workspace, check.path);
+        const actual = (await fileExists(target)) ? await readFile(target, 'utf8') : '';
+        const passed = !actual.includes(check.value);
+        results.push({
+          check,
+          passed,
+          evidence: `${check.path} ${passed ? 'does not contain' : 'contains'} ${check.value}`,
         });
         break;
       }
