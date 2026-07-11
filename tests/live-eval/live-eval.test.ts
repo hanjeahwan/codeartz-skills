@@ -38,6 +38,7 @@ test('Agent Evolve 场景覆盖完整的 manual-off 语义矩阵', async () => {
       'manual-not-persisted',
       'manual-proposal',
       'manual-redaction',
+      'manual-unrouted-doc',
     ]),
   );
 });
