@@ -1,0 +1,36 @@
+{
+  "id": "partial-adjudication",
+  "skill": "project-foundation",
+  "tier": "full",
+  "description": "用户只裁决一个问题时更新受影响草稿，并保留其他待裁决项。",
+  "files": {
+    ".codeartz/project-foundation/draft.md": "# 项目知识奠基草稿\n\n## 状态\n\n当前阶段：待裁决\n\n## 诊断范围\n\n- 已检查：src、test\n\n## 项目知识现状\n\n- 正式读取入口：不存在\n\n## 项目知识地图\n\n- 错误处理：全项目\n- 测试命名：测试目录\n\n## 证据清单\n\n### E1\n\n- 结论：缺失记录存在返回 undefined 与抛错两种做法。\n- 等级：冲突信号\n\n### E2\n\n- 结论：测试名称存在中文和英文两种做法。\n- 等级：冲突信号\n\n## 目标文件\n\n### T1\n\n- 建议路径：AGENTS.md\n- 状态：待裁决\n- 完整内容：待裁决后生成\n\n## 待裁决\n\n### D1\n\n- 问题：缺失记录采用返回值还是抛错？\n- 影响：T1\n\n### D2\n\n- 问题：测试名称采用中文还是英文？\n- 影响：T1\n\n## 用户裁决\n\n不适用\n\n## 最终批准\n\n- 批准状态：未批准\n\n## 合并记录\n\n不适用\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 裁决 D1：可预期的缺失记录使用返回值交给调用方处理。D2 我还没有决定。",
+      "checks": [
+        { "type": "responseIncludes", "value": "D1" },
+        { "type": "responseIncludes", "value": "D2" },
+        { "type": "responseMatches", "pattern": "(?:仍|继续).*(?:待裁决|未决定)" }
+      ]
+    }
+  ],
+  "postChecks": [
+    {
+      "type": "fileContains",
+      "path": ".codeartz/project-foundation/draft.md",
+      "value": "可预期的缺失记录使用返回值交给调用方处理"
+    },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "### D2" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "当前阶段：待裁决" },
+    { "type": "fileNotExists", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "只把用户对 D1 的原始语义与采用结果写入用户裁决。",
+    "D1 的裁决只更新其影响的目标内容。",
+    "D2 保持待裁决，当前阶段没有提前进入待最终批准。",
+    "没有创建或修改正式目标文件。"
+  ]
+}

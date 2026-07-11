@@ -4,9 +4,15 @@ import test from 'node:test';
 import { parseCli } from './run.ts';
 import { evaluateChecks, loadScenarios, parseScenario } from './scenarios.ts';
 
-test('四个目标 Skill 都包含有效的冒烟场景和完整场景', async () => {
+test('五个目标 Skill 都包含有效的冒烟场景和完整场景', async () => {
   const scenarios = await loadScenarios(process.cwd(), undefined, 'all');
-  const requestedSkills = ['agent-evolve', 'agentic-design-navigator', 'instruction-doc-audit', 'target-boundary'];
+  const requestedSkills = [
+    'agent-evolve',
+    'agentic-design-navigator',
+    'instruction-doc-audit',
+    'project-foundation',
+    'target-boundary',
+  ];
   for (const skill of requestedSkills) {
     const skillScenarios = scenarios.filter((scenario) => {
       return scenario.skill === skill;
@@ -39,6 +45,26 @@ test('Agent Evolve 场景覆盖完整的 manual-off 语义矩阵', async () => {
       'manual-proposal',
       'manual-redaction',
       'manual-unrouted-doc',
+    ]),
+  );
+});
+
+test('项目知识奠基场景覆盖诊断、裁决、批准与合并边界', async () => {
+  const scenarios = await loadScenarios(process.cwd(), new Set(['project-foundation']), 'all');
+  assert.deepEqual(
+    new Set(
+      scenarios.map((scenario) => {
+        return scenario.id;
+      }),
+    ),
+    new Set([
+      'classify-evidence',
+      'create-draft',
+      'formal-target-conflict',
+      'merge-approved-draft',
+      'partial-adjudication',
+      'refresh-knowledge',
+      'reject-ambiguous-approval',
     ]),
   );
 });

@@ -1,0 +1,42 @@
+{
+  "id": "create-draft",
+  "skill": "project-foundation",
+  "tier": "smoke",
+  "description": "没有项目知识基础时，先建立可持续跟踪的草稿，不提前创建正式文件。",
+  "files": {
+    "package.json": "{\n  \"scripts\": {\n    \"test\": \"node --test\"\n  }\n}\n",
+    "src/catalog.ts": "export function findProduct(id: string): string | undefined {\n  return id === 'p1' ? 'Keyboard' : undefined;\n}\n",
+    "test/catalog.test.ts": "import assert from 'node:assert/strict';\nimport test from 'node:test';\nimport { findProduct } from '../src/catalog.ts';\n\ntest('找不到商品时返回 undefined', () => {\n  assert.equal(findProduct('missing'), undefined);\n});\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 帮这个没有 AGENTS.md、CLAUDE.md 和项目规范文档的仓库建立项目知识基础。先诊断并准备草稿；我还没有批准创建任何正式文件。",
+      "checks": [
+        { "type": "responseIncludes", "value": "草稿" },
+        { "type": "responseMatches", "pattern": "(?:待裁决|批准)" }
+      ]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": ".codeartz/project-foundation/draft.md" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 状态" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 证据清单" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 目标文件" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 待裁决" },
+    {
+      "type": "fileContains",
+      "path": ".codeartz/project-foundation/draft.md",
+      "value": "docs/project-foundation-baseline.json"
+    },
+    { "type": "fileNotExists", "path": "AGENTS.md" },
+    { "type": "fileNotExists", "path": "CLAUDE.md" },
+    { "type": "fileNotExists", "path": "docs/architecture.md" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "回应先检查代码、配置和测试，再建立持久化草稿。",
+    "草稿区分仓库事实、候选规则和需要用户裁决的内容。",
+    "草稿根据知识职责、适用范围和读取情境提出最小目标结构。",
+    "用户没有批准正式文件，因此没有创建 AGENTS.md、CLAUDE.md 或 docs 规范。"
+  ]
+}

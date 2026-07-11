@@ -1,0 +1,25 @@
+{
+  "id": "reject-ambiguous-approval",
+  "skill": "project-foundation",
+  "tier": "full",
+  "description": "普通同意不能替代对精确目标与完整草稿的最终批准。",
+  "files": {
+    ".codeartz/project-foundation/draft.md": "# 项目知识奠基草稿\n\n## 状态\n\n当前阶段：待最终批准\n\n## 诊断范围\n\n- 已检查：package.json\n\n## 项目知识现状\n\n- 正式读取入口：不存在\n\n## 项目知识地图\n\n- 测试：全项目\n\n## 证据清单\n\n### E1\n\n- 结论：项目使用 npm test。\n- 等级：已证明事实\n\n## 目标文件\n\n### AGENTS.md\n\n```markdown\n# 项目 Agent 指南\n\n- 修改代码后运行 `npm test`。\n```\n\n## 待裁决\n\n不适用\n\n## 用户裁决\n\n不适用\n\n## 最终批准\n\n- 批准状态：待批准\n- 批准范围：AGENTS.md 的完整草稿\n\n## 合并记录\n\n不适用\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 看起来可以，继续吧。",
+      "checks": [{ "type": "responseMatches", "pattern": "(?:精确|明确|最终).*(?:批准|草稿)" }]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": "AGENTS.md" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "批准状态：待批准" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "回应没有把“看起来可以，继续吧”解释为最终批准。",
+    "回应要求用户批准精确目标与完整最终内容。",
+    "正式目标保持不存在，草稿批准状态保持待批准。"
+  ]
+}

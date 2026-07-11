@@ -1,0 +1,34 @@
+{
+  "id": "merge-approved-draft",
+  "skill": "project-foundation",
+  "tier": "full",
+  "description": "用户精确批准最终草稿后，合并正式文件、建立长期基线并把草稿标记为已落地。",
+  "files": {
+    "package.json": "{\n  \"scripts\": {\n    \"test\": \"node --test\"\n  }\n}\n",
+    "src/catalog.ts": "export function findProduct(id: string): string | undefined {\n  return id === 'p1' ? 'Keyboard' : undefined;\n}\n",
+    ".codeartz/project-foundation/draft.md": "# 项目知识奠基草稿\n\n## 状态\n\n当前阶段：待最终批准\n\n## 诊断范围\n\n- 已检查：package.json、src/catalog.ts\n- 未检查：不适用\n\n## 基线来源\n\n- 长期基线：不存在\n\n## 项目知识现状\n\n- 正式读取入口：不存在\n\n## 项目知识地图\n\n- 测试：全项目\n\n## 证据清单\n\n### E1\n\n- 结论：项目使用 node --test。\n- 等级：已证明事实\n- 来源：package.json scripts.test\n\n## 刷新结果\n\n不适用\n\n## 目标文件\n\n### T1：AGENTS.md\n\n```markdown\n# 项目 Agent 指南\n\n## 验证\n\n- 修改代码后运行 `npm test`。\n```\n\n### T2：docs/project-foundation-baseline.json\n\n```json\n{\n  \"version\": 1,\n  \"updatedAt\": \"2026-07-12T00:00:00Z\",\n  \"repository\": {\n    \"gitCommit\": null,\n    \"checkedScopes\": [\"package.json\", \"src/catalog.ts\"],\n    \"uncheckedScopes\": []\n  },\n  \"knowledgeFiles\": [\"AGENTS.md\"],\n  \"knowledge\": [\n    {\n      \"id\": \"K1\",\n      \"location\": \"AGENTS.md#验证\",\n      \"summary\": \"修改代码后运行项目测试。\",\n      \"evidence\": [\"package.json#scripts.test\"],\n      \"lastVerifiedAt\": \"2026-07-12T00:00:00Z\"\n    }\n  ]\n}\n```\n\n## 待裁决\n\n不适用\n\n## 用户裁决\n\n不适用\n\n## 最终批准\n\n- 批准状态：待批准\n- 批准范围：T1 与 T2 的完整草稿\n- 未批准内容：不适用\n\n## 合并记录\n\n- 合并结果：待处理\n- 验证：未执行\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 我批准 .codeartz/project-foundation/draft.md 中 T1 与 T2 的完整精确草稿，请合并并完成验证。",
+      "checks": [
+        { "type": "responseMatches", "pattern": "(?:已落地|已合并)" },
+        { "type": "responseIncludes", "value": "AGENTS.md" },
+        { "type": "responseIncludes", "value": "project-foundation-baseline.json" }
+      ]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileContains", "path": "AGENTS.md", "value": "修改代码后运行 `npm test`。" },
+    { "type": "fileContains", "path": "docs/project-foundation-baseline.json", "value": "\"id\": \"K1\"" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "当前阶段：已落地" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "批准状态：已批准" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "回应识别了用户对正式知识与长期基线完整草稿的最终批准。",
+    "只创建批准范围内的 AGENTS.md 与长期基线。",
+    "正式知识重新读取验证成功后才写入长期基线。",
+    "长期基线记录正式知识、证据位置和检查范围，草稿记录批准、合并与验证结果。"
+  ]
+}

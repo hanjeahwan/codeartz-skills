@@ -1,0 +1,36 @@
+{
+  "id": "refresh-knowledge",
+  "skill": "project-foundation",
+  "tier": "full",
+  "description": "刷新时同时对账已有知识，并发现代码演进产生的新知识。",
+  "files": {
+    "AGENTS.md": "# 项目 Agent 指南\n\n## 验证\n\n- 修改代码后运行 `npm test`。\n",
+    "package.json": "{\n  \"scripts\": {\n    \"check\": \"node --check src/index.js\",\n    \"test:unit\": \"node --test\"\n  }\n}\n",
+    "src/index.js": "export const locale = 'zh-CN';\n",
+    "locales/zh-CN.json": "{\"catalog.empty\":\"暂无商品\"}\n",
+    "docs/project-foundation-baseline.json": "{\n  \"version\": 1,\n  \"updatedAt\": \"2026-01-01T00:00:00Z\",\n  \"repository\": {\n    \"gitCommit\": null,\n    \"checkedScopes\": [\"package.json\"],\n    \"uncheckedScopes\": []\n  },\n  \"knowledgeFiles\": [\"AGENTS.md\"],\n  \"knowledge\": [\n    {\n      \"id\": \"K1\",\n      \"location\": \"AGENTS.md#验证\",\n      \"summary\": \"修改代码后运行 npm test。\",\n      \"evidence\": [\"package.json#scripts.test\"],\n      \"lastVerifiedAt\": \"2026-01-01T00:00:00Z\"\n    }\n  ]\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 刷新项目知识。请检查已有正式知识是否过时，也检查代码演进是否产生了新的知识主题；先更新草稿，不修改正式文件。",
+      "checks": [
+        { "type": "responseMatches", "pattern": "(?:对账|漂移|失效)" },
+        { "type": "responseMatches", "pattern": "(?:国际化|新知识)" }
+      ]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "fileUnchanged", "path": "docs/project-foundation-baseline.json" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "test:unit" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "国际化" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "待裁决" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "回应发现 AGENTS.md 中的 npm test 已失去当前配置证据。",
+    "回应没有仅对账已有验证规则，还从 locales 与代码发现新的国际化知识主题。",
+    "刷新使用长期基线并执行低成本结构复查，没有无差别逐文件扫描。",
+    "所有建议只进入草稿，正式知识与长期基线保持不变。"
+  ]
+}
