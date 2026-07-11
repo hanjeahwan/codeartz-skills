@@ -46,7 +46,7 @@
 ## 用户体验合同
 
 1. 用户进入一个项目 session。
-2. `SessionStart` 根据当前 mode 决定是否注入 Agent Evolve 入口规则。
+2. `SessionStart` 根据当前 mode 决定是否注入 Agent Evolve 完整规则集。
 3. 用户正常执行任务并给出 feedback。
 4. 主 agent 根据完整语义判断 feedback 是否会改变未来项目决策。
 5. 主 agent 继续完成当前任务。
@@ -65,8 +65,9 @@
 - 处理方式:当前 session mode 已存在时直接读取该 mode。
 - 处理方式:当前 session mode 不存在时从持久默认 mode 固化一份 session mode。
 - 处理方式:`safe` 或 `review` 时注入包含有效 mode 的激活头。
-- 处理方式:`safe` 或 `review` 时读取并注入 `skills/agent-evolve/SKILL.md`。
-- 处理方式:`off` 时不注入 `skills/agent-evolve/SKILL.md`。
+- 处理方式:`safe` 或 `review` 时从 `SKILL.md`、`references/workflow.md` 与 `references/validation.md` 动态组装完整规则集。
+- 处理方式:完整规则集按 `激活头 → SKILL body → workflow → validation` 顺序注入。
+- 处理方式:`off` 时不读取或注入 Agent Evolve 规则集。
 - 处理方式:激活成功时不显示额外启动提示。
 - 禁止:不读取用户 prompt。
 - 禁止:不判断 feedback。
@@ -80,7 +81,7 @@
 - 处理方式:失败条件命中时立即静默退出。
 - 处理方式:session mode 命令更新当前 session mode。
 - 处理方式:default mode 命令更新持久默认配置。
-- 处理方式:切换到 `safe` 或 `review` 后注入新的 mode 激活头和 Skill 入口规则。
+- 处理方式:切换到 `safe` 或 `review` 后注入新的 mode 激活头和完整规则集。
 - 处理方式:切换到 `off` 后注入关闭自动行为的 mode 上下文。
 - 处理方式:mode 切换成功后显示当前 mode 和持久默认 mode。
 - 禁止:不使用关键词、语义或 regex 分类普通 feedback。
@@ -111,11 +112,23 @@ $agent-evolve default off
 
 ### Session 激活 hook
 
-- 唯一职责:解析 mode 并注入 Skill 入口规则。
-- 规则来源:`skills/agent-evolve/SKILL.md`。
-- 注入前移除 frontmatter。
+- 唯一职责:解析 mode 并注入由权威文件动态组装的完整规则集。
+- 规则来源:`skills/agent-evolve/SKILL.md`、`skills/agent-evolve/references/workflow.md` 与 `skills/agent-evolve/references/validation.md`。
+- 处理方式:只移除 `SKILL.md` frontmatter。
+- 处理方式:workflow 与 validation 保留完整正文。
 - 激活头格式:`AGENT EVOLVE ACTIVE — mode: <safe|review>`。
-- Hook 中不复制 Skill 的详细执行规则。
+- 禁止:Hook 源码中不复制详细执行规则。
+- 禁止:自动路径不要求 agent 再读取 plugin 目录中的 reference 文件。
+
+### 完整规则集 builder
+
+- 唯一职责:从三个权威文件 materialize 一份自包含的运行时规则集。
+- 处理方式:每次激活或 active mode 切换时重新读取三个权威文件。
+- 处理方式:三个文件全部可读且非空时返回完整规则集。
+- 失败条件:任一文件缺失、不可读或为空。
+- 处理方式:失败时返回可见证据。
+- 禁止:失败时不注入部分规则集。
+- 禁止:不写入第二份持久规则源。
 
 ### Mode 控制 hook
 
@@ -128,6 +141,7 @@ $agent-evolve default off
 - `SKILL.md` 只放触发条件、mode 路由、全局边界和禁止动作。
 - `references/workflow.md` 放 feedback 判断、落点选择、查重、查冲突和写入流程。
 - `references/validation.md` 放安全门、证据门和回执模板。
+- 三份文件保持各自权威职责;完整规则集只是运行时 materialization,不是新的规则源。
 - 删除 `references/source-discovery.md`。
 - `source-discovery.md` 中仍然有效且不重复的规则移动到 `workflow.md`。
 - 移动完成后不保留第二份规则。
@@ -383,7 +397,7 @@ Change: 不适用
 
 - Session 激活失败时不阻止 session 启动。
 - Session 激活失败时必须向用户显示 Agent Evolve 未激活及失败证据。
-- Skill 文件缺失或不可读时不注入部分规则。
+- 任一 Agent Evolve 权威文件缺失、不可读或为空时不注入部分规则集。
 - 持久默认配置不存在时使用内建默认 `safe`。
 - 持久默认配置损坏或不可读时不猜测 mode。
 - 持久默认配置损坏或不可读时停止自动注入并显示失败证据。
@@ -448,7 +462,9 @@ Change: 不适用
 
 ### Hook 测试
 
-- 默认 `safe` 时 `SessionStart` 注入 Skill 入口规则。
+- 默认 `safe` 时 `SessionStart` 注入包含 SKILL、workflow 与 validation 的完整规则集。
+- 完整规则集中的 workflow 与 validation 不依赖 agent 读取 plugin 目录。
+- 任一权威文件缺失、不可读或为空时产生可见失败证据,且不注入部分规则集。
 - Default mode 是 `review` 时注入 review mode。
 - Default mode 是 `off` 时保持静默。
 - 已固化的 session mode 覆盖 default mode。
@@ -498,6 +514,7 @@ Change: 不适用
 ## 验收标准
 
 - 用户无需显式调用 Skill 即可让可复用 feedback 进入安全判断流程。
+- 自动路径不依赖项目 agent 获得 plugin 目录读取权限。
 - 默认 mode 是 `safe`。
 - `safe`、`review` 和 `off` 行为互斥且可验证。
 - 当前 session 和持久默认 mode 都可控制。
@@ -513,6 +530,7 @@ Change: 不适用
 ## 外部事实依据
 
 - Ponytail 使用 `SessionStart` 注入持久行为,并使用独立的 `UserPromptSubmit` 控制面切换 mode:[Ponytail hooks](https://github.com/DietrichGebert/ponytail/blob/main/hooks/claude-codex-hooks.json)。
+- Ponytail 的 instruction builder 读取 `SKILL.md`、移除 frontmatter,再把自包含正文作为 hook context 注入;Agent Evolve 沿用该运行时 materialization 方式,但保留三份权威文件的职责分工:[Ponytail instruction builder](https://github.com/DietrichGebert/ponytail/blob/main/hooks/ponytail-instructions.js)。
 - Ponytail 的运行 mode 使用共享 `.ponytail-active` 文件,没有按 `session_id` 隔离;Agent Evolve 不复制该状态设计:[Ponytail runtime](https://github.com/DietrichGebert/ponytail/blob/main/hooks/ponytail-runtime.js)。
 - Codex 把 `SessionStart` 定义为 thread scope,把 `UserPromptSubmit` 定义为 turn scope,并为 hook 输入提供 `session_id`:[Codex Hooks](https://learn.chatgpt.com/docs/hooks)。
 - Claude Code 支持 `SessionStart` 和 `UserPromptSubmit`,并向 command hook 提供 session 上下文:[Claude Code Hooks](https://code.claude.com/docs/en/hooks)。
