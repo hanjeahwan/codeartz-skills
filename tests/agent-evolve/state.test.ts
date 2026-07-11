@@ -13,7 +13,7 @@ import {
   sessionStatePath,
   writeDefaultMode,
   writeSessionMode,
-} from '../hooks/agent-evolve-state.js';
+} from '../../hooks/agent-evolve-state.js';
 
 function tempRoot(label: string): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), `${label}-`));

@@ -12,7 +12,7 @@ import {
   loadInstructionBundle,
   readJsonFromString,
   stripFrontmatter,
-} from '../hooks/agent-evolve-runtime.js';
+} from '../../hooks/agent-evolve-runtime.js';
 
 function writeInstructionSources(root: string): string {
   const skillPath = path.join(root, 'SKILL.md');

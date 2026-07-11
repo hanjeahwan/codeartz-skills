@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { handleUserPromptSubmit, parseModeCommand } from '../hooks/agent-evolve-mode.js';
+import { handleUserPromptSubmit, parseModeCommand } from '../../hooks/agent-evolve-mode.js';
 import {
   getOrCreateSessionMode,
   readDefaultMode,
@@ -14,7 +14,7 @@ import {
   sessionStatePath,
   writeDefaultMode,
   writeSessionMode,
-} from '../hooks/agent-evolve-state.js';
+} from '../../hooks/agent-evolve-state.js';
 
 const modeScript = path.join(process.cwd(), 'hooks', 'agent-evolve-mode.js');
 

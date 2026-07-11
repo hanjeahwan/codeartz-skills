@@ -6,8 +6,13 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { handleSessionStart } from '../hooks/agent-evolve-activate.js';
-import { readSessionMode, sessionStatePath, writeDefaultMode, writeSessionMode } from '../hooks/agent-evolve-state.js';
+import { handleSessionStart } from '../../hooks/agent-evolve-activate.js';
+import {
+  readSessionMode,
+  sessionStatePath,
+  writeDefaultMode,
+  writeSessionMode,
+} from '../../hooks/agent-evolve-state.js';
 
 const activateScript = path.join(process.cwd(), 'hooks', 'agent-evolve-activate.js');
 
