@@ -2770,7 +2770,7 @@ mv assets/readme-illustrations/03-agent-feedback-loop.png assets/readme-illustra
 ```json
 {
   "name": "codeartz-skills",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "面向 Codex agent 工作流的 Codeartz 技能集，支持边界分析、指令审查与 Agent Evolve feedback 沉淀。",
   "author": {
     "name": "Codeartz",
@@ -2810,7 +2810,7 @@ mv assets/readme-illustrations/03-agent-feedback-loop.png assets/readme-illustra
 ```json
 {
   "name": "codeartz-skills",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "面向 Claude Code 与 Codex 的工程 workflow 技能集，支持边界分析、指令审查与 Agent Evolve。",
   "author": {
     "name": "Codeartz",
