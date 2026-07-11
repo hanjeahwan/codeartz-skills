@@ -1,0 +1,34 @@
+{
+  "id": "manual-multiple-candidates",
+  "skill": "agent-evolve",
+  "tier": "full",
+  "description": "Manual-off 同时处理多个 feedback 候选时，必须逐条查重、裁决并提供独立回执。",
+  "files": {
+    "AGENTS.md": "# Project Agent Rules\n\n## Architecture\n\n- 跨层数据必须通过公开 service 接口传递，禁止业务模块直接读取其他模块的内部 store。\n\n## Validation\n\n- 输入验证规则放在本节。\n"
+  },
+  "turns": [
+    {
+      "prompt": "$agent-evolve：AGENTS.md 是未来 agent 自动加载的唯一项目规则源。请分别评估下面两条 feedback，但不要修改任何文件。第一，业务模块禁止直接读取其他模块的内部 store，跨层数据必须走公开 service 接口。第二，进入领域服务前必须完成输入 schema 校验，领域服务只接收已验证的数据。",
+      "checks": [
+        { "type": "responseIncludes", "value": "Feedback decision: Already covered" },
+        { "type": "responseIncludes", "value": "Feedback decision: Proposed" },
+        { "type": "responseMatches", "pattern": "Feedback decision:[\\s\\S]*Feedback decision:" },
+        { "type": "responseMatches", "pattern": "Why:[\\s\\S]*Why:" },
+        { "type": "responseMatches", "pattern": "Evidence:[\\s\\S]*Evidence:" },
+        { "type": "responseMatches", "pattern": "Target:[\\s\\S]*Target:" },
+        { "type": "responseMatches", "pattern": "Change:[\\s\\S]*Change:" }
+      ]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "agent-evolve" }
+  ],
+  "criteria": [
+    "回应把两条 feedback 分开处理，没有用一条汇总结论覆盖它们。",
+    "第一条反馈与 Architecture 既有规则语义相同，因此返回 Already covered 与 Change: 不适用。",
+    "第二条反馈在 Validation 中没有等价规则，因此返回 Proposed 与精确 Change。",
+    "两条回执都分别包含 Feedback decision、Why、Evidence、Target 与 Change。",
+    "AGENTS.md 保持不变。"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "manual-conflict",
+  "skill": "agent-evolve",
+  "tier": "full",
+  "description": "Manual-off 发现 feedback 与现有规则直接冲突时，只给出包含冲突证据的提案。",
+  "files": {
+    "AGENTS.md": "# Project Agent Rules\n\n## Error Handling\n\n- 领域解析器遇到无效输入时必须抛出 ParseError，由统一异常边界转换为用户错误。\n"
+  },
+  "turns": [
+    {
+      "prompt": "$agent-evolve：AGENTS.md 是未来 agent 自动加载的唯一项目规则源。请评估这条 feedback，但不要修改任何文件：领域解析器遇到无效输入时禁止抛出异常，必须返回带 ok 字段的结构化结果。",
+      "checks": [
+        { "type": "responseIncludes", "value": "Feedback decision: Proposed" },
+        { "type": "responseIncludes", "value": "Why:" },
+        { "type": "responseIncludes", "value": "Evidence:" },
+        { "type": "responseIncludes", "value": "Target:" },
+        { "type": "responseMatches", "pattern": "(?:冲突|conflict)", "flags": "i" },
+        { "type": "responseIncludes", "value": "Change:" }
+      ]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "agent-evolve" }
+  ],
+  "criteria": [
+    "回应识别新 feedback 与 AGENTS.md 中要求抛出 ParseError 的既有规则直接冲突。",
+    "回应返回 Proposed、Why、Evidence、Target 与精确 Change，没有覆盖既有规则。",
+    "Evidence 指出冲突位置和需要 human 裁决的具体差异。",
+    "AGENTS.md 保持不变。"
+  ]
+}

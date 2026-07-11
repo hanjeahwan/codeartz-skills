@@ -23,6 +23,25 @@ test('四个目标 Skill 都包含有效的冒烟场景和完整场景', async (
   }
 });
 
+test('Agent Evolve 场景覆盖完整的 manual-off 语义矩阵', async () => {
+  const scenarios = await loadScenarios(process.cwd(), new Set(['agent-evolve']), 'all');
+  assert.deepEqual(
+    new Set(
+      scenarios.map((scenario) => {
+        return scenario.id;
+      }),
+    ),
+    new Set([
+      'manual-already-covered',
+      'manual-conflict',
+      'manual-multiple-candidates',
+      'manual-not-persisted',
+      'manual-proposal',
+      'manual-redaction',
+    ]),
+  );
+});
+
 test('场景解析器拒绝不支持的检查项', () => {
   assert.throws(() => {
     return parseScenario(
