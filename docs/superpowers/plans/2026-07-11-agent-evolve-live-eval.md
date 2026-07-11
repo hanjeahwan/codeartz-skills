@@ -13,6 +13,7 @@
 - 不恢复任何 `agent-feedback-loop` 文件、测试、hook、asset 或兼容入口。
 - 不改变 Agent Evolve runtime、mode、state 或 skill 行为。
 - 不把真实模型调用加入 `npm test`。
+- Git 集成只使用 rebase，不使用 merge 命令或 merge commit。
 - 不运行 `instruction-doc-audit`。
 - 使用 `apply_patch` 编辑文件；测试移动使用 `mv` 作为机械文件操作。
 
@@ -29,7 +30,7 @@
 - 移动：`tests/agent-evolve-skill.test.ts` → `tests/agent-evolve/skill.test.ts`
 - 移动：`tests/agent-evolve-state.test.ts` → `tests/agent-evolve/state.test.ts`
 
-- [ ] 把 `main` 合入 feature，保留 main 的 live-eval 框架，并以删除解决旧 feedback test 的 modify/delete 冲突。
+- [ ] 把 feature rebase 到 `main`，保留 main 的 live-eval 框架，并以删除解决旧 feedback test 的 modify/delete 冲突。
 - [ ] 移动六个测试文件到 `tests/agent-evolve/`。
 - [ ] 把 hook import 从 `../hooks/` 改为 `../../hooks/`。
 - [ ] 把仓库相对文件路径改为不依赖测试文件深度的现有仓库根路径。
@@ -66,7 +67,7 @@
 
 ---
 
-### Task 4：验证并合并到 main
+### Task 4：验证并 rebase 到 main
 
 - [ ] 运行 `npm run format:all`。
 - [ ] 运行 `npm test`。
@@ -75,7 +76,7 @@
 - [ ] 运行 `git diff --check`。
 - [ ] 运行 `npm run eval:live -- --skill agent-evolve --tier all --agent codex,claude --judge claude`。
 - [ ] 记录每个宿主与场景的实际 verdict；任何失败都先按证据诊断。
-- [ ] 在 `main` 合并 feature branch。
+- [ ] 在 feature 已基于最新 `main` 的前提下，把 `main` rebase 到 feature branch。
 - [ ] 在 merged `main` 上重新运行 `npm test` 与 `npm run eval:live:check -- --skill agent-evolve --tier all`。
 - [ ] 验证旧 `skills/agent-feedback-loop`、相关 hooks/tests/asset 不存在。
-- [ ] 合并成功且验证通过后，删除 worktree 与 feature branch。
+- [ ] Rebase 成功且验证通过后，删除 worktree 与 feature branch。
