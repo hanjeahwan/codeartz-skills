@@ -134,6 +134,8 @@ test('validation defines all five decisions and explicit not-applicable fields',
   assert.match(validation, /Target: 不适用/);
   assert.match(validation, /Change: 不适用/);
   assert.match(validation, /同一轮存在多条 feedback 候选时/);
+  assert.match(validation, /字段名必须精确使用 `Feedback decision`、`Why`、`Evidence`、`Target` 与 `Change`/);
+  assert.match(validation, /禁止翻译、改写或追加括号说明/);
 });
 
 test('new skill contains no old runtime protocol or forbidden extra audit', () => {

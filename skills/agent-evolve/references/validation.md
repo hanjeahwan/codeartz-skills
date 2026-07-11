@@ -60,6 +60,8 @@
 - 同一轮存在多条 feedback 候选时，每条候选分别输出 `Decision`、`Why` 和 `Evidence`。
 - 多条回执可以放在同一个紧凑区块中。
 - 禁止用一条汇总结论覆盖不同候选的处理结果。
+- 字段名必须精确使用 `Feedback decision`、`Why`、`Evidence`、`Target` 与 `Change`。
+- 禁止翻译、改写或追加括号说明。
 
 ## 回执模板
 
