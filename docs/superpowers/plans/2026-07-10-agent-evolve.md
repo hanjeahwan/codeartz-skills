@@ -81,7 +81,7 @@
 
 ---
 
-### 任务 1：Session 隔离的 Mode 状态
+### Task 1：Session 隔离的 Mode 状态
 
 **文件：**
 
@@ -584,7 +584,7 @@ git commit -m "feat(agent-evolve): add session mode state"
 
 ---
 
-### 任务 2：共用 Hook Runtime 与 Skill 注入构造器
+### Task 2：共用 Hook Runtime 与 Skill 注入构造器
 
 **文件：**
 
@@ -970,7 +970,7 @@ git commit -m "feat(agent-evolve): add hook runtime"
 
 ---
 
-### 任务 3：Agent Evolve Skill 与两份阶段手册
+### Task 3：Agent Evolve Skill 与两份阶段手册
 
 **文件：**
 
@@ -1477,7 +1477,7 @@ git commit -m "feat(agent-evolve): replace feedback skill"
 
 ---
 
-### 任务 4：SessionStart 激活 Hook
+### Task 4：SessionStart 激活 Hook
 
 **文件：**
 
@@ -1824,7 +1824,7 @@ git commit -m "feat(agent-evolve): inject skill on session start"
 
 ---
 
-### 任务 5：精确 Mode 控制 Hook
+### Task 5：精确 Mode 控制 Hook
 
 **文件：**
 
@@ -2285,7 +2285,7 @@ git commit -m "feat(agent-evolve): add exact mode controls"
 
 ---
 
-### 任务 6：Lifecycle Manifest 切换与旧 Runtime 删除
+### Task 6：Lifecycle Manifest 切换与旧 Runtime 删除
 
 **文件：**
 
@@ -2522,7 +2522,7 @@ git commit -m "feat(agent-evolve): replace feedback lifecycle hooks"
 
 ---
 
-### 任务 7：README、Plugin Metadata、Asset 与当前环境旧数据
+### Task 7：README、Plugin Metadata、Asset 与当前环境旧数据
 
 **文件：**
 
@@ -2903,7 +2903,7 @@ git commit -m "docs(agent-evolve): publish modes and lifecycle"
 
 ---
 
-### 任务 8：真实用户路径与最终仓库验证
+### Task 8：真实用户路径与最终仓库验证
 
 **文件：**
 
