@@ -4,11 +4,11 @@
   "tier": "full",
   "description": "Manual-off 发现规则源已有同语义规则时，返回 Already covered 且不产生第二份规则。",
   "files": {
-    "AGENTS.md": "# Project Agent Rules\n\n## Architecture\n\n- 底层解析器遇到可预期的输入错误时，必须返回带 `ok` 字段的结构化结果，由调用者决定如何处理。\n"
+    "AGENTS.md": "# Project Agent Rules\n\n## Architecture\n\n- 底层解析函数或解析器遇到可预期的输入错误时，必须返回带 `ok` 字段的结构化结果，由调用者决定如何处理。\n"
   },
   "turns": [
     {
-      "prompt": "$agent-evolve：AGENTS.md 是未来 agent 自动加载的唯一项目规则源。请沉淀这条 feedback：底层解析函数不能直接抛出可预期的输入错误，应返回带 ok 字段的结构化结果，让调用者决定如何处理。",
+      "prompt": "$agent-evolve：AGENTS.md 是未来 agent 自动加载的唯一项目规则源。请沉淀这条 feedback：底层解析函数或解析器遇到可预期的输入错误时，必须返回带 ok 字段的结构化结果，由调用者决定如何处理。",
       "checks": [
         { "type": "responseIncludes", "value": "Feedback decision: Already covered" },
         { "type": "responseIncludes", "value": "Why:" },
