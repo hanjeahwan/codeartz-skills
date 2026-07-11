@@ -1,27 +1,26 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "exec node \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-evolve-activate.js\"",
+            "commandWindows": "if (Get-Command node -ErrorAction SilentlyContinue) { node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\agent-evolve-activate.js\" }",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "exec node \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-feedback-capture.js\"",
-            "commandWindows": "if (Get-Command node -ErrorAction SilentlyContinue) { node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\agent-feedback-capture.js\" }",
-            "timeout": 5,
-            "statusMessage": "Checking durable feedback..."
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "exec node \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-feedback-stop.js\"",
-            "commandWindows": "if (Get-Command node -ErrorAction SilentlyContinue) { node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\agent-feedback-stop.js\" }",
-            "timeout": 5,
-            "statusMessage": "Checking pending feedback..."
+            "command": "exec node \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-evolve-mode.js\"",
+            "commandWindows": "if (Get-Command node -ErrorAction SilentlyContinue) { node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\agent-evolve-mode.js\" }",
+            "timeout": 5
           }
         ]
       }
