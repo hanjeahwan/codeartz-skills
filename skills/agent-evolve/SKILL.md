@@ -18,9 +18,6 @@ description: 当主 session 需要根据直接 human feedback 改进未来项目
 - `review`：使用当前上下文已注入的 `# Agent Evolve Workflow` 与 `# Agent Evolve Validation`，进入 `Review mode`。
 - Active route 禁止再次读取 plugin-relative `references/*`。
 - 用户手动调用 `$agent-evolve`，且当前上下文没有 `AGENT EVOLVE ACTIVE — mode: safe|review` 时，进入 `Off mode 的手动调用`。
-- Manual-off 只处理本次显式 feedback。
-- Manual-off 未明确要求写入或批准精确变更时，只输出提案。
-- Manual-off 写入仍须通过 `# Agent Evolve Validation` 的全部安全门。
 - Manual-off 当前上下文缺少完整章节时，才读取相对 `references/workflow.md` 与 `references/validation.md`。
 
 ## 全局边界

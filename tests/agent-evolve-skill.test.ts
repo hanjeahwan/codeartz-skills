@@ -42,16 +42,18 @@ test('active routes use injected chapters and never reread plugin references', (
 
 test('manual invocation without an ACTIVE header explicitly routes to manual-off', () => {
   const skill = read(skillPath);
+  const workflow = read(workflowPath);
 
   assert.match(skill, /没有 `AGENT EVOLVE ACTIVE — mode: safe\|review`/);
   assert.match(skill, /进入 `Off mode 的手动调用`/);
-  assert.match(skill, /只处理本次显式 feedback/);
-  assert.match(skill, /未明确要求写入或批准精确变更时，只输出提案/);
-  assert.match(skill, /写入仍须通过 `# Agent Evolve Validation` 的全部安全门/);
   assert.match(
     skill,
     /当前上下文缺少完整章节时，才读取相对 `references\/workflow\.md` 与 `references\/validation\.md`/,
   );
+  assert.match(workflow, /只处理用户本次手动指定的 feedback/);
+  assert.match(workflow, /用户明确要求写入或批准精确变更时，才进入写入步骤/);
+  assert.match(workflow, /写入仍须通过当前上下文中的 `# Agent Evolve Validation` 全部安全门/);
+  assert.match(workflow, /用户未明确要求写入或批准精确变更时，只输出精确提案/);
 });
 
 test('workflow recognizes only direct human feedback without trigger-word dependence', () => {
@@ -155,6 +157,9 @@ test('executable rules have one authoritative owner', () => {
   assert.doesNotMatch(skill, /找不到唯一 owner 时不随机/);
   assert.doesNotMatch(skill, /用户明确批准后才进入写入步骤/);
   assert.doesNotMatch(skill, /修改前重新读取目标文件/);
+  assert.doesNotMatch(skill, /只处理本次显式 feedback/);
+  assert.doesNotMatch(skill, /未明确要求写入或批准精确变更时，只输出提案/);
+  assert.doesNotMatch(skill, /写入仍须通过 `# Agent Evolve Validation` 的全部安全门/);
 
   // SKILL exclusively owns model-memory and commit prohibitions.
   assert.doesNotMatch(workflow, /模型记忆/);
