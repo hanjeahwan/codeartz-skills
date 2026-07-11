@@ -23,7 +23,7 @@ function readJson<T>(filePath: string): T {
   return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
 }
 
-test('Codex and Claude plugin manifests point at the shared feedback hooks', () => {
+test('Codex 和 Claude 插件清单指向共享的反馈 Hook', () => {
   const codex = readJson<PluginManifest>('.codex-plugin/plugin.json');
   const claude = readJson<PluginManifest>('.claude-plugin/plugin.json');
 
@@ -31,7 +31,7 @@ test('Codex and Claude plugin manifests point at the shared feedback hooks', () 
   assert.equal(claude.hooks, './hooks/claude-codex-hooks.json');
 });
 
-test('shared hook config references shipped capture and stop scripts', () => {
+test('共享 Hook 配置引用随插件提供的捕获与停止脚本', () => {
   const hooks = readJson<HookConfig>('hooks/claude-codex-hooks.json');
   const commands = Object.values(hooks.hooks)
     .flat()
@@ -59,7 +59,7 @@ test('shared hook config references shipped capture and stop scripts', () => {
   assert.ok(fs.existsSync('hooks/agent-feedback-stop.js'));
 });
 
-test('README documents agent-feedback-loop and hook trust setup', () => {
+test('README 说明 agent-feedback-loop 和 Hook 信任设置', () => {
   const readme = fs.readFileSync('README.md', 'utf8');
   assert.match(readme, /agent-feedback-loop/);
   assert.match(readme, /\/hooks/);

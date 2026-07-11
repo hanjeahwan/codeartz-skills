@@ -19,7 +19,7 @@ function runStop(input: Record<string, unknown>, env: NodeJS.ProcessEnv = {}): S
   });
 }
 
-test('shouldContinueForEvent respects stop_hook_active and max attempts', () => {
+test('shouldContinueForEvent 遵守 stop_hook_active 和最大尝试次数', () => {
   const event = { attempts: 0, status: 'pending' };
   assert.equal(shouldContinueForEvent({ stop_hook_active: false }, event, 3), true);
   assert.equal(shouldContinueForEvent({ stop_hook_active: true }, event, 3), false);
@@ -27,7 +27,7 @@ test('shouldContinueForEvent respects stop_hook_active and max attempts', () => 
   assert.equal(shouldContinueForEvent({ stop_hook_active: false }, { ...event, status: 'updated' }, 3), false);
 });
 
-test('Stop hook injects continuation context and increments attempts for pending event', () => {
+test('停止 Hook 为待处理事件注入继续执行上下文并增加尝试次数', () => {
   const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-stop-'));
   const env = {
     AGENT_FEEDBACK_STATE_DIR: stateDir,
@@ -72,7 +72,7 @@ test('Stop hook injects continuation context and increments attempts for pending
   assert.equal(updated.status, 'pending');
 });
 
-test('Stop hook stays silent when stop hook is already active', () => {
+test('停止 Hook 已激活时保持静默', () => {
   const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-stop-active-'));
   const env = { AGENT_FEEDBACK_STATE_DIR: stateDir };
 
@@ -105,7 +105,7 @@ test('Stop hook stays silent when stop hook is already active', () => {
   assert.equal(result.stdout, '');
 });
 
-test('Stop hook marks event blocked after repeated unprocessed attempts', () => {
+test('事件多次未处理后，停止 Hook 将其标记为阻塞', () => {
   const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-stop-block-'));
   const env = { AGENT_FEEDBACK_STATE_DIR: stateDir };
 

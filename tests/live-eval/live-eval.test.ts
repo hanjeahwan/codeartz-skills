@@ -1,0 +1,69 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import { parseCli } from './run.ts';
+import { evaluateChecks, loadScenarios, parseScenario } from './scenarios.ts';
+
+test('三个目标 Skill 都包含有效的冒烟场景和完整场景', async () => {
+  const scenarios = await loadScenarios(process.cwd(), undefined, 'all');
+  const requestedSkills = ['agentic-design-navigator', 'instruction-doc-audit', 'target-boundary'];
+  for (const skill of requestedSkills) {
+    const skillScenarios = scenarios.filter((scenario) => {
+      return scenario.skill === skill;
+    });
+    assert.ok(skillScenarios.length >= 2);
+    assert.deepEqual(
+      new Set(
+        skillScenarios.map((scenario) => {
+          return scenario.tier;
+        }),
+      ),
+      new Set(['smoke', 'full']),
+    );
+  }
+});
+
+test('场景解析器拒绝不支持的检查项', () => {
+  assert.throws(() => {
+    return parseScenario(
+      {
+        id: 'broken',
+        skill: 'broken',
+        tier: 'smoke',
+        description: 'broken scenario',
+        turns: [{ prompt: 'hello', checks: [{ type: 'unknown' }] }],
+        criteria: ['must work'],
+      },
+      'inline',
+    );
+  }, /unsupported/);
+});
+
+test('确定性响应检查会报告证据', async () => {
+  const results = await evaluateChecks(
+    [
+      { type: 'responseIncludes', value: '已确认' },
+      { type: 'questionCountAtMost', max: 1 },
+    ],
+    process.cwd(),
+    [{ response: '已确认。下一步是什么？', rawEvents: [], stderr: '', durationMs: 1 }],
+    {},
+  );
+  assert.deepEqual(
+    results.map((result) => {
+      return result.passed;
+    }),
+    [true, true],
+  );
+});
+
+test('CLI 默认使用两个真实宿主和冒烟层级', () => {
+  const options = parseCli([]);
+  assert.deepEqual(options.agents, ['codex', 'claude']);
+  assert.equal(options.tier, 'smoke');
+  assert.equal(options.judge, undefined);
+  assert.equal(options.modelCodex, 'gpt-5.5');
+  assert.equal(options.effortCodex, 'medium');
+  assert.equal(options.modelClaude, 'sonnet');
+  assert.equal(options.effortClaude, 'medium');
+});

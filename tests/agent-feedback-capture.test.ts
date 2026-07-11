@@ -19,7 +19,7 @@ function runCapture(input: Record<string, unknown>, env: NodeJS.ProcessEnv = {})
   });
 }
 
-test('classifyPrompt detects explicit durable feedback in Chinese and English', () => {
+test('classifyPrompt 能识别中英文的明确长期反馈', () => {
   assert.deepEqual(classifyPrompt('以后不要把未授权范围写成风险'), {
     signal: 'durable-feedback',
     reason: 'future-behavior',
@@ -38,7 +38,7 @@ test('classifyPrompt detects explicit durable feedback in Chinese and English', 
   });
 });
 
-test('classifyPrompt ignores ordinary implementation requests', () => {
+test('classifyPrompt 忽略普通实施请求', () => {
   assert.equal(classifyPrompt('add a feedback button to settings'), null);
   assert.equal(classifyPrompt('summarize customer feedback from this issue'), null);
   assert.equal(classifyPrompt('build a feedback form'), null);
@@ -47,7 +47,7 @@ test('classifyPrompt ignores ordinary implementation requests', () => {
   assert.equal(classifyPrompt('explain this function'), null);
 });
 
-test('capture hook writes a pending event and emits additional context', () => {
+test('捕获 Hook 写入待处理事件并输出附加上下文', () => {
   const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-capture-'));
   const result = runCapture(
     {
@@ -79,7 +79,7 @@ test('capture hook writes a pending event and emits additional context', () => {
   assert.equal(event.excerpt, '以后不要把未授权范围写成风险');
 });
 
-test('capture hook stays silent for non-feedback prompts', () => {
+test('捕获 Hook 遇到非反馈提示时保持静默', () => {
   const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-capture-silent-'));
   const result = runCapture(
     {
@@ -98,7 +98,7 @@ test('capture hook stays silent for non-feedback prompts', () => {
   assert.equal(result.stdout, '');
 });
 
-test('capture hook exits cleanly on invalid JSON', () => {
+test('捕获 Hook 遇到无效 JSON 时正常退出', () => {
   const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-capture-invalid-'));
   const result = spawnSync(process.execPath, [captureScript], {
     encoding: 'utf8',

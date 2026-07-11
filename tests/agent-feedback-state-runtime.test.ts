@@ -20,7 +20,7 @@ function tempEnv() {
   return { dir, env: { AGENT_FEEDBACK_STATE_DIR: dir } };
 }
 
-test('detectRuntime identifies Codex, Claude Code, and unknown hosts', () => {
+test('detectRuntime 能识别 Codex、Claude Code 和未知宿主', () => {
   assert.equal(detectRuntime({ PLUGIN_DATA: '/tmp/codex' }), 'codex');
   assert.equal(detectRuntime({ CLAUDE_PLUGIN_ROOT: '/tmp/plugin' }), 'claude');
   assert.equal(detectRuntime({ CLAUDE_PLUGIN_DATA: '/tmp/claude-data' }), 'claude');
@@ -28,7 +28,7 @@ test('detectRuntime identifies Codex, Claude Code, and unknown hosts', () => {
   assert.equal(detectRuntime({}), 'unknown');
 });
 
-test('buildHookOutput emits Codex systemMessage plus hookSpecificOutput', () => {
+test('buildHookOutput 为 Codex 输出 systemMessage 和 hookSpecificOutput', () => {
   const output = JSON.parse(
     buildHookOutput({
       eventName: 'UserPromptSubmit',
@@ -45,7 +45,7 @@ test('buildHookOutput emits Codex systemMessage plus hookSpecificOutput', () => 
   });
 });
 
-test('buildHookOutput emits Claude-compatible hookSpecificOutput without Codex badge', () => {
+test('buildHookOutput 输出兼容 Claude 且不含 Codex 标记的 hookSpecificOutput', () => {
   const output = JSON.parse(
     buildHookOutput({
       eventName: 'Stop',
@@ -62,7 +62,7 @@ test('buildHookOutput emits Claude-compatible hookSpecificOutput without Codex b
   });
 });
 
-test('sanitizeExcerpt redacts secrets, emails, private URLs, and long content', () => {
+test('sanitizeExcerpt 会遮蔽密钥、邮箱、私有 URL 和过长内容', () => {
   const excerpt = sanitizeExcerpt(
     '以后记住: token sk-test1234567890abcdef should not appear. Email me at user@example.com. See https://internal.example.test/path',
     120,
@@ -75,7 +75,7 @@ test('sanitizeExcerpt redacts secrets, emails, private URLs, and long content', 
   assert.ok(excerpt.length <= 120);
 });
 
-test('createEvent and writeEvent store pending event under runtime state directory', () => {
+test('createEvent 和 writeEvent 将待处理事件存入运行时状态目录', () => {
   const { env, dir } = tempEnv();
   const event = createEvent(
     {
@@ -102,7 +102,7 @@ test('createEvent and writeEvent store pending event under runtime state directo
   assert.equal(stored.excerpt, '以后不要把未授权范围写成风险');
 });
 
-test('createEvent uses CLAUDE_PLUGIN_DATA unless AGENT_FEEDBACK_STATE_DIR overrides it', () => {
+test('createEvent 默认使用 CLAUDE_PLUGIN_DATA，除非 AGENT_FEEDBACK_STATE_DIR 覆盖它', () => {
   const claudeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-claude-'));
   const overrideDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-feedback-override-'));
 
@@ -139,7 +139,7 @@ test('createEvent uses CLAUDE_PLUGIN_DATA unless AGENT_FEEDBACK_STATE_DIR overri
   assert.match(overriddenEvent.eventPath, new RegExp(`^${overrideDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
 });
 
-test('findPendingEvent returns newest pending event for same cwd and session', () => {
+test('findPendingEvent 返回相同 cwd 和会话中最新的待处理事件', () => {
   const { env } = tempEnv();
   const baseInput = {
     cwd: '/repo/project',
@@ -162,7 +162,7 @@ test('findPendingEvent returns newest pending event for same cwd and session', (
   assert.equal(found.id, event.id);
 });
 
-test('markEventStatus and incrementAttempts update existing event files', () => {
+test('markEventStatus 和 incrementAttempts 会更新现有事件文件', () => {
   const { env } = tempEnv();
   const event = writeEvent(
     createEvent(

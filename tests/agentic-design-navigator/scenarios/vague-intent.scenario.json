@@ -1,0 +1,24 @@
+{
+  "id": "vague-intent",
+  "skill": "agentic-design-navigator",
+  "tier": "smoke",
+  "description": "模糊想法必须停留在意图稳定阶段，并把判断负担留给 Agent。",
+  "turns": [
+    {
+      "prompt": "我有个感觉：团队里很多人不敢说自己不知道。",
+      "checks": [
+        { "type": "responseIncludes", "value": "临时理解" },
+        { "type": "responseIncludes", "value": "关键未知" },
+        { "type": "questionCountAtMost", "max": 1 }
+      ]
+    }
+  ],
+  "postChecks": [{ "type": "trajectoryIncludes", "value": "agentic-design-navigator" }],
+  "criteria": [
+    "回应尽量沿用用户关于“不敢说自己不知道”的原始语言复述核心。",
+    "回应提出二至四种可能理解，并说明它们会导向不同设计方向。",
+    "回应区分用户原话、Agent 推断和当前未知，没有把推断写成已确认需求。",
+    "回应维护简洁的意图账本，并且最多提出一个会显著影响方向的问题。",
+    "在主体、价值和不能偏离的边界尚未明确前，回应没有生成大规模方案。"
+  ]
+}

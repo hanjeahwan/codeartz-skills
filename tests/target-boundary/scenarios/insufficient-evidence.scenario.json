@@ -1,0 +1,29 @@
+{
+  "id": "insufficient-evidence",
+  "skill": "target-boundary",
+  "tier": "smoke",
+  "description": "只有需求材料而没有代码证据时，不得写出正式方案文件。",
+  "files": {
+    "request.md": "登录失败时不要阻塞所有用户。请给出技术方案，并确保所有入口都兼容。\n"
+  },
+  "turns": [
+    {
+      "prompt": "根据 request.md 分析边界并生成 target-boundary 方案。仓库里没有其他实现材料。",
+      "checks": [
+        { "type": "responseMatches", "pattern": "L[012]" },
+        { "type": "responseExcludes", "value": "已验证" }
+      ]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": ".codeartz/login-failure/target-boundary.md" },
+    { "type": "fileNotExists", "path": ".codeartz/target-boundary/target-boundary.md" },
+    { "type": "trajectoryIncludes", "value": "target-boundary" }
+  ],
+  "criteria": [
+    "回应把 request.md 视为资料假设，而不是代码事实。",
+    "回应将证据等级保持在 L0、L1 或 L2，没有在缺少代码证据时上跳到 L3。",
+    "回应只输出证据缺口、合同缺口或下一步最小证据动作，没有生成正式推荐方案文件。",
+    "回应没有声称目标行为已验证、已修复或完成。"
+  ]
+}

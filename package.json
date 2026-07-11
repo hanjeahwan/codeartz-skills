@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "bump": "node scripts/bump-version.ts",
+    "eval:live": "node tests/live-eval/run.ts",
+    "eval:live:check": "node tests/live-eval/run.ts --dry-run --tier all",
     "format": "oxfmt",
     "format:all": "oxfmt .",
     "lint": "oxlint",

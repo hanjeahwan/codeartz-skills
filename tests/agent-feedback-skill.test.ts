@@ -11,7 +11,7 @@ function read(filePath: string): string {
   return fs.readFileSync(filePath, 'utf8');
 }
 
-test('agent-feedback-loop skill has required frontmatter and reference routing', () => {
+test('agent-feedback-loop Skill 包含必要的 frontmatter 和参考资料路由', () => {
   const skill = read(skillPath);
   assert.match(skill, /^---\nname: agent-feedback-loop\n/);
   assert.match(skill, /description: .+feedback.+长期规则源/s);
@@ -20,13 +20,13 @@ test('agent-feedback-loop skill has required frontmatter and reference routing',
   assert.match(skill, /references\/validation\.md/);
 });
 
-test('skill does not introduce a persistent ownership registry', () => {
+test('Skill 不会引入持久化的所有权注册表', () => {
   const combined = [skillPath, workflowPath, sourcePath, validationPath].map(read).join('\n');
   assert.doesNotMatch(combined, /rule-sources\.json/);
   assert.doesNotMatch(combined, /source registry/i);
 });
 
-test('source discovery prioritizes known sources before grep fallback', () => {
+test('来源发现优先检查已知来源，再使用 grep 兜底', () => {
   const source = read(sourcePath);
   assert.match(source, /已知长期规则源优先/);
   assert.match(source, /结构探测/);
@@ -39,7 +39,7 @@ test('source discovery prioritizes known sources before grep fallback', () => {
   assert.match(source, /冲突时输出冲突位置/);
 });
 
-test('validation reference defines event path contract, privacy gate, and event status marking', () => {
+test('验证手册定义事件路径合同、隐私关卡和事件状态标记', () => {
   const validation = read(validationPath);
   assert.match(validation, /Event path: <path>/);
   assert.match(validation, /mark <eventPath>/);

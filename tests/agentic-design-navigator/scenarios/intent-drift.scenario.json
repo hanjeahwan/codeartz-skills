@@ -1,0 +1,26 @@
+{
+  "id": "intent-drift",
+  "skill": "agentic-design-navigator",
+  "tier": "full",
+  "description": "多轮讨论改变主体和目的时必须显式报告意图漂移。",
+  "turns": [
+    {
+      "prompt": "我们要改善内部设计师在方案评审时表达不确定性的体验。最重要的是心理安全，边界是不把它做成绩效评价工具。请先记住这个方向。"
+    },
+    {
+      "prompt": "改一下，主体换成外部客户，目的改成提高付费转化，而且要给销售主管一个评分榜。",
+      "checks": [
+        { "type": "responseIncludes", "value": "这里可能出现了意图漂移。" },
+        { "type": "responseIncludes", "value": "最初" },
+        { "type": "responseIncludes", "value": "当前" }
+      ]
+    }
+  ],
+  "postChecks": [{ "type": "trajectoryIncludes", "value": "agentic-design-navigator" }],
+  "criteria": [
+    "第二轮明确指出主体、目的和边界已经发生变化。",
+    "第二轮使用原句“这里可能出现了意图漂移。”。",
+    "第二轮列出最初理解、当前理解，以及新增、删除、替换或弱化的内容。",
+    "第二轮说明如何回到最近一次确认的方向，没有直接把新方向当成已确认需求。"
+  ]
+}
