@@ -4,7 +4,7 @@
 
 **目标：** 用 session 级 Agent Evolve mode 系统替换基于 regex 与 pending event 的旧反馈循环；只向 human-facing 主 session 注入语义化反馈沉淀规则，并始终返回有证据支撑的决策。
 
-**架构：** `SessionStart` 从持久默认值固化每个 session 的 mode，并且只在 `safe` 或 `review` 下去除 frontmatter 后注入 `agent-evolve` skill；`UserPromptSubmit` 除六条完整 mode 控制命令外始终静默。模型根据注入的 skill 与两份职责单一的阶段手册完成语义 feedback 判断和安全项目规则更新；hook 不分类 feedback，也不编辑项目文件。
+**架构：** `SessionStart` 从持久默认值固化每个 session 的 mode，并且只在 `safe` 或 `review` 下动态读取 `SKILL.md`、`workflow.md` 与 `validation.md`，组装为一份自包含规则集后注入；`UserPromptSubmit` 除六条完整 mode 控制命令外始终静默。模型直接根据完整注入内容完成语义 feedback 判断和安全项目规则更新，不需要再读取 plugin 目录；hook 不分类 feedback，也不编辑项目文件。
 
 **技术栈：** 带 `// @ts-check` 与 JSDoc 类型的 Node.js ESM hook、Node 内建模块（`crypto`、`fs`、`os`、`path`）、Claude Code/Codex 共用 hook JSON、TypeScript Node test runner 测试、Markdown skill 手册。
 
@@ -25,7 +25,9 @@
 - Default 与 session 状态写入都使用原子替换。
 - 持久默认配置缺失时使用 `safe`；默认/session 状态损坏或不可读时产生可见、非阻塞失败。
 - 状态写入失败时保留旧状态；不声称失败的切换已经成功。
-- 注入精确激活头 `AGENT EVOLVE ACTIVE — mode: <safe|review>`，随后注入已移除 frontmatter 的 `skills/agent-evolve/SKILL.md`。
+- 注入精确激活头 `AGENT EVOLVE ACTIVE — mode: <safe|review>`，随后依次注入已移除 frontmatter 的 `SKILL.md`、完整 `workflow.md` 与完整 `validation.md`。
+- 自动路径不依赖项目 agent 获得 plugin 目录读取权限。
+- 任一权威文件缺失、不可读或为空时产生可见失败，不注入部分规则集。
 - `SessionStart` 激活成功时不显示 startup badge；`off` 时 `SessionStart` 不输出任何内容。
 - 每个 hook JavaScript 文件都以 `// @ts-check` 开头，并按现有 `hooks/agent-feedback-capture.js` 风格使用 JSDoc `@typedef`、带类型的 `@param` 与 `@returns`。
 - 每个识别出的 feedback 候选分别输出 `Decision`、`Why` 和 `Evidence`；`Target` 与 `Change` 必须显式填写，不适用时写 `不适用`。
@@ -34,7 +36,7 @@
 - 从持久规则与 Evidence 中删除密钥、私有 URL、邮箱、客户名、ticket 标识与事故细节。
 - 产品重命名为 `agent-evolve`；不保留 alias、转发文件、deprecated 字段、状态迁移或对旧 `agent-feedback-loop` 数据的运行时读取。
 - 实施期间一次性删除当前机器的旧 plugin data；新运行时不加入周期性清理逻辑。
-- 实施时不修改 `docs/superpowers/specs/2026-07-10-agent-evolve-design.md`。
+- 只按已批准的 Ponytail 式自包含注入修订 `docs/superpowers/specs/2026-07-10-agent-evolve-design.md`；不扩展其他设计边界。
 - 不对本计划或已批准设计 spec 使用 `instruction-doc-audit`。
 - 保留工作区中的无关用户改动。
 
@@ -44,15 +46,15 @@
 
 - Codex 向 command hook 提供 `session_id`、`cwd` 与 `hook_event_name`；`SessionStart` 接受 `startup`、`resume`、`clear`、`compact`，两个目标事件都接受 `hookSpecificOutput.additionalContext`：<https://learn.chatgpt.com/docs/hooks>。
 - Claude Code 使用相同的 `SessionStart` matcher 值，在模型处理前运行 `UserPromptSubmit`，并接受 `hookSpecificOutput.additionalContext`：<https://code.claude.com/docs/en/hooks>。
-- Ponytail 证明已批准的 lifecycle 拆分可行：`SessionStart` 激活加 `UserPromptSubmit` mode 控制；本方案不沿用其共享 flag 状态，而改用 session 隔离文件：<https://github.com/DietrichGebert/ponytail/tree/main/hooks>。
+- Ponytail 证明已批准的 lifecycle 拆分可行：`SessionStart` 激活加 `UserPromptSubmit` mode 控制；其 instruction builder 在 hook 内读取并注入自包含的 Skill 正文。本方案沿用运行时 materialization 方式，但不沿用共享 flag 状态，而改用 session 隔离文件：<https://github.com/DietrichGebert/ponytail/tree/main/hooks>。
 
 ## 文件结构
 
 ### 新增运行时文件
 
 - `hooks/agent-evolve-state.js`：验证 mode，解析平台/运行时状态路径，hash session id，解析状态，执行原子读写。
-- `hooks/agent-evolve-runtime.js`：解析 hook stdin，读取并移除 skill frontmatter，构造激活/off/失败上下文，序列化受支持的 hook 输出，安全写入 stdout。
-- `hooks/agent-evolve-activate.js`：只处理 `SessionStart`；固化 session mode，并在激活时注入 skill。
+- `hooks/agent-evolve-runtime.js`：解析 hook stdin，读取三个权威文件、只移除 skill frontmatter、组装完整规则集，构造激活/off/失败上下文，序列化受支持的 hook 输出，安全写入 stdout。
+- `hooks/agent-evolve-activate.js`：只处理 `SessionStart`；固化 session mode，并在激活时注入完整规则集。
 - `hooks/agent-evolve-mode.js`：只处理完整 `UserPromptSubmit` mode 命令；更新 session 或 default 状态并报告有效 mode。
 
 ### 新增 skill 文件
@@ -64,9 +66,9 @@
 ### 新增测试
 
 - `tests/agent-evolve-state.test.ts`：覆盖 default/session 状态、完整 SHA-256 隔离、schema 拒绝与原子写入失败时保留旧状态。
-- `tests/agent-evolve-runtime.test.ts`：覆盖 stdin 解析、frontmatter 移除、激活/off/失败上下文，以及 Codex/Claude 共用输出结构。
-- `tests/agent-evolve-activate.test.ts`：覆盖 `SessionStart` mode 固化、注入、off 静默、resume/clear/compact 行为与可见失败。
-- `tests/agent-evolve-mode.test.ts`：覆盖六条完整命令、宿主前缀、普通 prompt 静默、session/default 优先级、重新注入与失败保留。
+- `tests/agent-evolve-runtime.test.ts`：覆盖 stdin 解析、frontmatter 移除、完整规则集组装、任一来源失败时全量拒绝、激活/off/失败上下文，以及 Codex/Claude 共用输出结构。
+- `tests/agent-evolve-activate.test.ts`：覆盖 `SessionStart` mode 固化、完整规则集注入、off 静默、resume/clear/compact 行为与可见失败。
+- `tests/agent-evolve-mode.test.ts`：覆盖六条完整命令、宿主前缀、普通 prompt 静默、session/default 优先级、完整规则集重新注入与失败保留。
 - `tests/agent-evolve-skill.test.ts`：约束 skill/手册职责、候选规则、mode 门、目标读取路径证据、脱敏与逐候选回执。
 - `tests/agent-evolve-plugin.test.ts`：约束 manifest lifecycle 接线、旧名称/运行时/测试删除、README/metadata/assets 命名与跨 session 用户路径。
 
@@ -3103,3 +3105,373 @@ git diff "$BASE_COMMIT"..HEAD --stat
 ```
 
 预期：工作区无 Agent Evolve 未提交改动；若实施前存在无关用户改动，它们仍原样保留；最近提交按任务展示 state、runtime、skill、activation、mode、lifecycle、docs 与可选 formatter 切片。
+
+---
+
+### Task 9：Ponytail 式自包含规则集注入与重新验证
+
+**根因证据：** Task 8 的真实 Claude Code 2.1.207 dogfood 已证明 `SessionStart` 正确触发且 mode 正确固化，但只注入 `SKILL.md` 入口时，项目 agent 无权读取 checkout plugin 目录里的 `references/workflow.md` 与 `references/validation.md`。仅补充 skill base directory 后，模型会尝试读取并收到权限拒绝；额外使用 `--add-dir` 后才成功更新规则源并输出完整回执。生产路径不能要求用户额外传 `--add-dir`，因此按 Ponytail 的 instruction builder 模式在 hook 内 materialize 完整规则集。
+
+**文件：**
+
+- 修改：`hooks/agent-evolve-runtime.js`
+- 修改：`hooks/agent-evolve-activate.js`
+- 修改：`hooks/agent-evolve-mode.js`
+- 修改：`tests/agent-evolve-runtime.test.ts`
+- 修改：`tests/agent-evolve-activate.test.ts`
+- 修改：`tests/agent-evolve-mode.test.ts`
+- 验证：`skills/agent-evolve/SKILL.md`
+- 验证：`skills/agent-evolve/references/workflow.md`
+- 验证：`skills/agent-evolve/references/validation.md`
+
+**接口：**
+
+- 删除导出：`loadSkillBody(skillPath?: string): string`。
+- 新增导出：`loadInstructionBundle(skillPath?: string): string`。
+- `skillPath` 仍允许测试覆盖；workflow 与 validation 必须从 `path.dirname(skillPath)/references/` 推导，不新增可独立漂移的路径参数。
+- Bundle 顺序精确为：frontmatter-free `SKILL.md` → 完整 `workflow.md` → 完整 `validation.md`。
+- `buildActivationContext(mode, bundle)` 只在 bundle 成功组装后添加激活头。
+- 任一来源缺失、不可读或 trim 后为空时抛出带来源路径的错误；调用 hook 通过现有 `buildFailureOutput` 显示证据，禁止输出 `AGENT EVOLVE ACTIVE` 或部分正文。
+
+- [ ] **步骤 1：先写 runtime bundle 的失败测试**
+
+把 `tests/agent-evolve-runtime.test.ts` 的 import 从 `loadSkillBody` 改为 `loadInstructionBundle`，加入测试 fixture：
+
+```ts
+function writeInstructionSources(root: string): string {
+  const skillPath = path.join(root, 'SKILL.md');
+  const references = path.join(root, 'references');
+  fs.mkdirSync(references, { recursive: true });
+  fs.writeFileSync(
+    skillPath,
+    '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n\nUse the injected workflow.\n',
+    'utf8',
+  );
+  fs.writeFileSync(path.join(references, 'workflow.md'), '# Agent Evolve Workflow\n\nJudge feedback.\n', 'utf8');
+  fs.writeFileSync(path.join(references, 'validation.md'), '# Agent Evolve Validation\n\nReturn evidence.\n', 'utf8');
+  return skillPath;
+}
+```
+
+用以下测试替换旧 `loadSkillBody` 测试：
+
+```ts
+test('loadInstructionBundle materializes all authority files in order', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-bundle-'));
+  const bundle = loadInstructionBundle(writeInstructionSources(root));
+
+  assert.equal(
+    bundle,
+    [
+      '# Agent Evolve\n\nUse the injected workflow.',
+      '# Agent Evolve Workflow\n\nJudge feedback.',
+      '# Agent Evolve Validation\n\nReturn evidence.',
+    ].join('\n\n'),
+  );
+  assert.doesNotMatch(bundle, /^---/m);
+});
+
+test('loadInstructionBundle rejects a missing authority file without returning a partial bundle', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-missing-source-'));
+  const skillPath = writeInstructionSources(root);
+  fs.rmSync(path.join(root, 'references', 'workflow.md'));
+
+  assert.throws(() => loadInstructionBundle(skillPath), /Unable to read Agent Evolve workflow/);
+});
+
+test('loadInstructionBundle rejects an empty authority file', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-empty-source-'));
+  const skillPath = writeInstructionSources(root);
+  fs.writeFileSync(path.join(root, 'references', 'validation.md'), '  \n', 'utf8');
+
+  assert.throws(() => loadInstructionBundle(skillPath), /Agent Evolve validation is empty/);
+});
+```
+
+- [ ] **步骤 2：扩展 activation 与 mode 的失败测试**
+
+在默认 safe activation 测试中加入：
+
+```ts
+assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Workflow/);
+assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Validation/);
+```
+
+在 `tests/agent-evolve-activate.test.ts` 加入缺失 workflow 的全量拒绝测试：
+
+```ts
+test('missing workflow fails visibly and never injects a partial rule set', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-missing-workflow-'));
+  const skillPath = path.join(root, 'SKILL.md');
+  fs.writeFileSync(skillPath, '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n', 'utf8');
+  const output = JSON.parse(
+    handleSessionStart({ hook_event_name: 'SessionStart', session_id: 'missing-workflow' }, tempEnv(), skillPath),
+  );
+
+  assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve workflow/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve$/m);
+});
+```
+
+把 `tests/agent-evolve-mode.test.ts` 的 import 扩为 `handleUserPromptSubmit, parseModeCommand`。在 `session safe and review commands update only the current session and reinject the skill` 测试中加入：
+
+```ts
+assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Workflow/);
+assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve Validation/);
+```
+
+再加入 active mode switch 的全量拒绝测试：
+
+```ts
+test('active mode switch rejects an incomplete bundle before changing session state', () => {
+  const env = tempEnv();
+  writeSessionMode('current-session', 'off', env);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-mode-missing-workflow-'));
+  const skillPath = path.join(root, 'SKILL.md');
+  fs.writeFileSync(skillPath, '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n', 'utf8');
+
+  const output = JSON.parse(
+    handleUserPromptSubmit(
+      {
+        hook_event_name: 'UserPromptSubmit',
+        prompt: '$agent-evolve safe',
+        session_id: 'current-session',
+      },
+      env,
+      skillPath,
+    ),
+  );
+
+  assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve workflow/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+  assert.equal(readSessionMode('current-session', env), 'off');
+});
+```
+
+- [ ] **步骤 3：运行聚焦测试并确认 RED**
+
+运行：
+
+```bash
+node --test tests/agent-evolve-runtime.test.ts tests/agent-evolve-activate.test.ts tests/agent-evolve-mode.test.ts
+```
+
+预期：测试因 `loadInstructionBundle` 尚未导出，或激活上下文缺少 `# Agent Evolve Workflow` 与 `# Agent Evolve Validation` 而失败；失败原因必须是新行为缺失，不得是 fixture 路径或语法错误。
+
+- [ ] **步骤 4：实现最小完整规则集 builder**
+
+在 `hooks/agent-evolve-runtime.js` 中用以下实现替换 `loadSkillBody`：
+
+```js
+/**
+ * @param {string} filePath - Authority file path.
+ * @param {'skill' | 'workflow' | 'validation'} label - Authority source label.
+ * @returns {string} Trimmed normalized file body.
+ */
+function readInstructionSource(filePath, label) {
+  let body;
+  try {
+    body = fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    throw new Error(`Unable to read Agent Evolve ${label} at ${filePath}: ${errorMessage(error)}`);
+  }
+  const normalized = body.replace(/\r\n/g, '\n').trim();
+  if (!normalized) {
+    throw new Error(`Agent Evolve ${label} is empty at ${filePath}.`);
+  }
+  return normalized;
+}
+
+/**
+ * @param {string} [skillPath] - Skill path override for tests.
+ * @returns {string} Self-contained ruleset assembled from all authority files.
+ */
+export function loadInstructionBundle(skillPath = defaultSkillPath) {
+  const skillDirectory = path.dirname(skillPath);
+  const workflowPath = path.join(skillDirectory, 'references', 'workflow.md');
+  const validationPath = path.join(skillDirectory, 'references', 'validation.md');
+  const skillBody = stripFrontmatter(readInstructionSource(skillPath, 'skill'));
+  const workflow = readInstructionSource(workflowPath, 'workflow');
+  const validation = readInstructionSource(validationPath, 'validation');
+  return [skillBody, workflow, validation].join('\n\n');
+}
+```
+
+- [ ] **步骤 5：让两个 active 注入路径只使用完整 bundle**
+
+在 `hooks/agent-evolve-activate.js` 与 `hooks/agent-evolve-mode.js` 中把 import 和调用统一改为：
+
+```js
+import { loadInstructionBundle } from './agent-evolve-runtime.js';
+```
+
+SessionStart active 路径必须先完整加载，再构造输出：
+
+```js
+const instructionBundle = loadInstructionBundle(skillPath);
+return buildHookOutput({
+  eventName: 'SessionStart',
+  additionalContext: buildActivationContext(mode, instructionBundle),
+});
+```
+
+Mode active 路径必须改为：
+
+```js
+const activeContext =
+  mode === 'off' ? buildOffContext() : buildActivationContext(mode, loadInstructionBundle(skillPath));
+```
+
+禁止保留 `loadSkillBody` alias；禁止把 workflow 或 validation 规则文字复制进 hook 源码。
+
+- [ ] **步骤 6：运行聚焦测试并确认 GREEN**
+
+运行：
+
+```bash
+node --test tests/agent-evolve-runtime.test.ts tests/agent-evolve-activate.test.ts tests/agent-evolve-mode.test.ts
+```
+
+预期：全部通过；active 上下文包含三个权威正文，off 仍然不读取规则文件，缺失/空来源只返回可见失败证据。
+
+- [ ] **步骤 7：运行全部自动化 gate**
+
+运行：
+
+```bash
+npm run format:all
+npm test
+npm run typecheck
+npm run lint
+git diff --check
+```
+
+预期：formatter 成功；全部测试通过；typecheck 与 lint 无诊断；`git diff --check` 无输出。
+
+- [ ] **步骤 8：提交自包含注入修复**
+
+运行：
+
+```bash
+git add hooks/agent-evolve-runtime.js hooks/agent-evolve-activate.js hooks/agent-evolve-mode.js tests/agent-evolve-runtime.test.ts tests/agent-evolve-activate.test.ts tests/agent-evolve-mode.test.ts
+git commit -m "fix(agent-evolve): inject self-contained ruleset"
+```
+
+预期：只提交完整规则集 builder、两个 active 注入路径及其测试。
+
+- [ ] **步骤 9：创建不共享用户配置的真实 dogfood 项目**
+
+运行：
+
+```bash
+REPO_ROOT="$(pwd)"
+DOGFOOD_ROOT="$(mktemp -d -t agent-evolve-bundle-dogfood.XXXXXX)"
+DOGFOOD_XDG="$(mktemp -d -t agent-evolve-bundle-xdg.XXXXXX)"
+mkdir -p "$DOGFOOD_ROOT/src" "$DOGFOOD_ROOT/tests"
+git -C "$DOGFOOD_ROOT" init -q
+printf '%s\n' '# Project Instructions' '' '## Architecture Rules' '' '- Keep stable project-wide architecture rules in this section.' > "$DOGFOOD_ROOT/CLAUDE.md"
+printf '%s\n' '{"name":"agent-evolve-dogfood","private":true,"type":"module","scripts":{"test":"node --test"}}' > "$DOGFOOD_ROOT/package.json"
+printf '%s\n' 'export function parsePayload(input) {' '  return JSON.parse(input);' '}' > "$DOGFOOD_ROOT/src/errors.js"
+printf '%s\n' "import assert from 'node:assert/strict';" "import test from 'node:test';" "import { parsePayload } from '../src/errors.js';" '' "test('returns parsed input', () => {" "  assert.deepEqual(parsePayload('{\"ok\":true}'), { ok: true });" '});' > "$DOGFOOD_ROOT/tests/errors.test.js"
+git -C "$DOGFOOD_ROOT" add .
+git -C "$DOGFOOD_ROOT" commit -qm "test: seed self-contained dogfood project"
+npm --prefix "$DOGFOOD_ROOT" test
+```
+
+预期：fixture 测试通过；所有 Claude 命令都使用独立 `XDG_CONFIG_HOME`，不修改用户真实 Agent Evolve 默认 mode。
+
+- [ ] **步骤 10：不用额外目录权限运行真实 safe 用户路径**
+
+在 `DOGFOOD_ROOT` 中运行：
+
+```bash
+DOGFOOD_SESSION="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+cd "$DOGFOOD_ROOT"
+XDG_CONFIG_HOME="$DOGFOOD_XDG" claude --plugin-dir "$REPO_ROOT" --session-id "$DOGFOOD_SESSION" --permission-mode acceptEdits -p "运行 npm test，说明 src/errors.js 的当前错误行为，不要修改文件。" > session-1.txt
+XDG_CONFIG_HOME="$DOGFOOD_XDG" claude --plugin-dir "$REPO_ROOT" --resume "$DOGFOOD_SESSION" --permission-mode acceptEdits -p "这个项目的底层解析函数不能直接抛异常，必须返回带 ok 字段的结构化结果，让调用者决定如何处理；请修正 src/errors.js 和测试。" > feedback.txt
+```
+
+禁止在两条命令中加入 `--append-system-prompt`、`--add-dir` 或手动 `$agent-evolve` 调用。预期：Claude transcript 表明 `SessionStart` 已注入 safe 完整规则集；agent 无需读取 plugin 目录即可完成任务、更新 `CLAUDE.md` 并输出证据回执。
+
+- [ ] **步骤 11：验证 safe 写入、回执与后续 session 收益**
+
+运行：
+
+```bash
+rg -n "Feedback decision: Updated" "$DOGFOOD_ROOT/feedback.txt"
+rg -n "Why:" "$DOGFOOD_ROOT/feedback.txt"
+rg -n "Evidence:" "$DOGFOOD_ROOT/feedback.txt"
+rg -n "Target: .*CLAUDE.md" "$DOGFOOD_ROOT/feedback.txt"
+rg -n "底层解析|结构化结果|调用者" "$DOGFOOD_ROOT/CLAUDE.md"
+npm --prefix "$DOGFOOD_ROOT" test
+FUTURE_SESSION="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+cd "$DOGFOOD_ROOT"
+XDG_CONFIG_HOME="$DOGFOOD_XDG" claude --plugin-dir "$REPO_ROOT" --session-id "$FUTURE_SESSION" -p "根据项目规则，只回答：底层解析函数应该怎样返回错误，以及由谁决定如何处理？" > future-session.txt
+rg -n "结构化|ok|调用者" future-session.txt
+```
+
+预期：四个回执字段均命中；`CLAUDE.md` 是唯一规则源；fixture 测试通过；全新 session 的答案引用项目自动加载规则，不依赖前一 session transcript。
+
+- [ ] **步骤 12：重跑 off、default 与并发隔离路径**
+
+运行 off 路径：
+
+```bash
+cd "$DOGFOOD_ROOT"
+XDG_CONFIG_HOME="$DOGFOOD_XDG" claude --plugin-dir "$REPO_ROOT" --resume "$DOGFOOD_SESSION" -p '$agent-evolve off' > off-command.txt
+RULE_HASH_BEFORE="$(shasum -a 256 CLAUDE.md | awk '{print $1}')"
+XDG_CONFIG_HOME="$DOGFOOD_XDG" claude --plugin-dir "$REPO_ROOT" --resume "$DOGFOOD_SESSION" --permission-mode acceptEdits -p "这个项目所有测试名都必须以动词开头；请把当前测试名改成动词短语。" > off-feedback.txt
+RULE_HASH_AFTER="$(shasum -a 256 CLAUDE.md | awk '{print $1}')"
+test "$RULE_HASH_BEFORE" = "$RULE_HASH_AFTER"
+if rg -n "Feedback decision:" off-feedback.txt; then exit 1; fi
+```
+
+运行 default 只影响新 session 路径：
+
+```bash
+XDG_CONFIG_HOME="$DOGFOOD_XDG" claude --plugin-dir "$REPO_ROOT" --resume "$DOGFOOD_SESSION" -p '$agent-evolve default review' > default-review.txt
+rg -n "current.*off|当前.*off" default-review.txt
+rg -n "default.*review|默认.*review" default-review.txt
+REVIEW_SESSION="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+XDG_CONFIG_HOME="$DOGFOOD_XDG" claude --plugin-dir "$REPO_ROOT" --session-id "$REVIEW_SESSION" -p "只回答当前注入的 Agent Evolve mode。" > review-session.txt
+rg -n "review" review-session.txt
+```
+
+运行并发 session 隔离路径：
+
+```bash
+cd "$REPO_ROOT"
+SMOKE_ROOT="$(mktemp -d -t agent-evolve-bundle-smoke.XXXXXX)"
+SMOKE_ENV="PLUGIN_DATA=$SMOKE_ROOT/plugin-data XDG_CONFIG_HOME=$SMOKE_ROOT/config"
+env $SMOKE_ENV node hooks/agent-evolve-mode.js <<'JSON' > "$SMOKE_ROOT/a.txt"
+{"hook_event_name":"UserPromptSubmit","session_id":"parallel-a","prompt":"$agent-evolve off"}
+JSON
+env $SMOKE_ENV node hooks/agent-evolve-mode.js <<'JSON' > "$SMOKE_ROOT/b.txt"
+{"hook_event_name":"UserPromptSubmit","session_id":"parallel-b","prompt":"$agent-evolve review"}
+JSON
+env $SMOKE_ENV node hooks/agent-evolve-activate.js <<'JSON' > "$SMOKE_ROOT/a-start.txt"
+{"hook_event_name":"SessionStart","session_id":"parallel-a","source":"resume","cwd":"/tmp/project"}
+JSON
+env $SMOKE_ENV node hooks/agent-evolve-activate.js <<'JSON' > "$SMOKE_ROOT/b-start.txt"
+{"hook_event_name":"SessionStart","session_id":"parallel-b","source":"resume","cwd":"/tmp/project"}
+JSON
+test ! -s "$SMOKE_ROOT/a-start.txt"
+rg -n "AGENT EVOLVE ACTIVE — mode: review" "$SMOKE_ROOT/b-start.txt"
+test "$(find "$SMOKE_ROOT/plugin-data/agent-evolve/sessions" -type f -name '*.json' | wc -l | tr -d ' ')" = "2"
+```
+
+预期：off 后规则文件 hash 不变且无自动回执；default 只影响后续新 session；session A 静默，session B 注入 review 完整规则集，状态目录中存在两个独立 session 文件。
+
+- [ ] **步骤 13：记录真实验证证据并检查仓库状态**
+
+在 `.superpowers/sdd/task-9-report.md` 记录：Claude Code 版本、实际模型、完整命令类别、未使用 `--append-system-prompt`/`--add-dir`、自动化 gate 结果、safe 回执命中、`CLAUDE.md` diff、未来 session 结论、off/default/concurrency 结论。该文件是本地执行证据，不加入 git。
+
+运行：
+
+```bash
+git status --short
+git log --oneline -12
+```
+
+预期：产品与测试改动已提交；只允许 `.superpowers` 本地证据保持 ignored；没有 dogfood fixture 文件进入仓库。
