@@ -11,7 +11,7 @@ import {
   readStdinWithTimeout,
   writeStdoutSafely,
 } from './agent-evolve-runtime.js';
-import { getOrCreateSessionMode, readDefaultMode, writeDefaultMode, writeSessionMode } from './agent-evolve-state.js';
+import { readDefaultMode, readSessionMode, writeDefaultMode, writeSessionMode } from './agent-evolve-state.js';
 
 /**
  * @typedef {import('./agent-evolve-state.js').Mode} Mode
@@ -110,7 +110,10 @@ export function handleUserPromptSubmit(input, env = process.env, skillPath) {
       });
     }
 
-    const currentMode = getOrCreateSessionMode(sessionId, env);
+    const currentMode = readSessionMode(sessionId, env);
+    if (currentMode === null) {
+      throw new Error('Current Agent Evolve session state is missing; run SessionStart before changing the default');
+    }
     writeDefaultMode(command.mode, env);
     return buildHookOutput({
       eventName: 'UserPromptSubmit',

@@ -142,15 +142,18 @@ test('default commands update only future sessions and keep current session pinn
   }
 });
 
-test('default command pins an unmaterialized current session before changing the default', () => {
+test('default command visibly fails when current session state is missing and preserves default', () => {
   const env = tempEnv();
   writeDefaultMode('review', env);
 
   const result = runMode('$agent-evolve default off', 'first-prompt-session', env);
 
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(readSessionMode('first-prompt-session', env), 'review');
-  assert.equal(readDefaultMode(env), 'off');
+  const output = JSON.parse(result.stdout);
+  assert.match(output.systemMessage, /Agent Evolve failed: mode switch/);
+  assert.match(output.hookSpecificOutput.additionalContext, /Current Agent Evolve session state is missing/);
+  assert.equal(readSessionMode('first-prompt-session', env), null);
+  assert.equal(readDefaultMode(env), 'review');
 });
 
 test('different sessions keep independent modes after a command', () => {
