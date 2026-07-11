@@ -14,7 +14,7 @@
         { "type": "responseIncludes", "value": "Why:" },
         { "type": "responseIncludes", "value": "Evidence:" },
         { "type": "responseIncludes", "value": "Target:" },
-        { "type": "responseIncludes", "value": "Change:" }
+        { "type": "responseMatches", "pattern": "Change(?:（[^）]+）)?[:：]" }
       ]
     }
   ],
