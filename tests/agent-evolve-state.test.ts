@@ -39,7 +39,9 @@ test('defaultConfigPath follows Unix and Windows contracts', () => {
     defaultConfigPath({ APPDATA: 'C:\\Users\\tester\\AppData\\Roaming' }, 'win32', 'C:\\Users\\tester'),
     'C:\\Users\\tester\\AppData\\Roaming\\codeartz-skills\\agent-evolve\\config.json',
   );
-  assert.throws(() => {return defaultConfigPath({}, 'win32', 'C:\\Users\\tester')}, /APPDATA is required/);
+  assert.throws(() => {
+    return defaultConfigPath({}, 'win32', 'C:\\Users\\tester');
+  }, /APPDATA is required/);
 });
 
 test('missing default config resolves to built-in safe and valid config round-trips', () => {
@@ -61,13 +63,19 @@ test('default config rejects corrupt JSON, unsupported modes, and extra fields',
   fs.mkdirSync(path.dirname(configPath), { recursive: true });
 
   fs.writeFileSync(configPath, '{bad json', 'utf8');
-  assert.throws(() => {return readDefaultMode(env)}, /Invalid Agent Evolve default config/);
+  assert.throws(() => {
+    return readDefaultMode(env);
+  }, /Invalid Agent Evolve default config/);
 
   fs.writeFileSync(configPath, JSON.stringify({ defaultMode: 'collect' }), 'utf8');
-  assert.throws(() => {return readDefaultMode(env)}, /Invalid Agent Evolve default config/);
+  assert.throws(() => {
+    return readDefaultMode(env);
+  }, /Invalid Agent Evolve default config/);
 
   fs.writeFileSync(configPath, JSON.stringify({ defaultMode: 'safe', enabled: true }), 'utf8');
-  assert.throws(() => {return readDefaultMode(env)}, /Invalid Agent Evolve default config/);
+  assert.throws(() => {
+    return readDefaultMode(env);
+  }, /Invalid Agent Evolve default config/);
 });
 
 test('unreadable default config path fails instead of guessing safe', () => {
@@ -75,7 +83,9 @@ test('unreadable default config path fails instead of guessing safe', () => {
   const configRoot = path.join(root, 'config-as-file');
   fs.writeFileSync(configRoot, 'not a directory', 'utf8');
 
-  assert.throws(() => {return readDefaultMode({ XDG_CONFIG_HOME: configRoot })}, /Unable to read Agent Evolve default config/);
+  assert.throws(() => {
+    return readDefaultMode({ XDG_CONFIG_HOME: configRoot });
+  }, /Unable to read Agent Evolve default config/);
 });
 
 test('session paths use the full SHA-256 and never persist the raw session id', () => {
@@ -89,7 +99,9 @@ test('session paths use the full SHA-256 and never persist the raw session id', 
   assert.equal(path.basename(statePath), `${digest}.json`);
   assert.doesNotMatch(path.basename(statePath), /private|session|example/);
 
-  writeSessionMode(sessionId, 'review', env, () => {return new Date('2026-07-10T00:00:00.000Z')});
+  writeSessionMode(sessionId, 'review', env, () => {
+    return new Date('2026-07-10T00:00:00.000Z');
+  });
   const raw = fs.readFileSync(statePath, 'utf8');
   assert.doesNotMatch(raw, /private|session:id|example\.com/);
   assert.deepEqual(JSON.parse(raw), {
@@ -110,7 +122,9 @@ test('Codex and Claude Code session state use their own plugin data roots', () =
   assert.match(codexPath, /codex[/\\]agent-evolve[/\\]sessions/);
   assert.match(claudePath, /claude[/\\]agent-evolve[/\\]sessions/);
   assert.notEqual(codexPath, claudePath);
-  assert.throws(() => {return sessionStatePath('session', {})}, /plugin data directory is unavailable/);
+  assert.throws(() => {
+    return sessionStatePath('session', {});
+  }, /plugin data directory is unavailable/);
 });
 
 test('getOrCreateSessionMode pins the effective default once per session', () => {
@@ -119,7 +133,9 @@ test('getOrCreateSessionMode pins the effective default once per session', () =>
 
   writeDefaultMode('review', env);
   assert.equal(
-    getOrCreateSessionMode('session-a', env, () => {return new Date('2026-07-10T01:00:00.000Z')}),
+    getOrCreateSessionMode('session-a', env, () => {
+      return new Date('2026-07-10T01:00:00.000Z');
+    }),
     'review',
   );
 
@@ -146,17 +162,23 @@ test('session state rejects corrupt JSON, invalid timestamps, and extra fields',
   fs.mkdirSync(path.dirname(statePath), { recursive: true });
 
   fs.writeFileSync(statePath, '{bad json', 'utf8');
-  assert.throws(() => {return readSessionMode('session-a', env)}, /Invalid Agent Evolve session state/);
+  assert.throws(() => {
+    return readSessionMode('session-a', env);
+  }, /Invalid Agent Evolve session state/);
 
   fs.writeFileSync(statePath, JSON.stringify({ mode: 'safe', updatedAt: 'yesterday' }), 'utf8');
-  assert.throws(() => {return readSessionMode('session-a', env)}, /Invalid Agent Evolve session state/);
+  assert.throws(() => {
+    return readSessionMode('session-a', env);
+  }, /Invalid Agent Evolve session state/);
 
   fs.writeFileSync(
     statePath,
     JSON.stringify({ mode: 'safe', updatedAt: '2026-07-10T00:00:00.000Z', prompt: 'secret' }),
     'utf8',
   );
-  assert.throws(() => {return readSessionMode('session-a', env)}, /Invalid Agent Evolve session state/);
+  assert.throws(() => {
+    return readSessionMode('session-a', env);
+  }, /Invalid Agent Evolve session state/);
 });
 
 test('failed atomic session write preserves the previous state', { skip: process.platform === 'win32' }, () => {
@@ -167,7 +189,9 @@ test('failed atomic session write preserves the previous state', { skip: process
   writeSessionMode('session-a', 'safe', env);
   fs.chmodSync(path.dirname(statePath), 0o500);
   try {
-    assert.throws(() => {return writeSessionMode('session-a', 'review', env)}, /Unable to write Agent Evolve state/);
+    assert.throws(() => {
+      return writeSessionMode('session-a', 'review', env);
+    }, /Unable to write Agent Evolve state/);
   } finally {
     fs.chmodSync(path.dirname(statePath), 0o700);
   }

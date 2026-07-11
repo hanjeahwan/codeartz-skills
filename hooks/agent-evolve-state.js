@@ -43,7 +43,12 @@ export function isMode(value) {
  */
 function hasExactKeys(value, expected) {
   const actual = Object.keys(value).sort();
-  return actual.length === expected.length && actual.every((key, index) => {return key === [...expected].sort()[index]});
+  return (
+    actual.length === expected.length &&
+    actual.every((key, index) => {
+      return key === [...expected].sort()[index];
+    })
+  );
 }
 
 /**
@@ -236,7 +241,14 @@ export function readSessionMode(sessionId, env = process.env) {
  * @param {() => Date} [now] - Clock override for tests.
  * @returns {Mode} Persisted mode.
  */
-export function writeSessionMode(sessionId, mode, env = process.env, now = () => {return new Date()}) {
+export function writeSessionMode(
+  sessionId,
+  mode,
+  env = process.env,
+  now = () => {
+    return new Date();
+  },
+) {
   if (!isMode(mode)) {
     throw new Error(`Invalid Agent Evolve mode: ${String(mode)}`);
   }
@@ -251,7 +263,13 @@ export function writeSessionMode(sessionId, mode, env = process.env, now = () =>
  * @param {() => Date} [now] - Clock override for tests.
  * @returns {Mode} Existing session mode or newly materialized default.
  */
-export function getOrCreateSessionMode(sessionId, env = process.env, now = () => {return new Date()}) {
+export function getOrCreateSessionMode(
+  sessionId,
+  env = process.env,
+  now = () => {
+    return new Date();
+  },
+) {
   const existing = readSessionMode(sessionId, env);
   if (existing) {
     return existing;
