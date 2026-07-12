@@ -52,15 +52,17 @@ test('manifest 在 Unix 与 Windows 运行 activation 和精确 mode 脚本', ()
 
   assert.equal(sessionHook.type, 'command');
   assert.match(sessionHook.command ?? '', /agent-evolve-activate\.js/);
+  assert.doesNotMatch(sessionHook.command ?? '', /^exec\s/);
   assert.match(sessionHook.commandWindows ?? '', /agent-evolve-activate\.js/);
   assert.equal(sessionHook.timeout, 5);
-  assert.equal(sessionHook.statusMessage, undefined);
+  assert.equal(sessionHook.statusMessage, 'Loading Agent Evolve mode...');
 
   assert.equal(promptHook.type, 'command');
   assert.match(promptHook.command ?? '', /agent-evolve-mode\.js/);
+  assert.doesNotMatch(promptHook.command ?? '', /^exec\s/);
   assert.match(promptHook.commandWindows ?? '', /agent-evolve-mode\.js/);
   assert.equal(promptHook.timeout, 5);
-  assert.equal(promptHook.statusMessage, undefined);
+  assert.equal(promptHook.statusMessage, 'Tracking Agent Evolve mode...');
 });
 
 test('新 runtime 提供四个带类型 JSDoc 的 hook 文件', () => {

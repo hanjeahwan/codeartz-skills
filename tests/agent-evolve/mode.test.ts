@@ -253,7 +253,7 @@ test('默认状态写入失败时保留旧默认值与当前 session', { skip: p
   assert.equal(readSessionMode('current-session', env), 'review');
 });
 
-test('非 UserPromptSubmit 与无效 JSON 输入保持静默', () => {
+test('mode handler 信任 manifest 事件路由且仅对无效 JSON 保持静默', () => {
   const env = tempEnv();
   const wrongEvent = spawnSync(process.execPath, [modeScript], {
     encoding: 'utf8',
@@ -270,6 +270,6 @@ test('非 UserPromptSubmit 与无效 JSON 输入保持静默', () => {
     input: '{bad json',
   });
 
-  assert.equal(wrongEvent.stdout, '');
+  assert.match(JSON.parse(wrongEvent.stdout).hookSpecificOutput.additionalContext, /AGENT EVOLVE OFF/);
   assert.equal(invalidJson.stdout, '');
 });

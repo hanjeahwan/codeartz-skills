@@ -89,10 +89,6 @@ function defaultSwitchContext(currentMode, defaultMode) {
  * @returns {string} Serialized hook output or empty string.
  */
 export function handleUserPromptSubmit(input, env = process.env, skillPath) {
-  if (input.hook_event_name !== 'UserPromptSubmit') {
-    return '';
-  }
-
   const command = parseModeCommand(input.prompt);
   if (!command) {
     return '';

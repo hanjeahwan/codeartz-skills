@@ -23,10 +23,6 @@ import { getOrCreateSessionMode } from './agent-evolve-state.js';
  * @returns {string} Serialized hook output or empty string.
  */
 export function handleSessionStart(input, env = process.env, skillPath) {
-  if (input.hook_event_name !== 'SessionStart') {
-    return '';
-  }
-
   try {
     const sessionId = String(input.session_id || '');
     const mode = getOrCreateSessionMode(sessionId, env);
@@ -37,6 +33,7 @@ export function handleSessionStart(input, env = process.env, skillPath) {
     return buildHookOutput({
       eventName: 'SessionStart',
       additionalContext: buildActivationContext(mode, instructionBundle),
+      ...(env.PLUGIN_DATA ? { systemMessage: `AGENT-EVOLVE:${mode.toUpperCase()}` } : {}),
     });
   } catch (error) {
     return buildFailureOutput('SessionStart', 'session activation', error);

@@ -33,7 +33,7 @@ function runActivate(input: Record<string, unknown> | string, env: NodeJS.Proces
   });
 }
 
-test('新 Codex session 固化 safe 并无 badge 注入已移除 frontmatter 的 skill', () => {
+test('新 Codex session 固化 safe 并按 Ponytail 合同注入可见 badge 与完整规则', () => {
   const env = tempEnv('codex');
   const result = runActivate(
     {
@@ -47,7 +47,7 @@ test('新 Codex session 固化 safe 并无 badge 注入已移除 frontmatter 的
 
   assert.equal(result.status, 0, result.stderr);
   const output = JSON.parse(result.stdout);
-  assert.equal(output.systemMessage, undefined);
+  assert.equal(output.systemMessage, 'AGENT-EVOLVE:SAFE');
   assert.equal(output.hookSpecificOutput.hookEventName, 'SessionStart');
   assert.match(output.hookSpecificOutput.additionalContext, /^AGENT EVOLVE ACTIVE — mode: safe/);
   assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve/);
@@ -216,7 +216,7 @@ test('workflow 缺失时可见失败且不注入部分规则集', () => {
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve$/m);
 });
 
-test('非 SessionStart 与无效 JSON 输入保持静默', () => {
+test('activation 信任 manifest 事件路由且仅对无效 JSON 保持静默', () => {
   const env = tempEnv();
   const wrongEvent = runActivate(
     {
@@ -228,7 +228,7 @@ test('非 SessionStart 与无效 JSON 输入保持静默', () => {
   );
   const invalidJson = runActivate('{bad json', env);
 
-  assert.equal(wrongEvent.stdout, '');
+  assert.match(JSON.parse(wrongEvent.stdout).hookSpecificOutput.additionalContext, /mode: safe/);
   assert.equal(invalidJson.stdout, '');
 });
 
