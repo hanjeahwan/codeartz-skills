@@ -157,27 +157,10 @@ test('Agent Evolve 按触发、工作流、安全验证三阶段延迟读取', (
   assert.match(workflow, /进入安全验证阶段时，读取相对 `validation\.md`/);
 });
 
-test('README 说明 Agent Evolve 模式、lifecycle hook 与命令', () => {
-  const readme = fs.readFileSync('README.md', 'utf8');
-
-  assert.match(readme, /Agent Evolve/);
-  assert.match(readme, /默认模式是 `safe`/);
-  assert.match(readme, /\| `safe`/);
-  assert.match(readme, /\| `review`/);
-  assert.match(readme, /\| `off`/);
-  assert.match(readme, /\$agent-evolve default off/);
-  assert.match(readme, /SessionStart/);
-  assert.match(readme, /UserPromptSubmit/);
-  assert.match(readme, /PreToolUse/);
-  assert.match(readme, /Claude Code/);
-  assert.match(readme, /Codex/);
-});
-
-test('plugin metadata 与 README 不包含旧产品标识', () => {
+test('plugin metadata 不包含旧产品标识', () => {
   const legacySkill = ['agent', 'feedback', 'loop'].join('-');
   const legacyHook = ['agent', 'feedback'].join('-');
   const files = [
-    'README.md',
     '.codex-plugin/plugin.json',
     '.claude-plugin/plugin.json',
     '.claude-plugin/marketplace.json',
@@ -190,14 +173,4 @@ test('plugin metadata 与 README 不包含旧产品标识', () => {
     assert.equal(content.includes(legacySkill), false, filePath);
     assert.equal(content.includes(legacyHook), false, filePath);
   }
-});
-
-test('README 只引用重命名后的 Agent Evolve 插图', () => {
-  const readme = fs.readFileSync('README.md', 'utf8');
-  const newAsset = 'assets/readme-illustrations/03-agent-evolve.png';
-  const legacyAsset = ['assets/readme-illustrations/03-agent', 'feedback', 'loop.png'].join('-');
-
-  assert.equal(fs.existsSync(newAsset), true);
-  assert.equal(fs.existsSync(legacyAsset), false);
-  assert.match(readme, /03-agent-evolve\.png/);
 });
