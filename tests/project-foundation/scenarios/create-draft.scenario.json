@@ -2,7 +2,7 @@
   "id": "create-draft",
   "skill": "project-foundation",
   "tier": "smoke",
-  "description": "没有项目知识基础时，先建立可持续跟踪的草稿，不提前创建正式文件。",
+  "description": "没有项目知识基础时先建立当前草稿，不提前创建正式文件。",
   "files": {
     "package.json": "{\n  \"scripts\": {\n    \"test\": \"node --test\"\n  }\n}\n",
     "src/catalog.ts": "export function findProduct(id: string): string | undefined {\n  return id === 'p1' ? 'Keyboard' : undefined;\n}\n",
@@ -19,17 +19,17 @@
   ],
   "postChecks": [
     { "type": "fileExists", "path": ".codeartz/project-foundation/draft.md" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 状态" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 证据清单" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 基线来源" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 项目知识现状" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 项目知识地图" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 刷新结果" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 目标文件" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 检查范围" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 建议变更" },
     { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 待裁决" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 用户裁决" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 最终批准" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 合并记录" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 最终内容" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 验证计划" },
+    {
+      "type": "markdownHeadingsEqual",
+      "path": ".codeartz/project-foundation/draft.md",
+      "level": 2,
+      "headings": ["检查范围", "建议变更", "待裁决", "最终内容", "验证计划"]
+    },
     {
       "type": "fileContains",
       "path": ".codeartz/project-foundation/draft.md",
@@ -41,8 +41,8 @@
     { "type": "trajectoryIncludes", "value": "project-foundation" }
   ],
   "criteria": [
-    "回应先检查代码、配置和测试，再建立持久化草稿。",
-    "草稿区分仓库事实、候选规则和需要用户裁决的内容。",
+    "回应先检查代码、配置和测试，再建立可跨会话跟踪的当前草稿。",
+    "每个建议变更把精确内容、依据和不确定性放在一起。",
     "草稿根据知识职责、适用范围和读取情境提出最小目标结构。",
     "用户没有批准正式文件，因此没有创建 AGENTS.md、CLAUDE.md 或 docs 规范。"
   ]

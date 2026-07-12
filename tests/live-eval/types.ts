@@ -5,6 +5,9 @@ export type ScenarioTier = 'full' | 'smoke';
 export type ScenarioCheck =
   | { type: 'fileContains'; path: string; value: string }
   | { type: 'fileExcludes'; path: string; value: string }
+  | { type: 'fileMatches'; path: string; pattern: string; flags?: string }
+  | { type: 'markdownHeadingsEqual'; path: string; level: number; headings: string[] }
+  | { type: 'markdownFencesBalanced'; path: string }
   | { type: 'fileExists'; path: string }
   | { type: 'fileNotExists'; path: string }
   | { type: 'fileUnchanged'; path: string }

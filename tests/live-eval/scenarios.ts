@@ -35,9 +35,33 @@ function parseCheck(value: unknown, field: string): ScenarioCheck {
         path: requireString(value.path, `${field}.path`),
         value: requireString(value.value, `${field}.value`),
       };
+    case 'fileMatches':
+      return {
+        type,
+        path: requireString(value.path, `${field}.path`),
+        pattern: requireString(value.pattern, `${field}.pattern`),
+        ...(typeof value.flags === 'string' ? { flags: value.flags } : {}),
+      };
+    case 'markdownHeadingsEqual': {
+      if (!Number.isInteger(value.level) || Number(value.level) < 1 || Number(value.level) > 6) {
+        throw new Error(`${field}.level must be an integer from 1 to 6`);
+      }
+      if (!Array.isArray(value.headings)) {
+        throw new Error(`${field}.headings must be an array`);
+      }
+      return {
+        type,
+        path: requireString(value.path, `${field}.path`),
+        level: Number(value.level),
+        headings: value.headings.map((heading, index) => {
+          return requireString(heading, `${field}.headings[${index}]`);
+        }),
+      };
+    }
     case 'fileExists':
     case 'fileNotExists':
     case 'fileUnchanged':
+    case 'markdownFencesBalanced':
       return { type, path: requireString(value.path, `${field}.path`) };
     case 'questionCountAtMost':
       if (!Number.isInteger(value.max) || Number(value.max) < 0) {
@@ -288,6 +312,54 @@ export async function evaluateChecks(
           check,
           passed,
           evidence: `${check.path} ${passed ? 'does not contain' : 'contains'} ${check.value}`,
+        });
+        break;
+      }
+      case 'fileMatches': {
+        const target = resolveWorkspacePath(workspace, check.path);
+        const actual = (await fileExists(target)) ? await readFile(target, 'utf8') : '';
+        const passed = new RegExp(check.pattern, check.flags).test(actual);
+        results.push({
+          check,
+          passed,
+          evidence: `${check.path} ${passed ? 'matches' : 'does not match'} /${check.pattern}/`,
+        });
+        break;
+      }
+      case 'markdownHeadingsEqual': {
+        const target = resolveWorkspacePath(workspace, check.path);
+        const actual = (await fileExists(target)) ? await readFile(target, 'utf8') : '';
+        const marker = '#'.repeat(check.level);
+        let inFence = false;
+        const headings = actual.split(/\r?\n/).flatMap((line) => {
+          if (/^\s*(```|~~~)/.test(line)) {
+            inFence = !inFence;
+            return [];
+          }
+          if (inFence || !line.startsWith(`${marker} `) || line.startsWith(`${marker}#`)) {
+            return [];
+          }
+          return [line.slice(marker.length + 1).trim()];
+        });
+        const passed = JSON.stringify(headings) === JSON.stringify(check.headings);
+        results.push({
+          check,
+          passed,
+          evidence: `${check.path} level ${check.level} headings: ${JSON.stringify(headings)}`,
+        });
+        break;
+      }
+      case 'markdownFencesBalanced': {
+        const target = resolveWorkspacePath(workspace, check.path);
+        const actual = (await fileExists(target)) ? await readFile(target, 'utf8') : '';
+        const fenceCount = actual.split(/\r?\n/).filter((line) => {
+          return /^\s*(```|~~~)/.test(line);
+        }).length;
+        const passed = fenceCount % 2 === 0;
+        results.push({
+          check,
+          passed,
+          evidence: `${check.path} has ${fenceCount} Markdown fence markers`,
         });
         break;
       }

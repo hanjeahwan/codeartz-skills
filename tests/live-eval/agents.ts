@@ -252,7 +252,7 @@ async function createClaudeSession(options: SessionOptions): Promise<AgentSessio
         '--permission-mode',
         options.readOnly ? 'dontAsk' : 'acceptEdits',
         '--allowedTools',
-        options.readOnly ? 'Read,Glob,Grep' : 'Read,Glob,Grep,Write,Edit',
+        options.readOnly ? 'Read,Glob,Grep' : 'Read,Glob,Grep,Write,Edit,Bash(node:*)',
         ...(options.skillName ? ['--plugin-dir', options.repoRoot] : []),
         ...(options.model ? ['--model', options.model] : []),
         ...(options.effort ? ['--effort', options.effort] : []),

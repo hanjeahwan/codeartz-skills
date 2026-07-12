@@ -8,19 +8,22 @@
     "src/orders/service.ts": "export function loadOrder(id: string) {\n  return id ? { id } : undefined;\n}\n",
     "src/catalog/service.ts": "export function loadProduct(id: string) {\n  return id ? { id } : undefined;\n}\n",
     "src/legacy/customer.ts": "// TODO: migrate away from throwing for missing records\nexport function loadCustomer(id: string) {\n  if (!id) throw new Error('missing');\n  return { id };\n}\n",
+    ".claude/skills/review/SKILL.md": "---\nname: review\ndescription: Review code.\n---\n",
+    ".agents/skills/review/SKILL.md": "---\nname: review\ndescription: Review code.\n---\n",
+    ".swe/session.json": "{\"status\":\"complete\"}\n",
     "test/orders.test.ts": "import assert from 'node:assert/strict';\nimport test from 'node:test';\nimport { loadOrder } from '../src/orders/service.ts';\n\ntest('找不到订单时返回 undefined', () => {\n  assert.equal(loadOrder(''), undefined);\n});\n"
   },
   "turns": [
     {
       "prompt": "$project-foundation 诊断这个没有项目知识文档的仓库并建立草稿。不要把当前多数写法直接当成正式规范，也不要创建正式文件。",
       "checks": [
-        { "type": "responseMatches", "pattern": "(?:已证明事实|稳定模式)" },
+        { "type": "responseMatches", "pattern": "(?:项目事实|稳定模式)" },
         { "type": "responseMatches", "pattern": "(?:冲突|技术债|待裁决)" }
       ]
     }
   ],
   "postChecks": [
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "已证明事实" },
+    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "项目事实" },
     { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "稳定模式" },
     { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "技术债" },
     {
@@ -33,14 +36,38 @@
       "path": ".codeartz/project-foundation/draft.md",
       "value": "禁止新增"
     },
+    {
+      "type": "fileExcludes",
+      "path": ".codeartz/project-foundation/draft.md",
+      "value": "多个宿主正在使用"
+    },
+    {
+      "type": "fileExcludes",
+      "path": ".codeartz/project-foundation/draft.md",
+      "value": "多 Agent 协作历史"
+    },
+    {
+      "type": "fileExcludes",
+      "path": ".codeartz/project-foundation/draft.md",
+      "value": "完整正式知识"
+    },
     { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 待裁决" },
+    {
+      "type": "markdownHeadingsEqual",
+      "path": ".codeartz/project-foundation/draft.md",
+      "level": 2,
+      "headings": ["检查范围", "建议变更", "待裁决", "最终内容", "验证计划"]
+    },
     { "type": "fileNotExists", "path": "AGENTS.md" },
     { "type": "trajectoryIncludes", "value": "project-foundation" }
   ],
   "criteria": [
-    "package.json 的测试命令被记录为已证明事实。",
+    "package.json 的测试命令被记录为项目事实。",
     "两个模块的相同返回模式只被记录为稳定模式，没有自动升级为正式规范。",
     "legacy 注释被用作技术债或排除证据，而不是长期规则。",
-    "不兼容做法或无法确认的设计意图进入待裁决。"
+    "不兼容做法或无法确认的设计意图进入待裁决。",
+    "Skill 目录只证明能力可用，不证明宿主实际使用。",
+    "生成产物只证明产物存在，不证明多 Agent 协作历史。",
+    "有限检查范围不被描述成完整项目知识。"
   ]
 }
