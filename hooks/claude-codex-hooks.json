@@ -9,7 +9,7 @@
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-evolve-activate.js\"",
             "commandWindows": "if (Get-Command node -ErrorAction SilentlyContinue) { node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\agent-evolve-activate.js\" }",
             "timeout": 5,
-            "statusMessage": "Loading Agent Evolve mode..."
+            "statusMessage": "正在加载 Agent Evolve 模式..."
           }
         ]
       }
@@ -22,7 +22,21 @@
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-evolve-mode.js\"",
             "commandWindows": "if (Get-Command node -ErrorAction SilentlyContinue) { node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\agent-evolve-mode.js\" }",
             "timeout": 5,
-            "statusMessage": "Tracking Agent Evolve mode..."
+            "statusMessage": "正在更新 Agent Evolve 模式..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-evolve-reference-access.js\"",
+            "commandWindows": "if (Get-Command node -ErrorAction SilentlyContinue) { node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\agent-evolve-reference-access.js\" }",
+            "timeout": 5,
+            "statusMessage": "正在检查 Agent Evolve 阶段手册访问权限..."
           }
         ]
       }

@@ -11,6 +11,8 @@
  *   prompt?: string;
  *   session_id?: string;
  *   source?: string;
+ *   tool_input?: Record<string, unknown>;
+ *   tool_name?: string;
  * }} HookInput
  */
 

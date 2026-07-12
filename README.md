@@ -99,7 +99,7 @@
 
 ## Agent Evolve 模式
 
-默认模式是 `safe`。新会话在 `SessionStart` 固化当前模式并只注入短路由；命中直接用户反馈后才加载 Agent Evolve，并按工作流、安全验证阶段依次读取对应手册。`UserPromptSubmit` 只处理下列完整控制命令，不分类普通消息。
+默认模式是 `safe`。新会话在 `SessionStart` 固化当前模式并只注入短路由；命中直接用户反馈后才加载 Agent Evolve，并按工作流、安全验证阶段依次读取对应手册。`UserPromptSubmit` 只处理下列完整控制命令，不分类普通消息。`PreToolUse` 只放行当前插件内 Agent Evolve 阶段手册的读取。
 
 | 模式     | 自动识别 | 默认处理                                   | 用户后续动作                     | 启动路由 |
 | -------- | -------- | ------------------------------------------ | -------------------------------- | -------- |
@@ -138,7 +138,7 @@ $agent-evolve default off
 /plugin install codeartz-skills@codeartz
 ```
 
-Claude Code 安装后打开 `/hooks`，审查并信任 Codeartz 的 `SessionStart` 与 `UserPromptSubmit` hook；然后重启应用或开启新会话。
+Claude Code 安装后打开 `/hooks`，审查并信任 Codeartz 的 `SessionStart`、`UserPromptSubmit` 与 `PreToolUse` hook；然后重启应用或开启新会话。
 
 ### Codex
 
@@ -147,7 +147,7 @@ codex plugin marketplace add hanjeahwan/codeartz-skills
 codex plugin add codeartz-skills@codeartz
 ```
 
-Codex 安装后打开 `/hooks`，审查并信任 Codeartz 的 `SessionStart` 与 `UserPromptSubmit` hook；然后重启应用或开启新会话。
+Codex 安装后打开 `/hooks`，审查并信任 Codeartz 的 `SessionStart`、`UserPromptSubmit` 与 `PreToolUse` hook；然后重启应用或开启新会话。
 
 ### Standalone skills
 
