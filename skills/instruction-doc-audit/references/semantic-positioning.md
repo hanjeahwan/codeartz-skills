@@ -97,6 +97,7 @@
 - 入口文件里维护阶段执行细节。
 - 阶段手册里重复入口路由。
 - 简单规则被包装成多层缩进。
+- 多条规则只替换对象名称，却重复相同的判断关系与处理方式。
 - 当前阶段要求预读后续阶段手册。
 
 英文线索例：
@@ -104,9 +105,10 @@
 - The entry file repeats phase execution details.
 - A phase guide repeats routing rules from the entry file.
 - A simple rule is nested under multiple wrapper headings.
+- Several rules repeat the same decision while only changing the named object.
 - The current phase asks the agent to read later phase guides.
 
-不命中例：多文件之间只是引用权威位置，没有重复维护同一条规则。
+不命中例：多文件之间只是引用权威位置，没有重复维护同一条规则；相似对象具有不同风险、后果或处理方式。
 
 ## 语言一致性类
 
