@@ -1,6 +1,6 @@
 {
   "name": "codeartz-skills",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "面向 Codex agent 工作流的 Codeartz 技能集，支持边界分析、指令审查与 Agent Evolve feedback 沉淀。",
   "author": {
     "name": "Codeartz",
