@@ -5,7 +5,6 @@ import {
   buildFailureOutput,
   buildHookOutput,
   buildOffContext,
-  loadInstructionBundle,
   readStdinWithTimeout,
   writeStdoutSafely,
 } from './agent-evolve-runtime.js';
@@ -51,12 +50,10 @@ function modeStatus(currentMode, defaultMode) {
 /**
  * @param {Mode} mode - New current session mode.
  * @param {Mode} defaultMode - Persistent default mode.
- * @param {string | undefined} skillPath - Skill path override for tests.
  * @returns {string} Context applied after a current-session switch.
  */
-function sessionSwitchContext(mode, defaultMode, skillPath) {
-  const activeContext =
-    mode === 'off' ? buildOffContext() : buildActivationContext(mode, loadInstructionBundle(skillPath));
+function sessionSwitchContext(mode, defaultMode) {
+  const activeContext = mode === 'off' ? buildOffContext() : buildActivationContext(mode);
   return [
     activeContext,
     '',
@@ -83,10 +80,9 @@ function defaultSwitchContext(currentMode, defaultMode) {
 /**
  * @param {HookInput} input - UserPromptSubmit hook payload.
  * @param {NodeJS.ProcessEnv} [env] - Host environment.
- * @param {string} [skillPath] - Skill path override for tests.
  * @returns {string} Serialized hook output or empty string.
  */
-export function handleUserPromptSubmit(input, env = process.env, skillPath) {
+export function handleUserPromptSubmit(input, env = process.env) {
   const command = parseModeCommand(input.prompt);
   if (!command) {
     return '';
@@ -96,7 +92,7 @@ export function handleUserPromptSubmit(input, env = process.env, skillPath) {
     const sessionId = String(input.session_id || '');
     if (command.scope === 'session') {
       const defaultMode = readDefaultMode(env);
-      const additionalContext = sessionSwitchContext(command.mode, defaultMode, skillPath);
+      const additionalContext = sessionSwitchContext(command.mode, defaultMode);
       writeSessionMode(sessionId, command.mode, env);
       return buildHookOutput({
         eventName: 'UserPromptSubmit',

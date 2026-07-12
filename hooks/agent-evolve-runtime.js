@@ -1,9 +1,5 @@
 // @ts-check
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 /**
  * @typedef {import('./agent-evolve-state.js').Mode} Mode
  */
@@ -26,9 +22,6 @@ import { fileURLToPath } from 'node:url';
  *   continueValue?: boolean;
  * }} HookOutputOptions
  */
-
-const pluginRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const defaultSkillPath = path.join(pluginRoot, 'skills', 'agent-evolve', 'SKILL.md');
 
 /**
  * @param {unknown} value - Value to test.
@@ -90,68 +83,20 @@ export function readStdinWithTimeout(timeoutMs = 1000) {
 }
 
 /**
- * @param {string} markdown - Skill file with YAML frontmatter.
- * @returns {string} Trimmed skill body without frontmatter.
- */
-export function stripFrontmatter(markdown) {
-  const normalized = String(markdown).replace(/\r\n/g, '\n');
-  if (!normalized.startsWith('---\n')) {
-    throw new Error('Agent Evolve skill frontmatter is missing.');
-  }
-  const end = normalized.indexOf('\n---\n', 4);
-  if (end === -1) {
-    throw new Error('Agent Evolve skill frontmatter is incomplete.');
-  }
-  const body = normalized.slice(end + 5).trim();
-  if (!body) {
-    throw new Error('Agent Evolve skill body is empty.');
-  }
-  return body;
-}
-
-/**
- * @param {string} filePath - Authority file path.
- * @param {'skill' | 'workflow' | 'validation'} label - Authority source label.
- * @returns {string} Trimmed normalized file body.
- */
-function readInstructionSource(filePath, label) {
-  let body;
-  try {
-    body = fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    throw new Error(`Unable to read Agent Evolve ${label} at ${filePath}: ${errorMessage(error)}`);
-  }
-  const normalized = body.replace(/\r\n/g, '\n').trim();
-  if (!normalized) {
-    throw new Error(`Agent Evolve ${label} is empty at ${filePath}.`);
-  }
-  return normalized;
-}
-
-/**
- * @param {string} [skillPath] - Skill path override for tests.
- * @returns {string} Self-contained ruleset assembled from all authority files.
- */
-export function loadInstructionBundle(skillPath = defaultSkillPath) {
-  const skillDirectory = path.dirname(skillPath);
-  const workflowPath = path.join(skillDirectory, 'references', 'workflow.md');
-  const validationPath = path.join(skillDirectory, 'references', 'validation.md');
-  const skillBody = stripFrontmatter(readInstructionSource(skillPath, 'skill'));
-  const workflow = readInstructionSource(workflowPath, 'workflow');
-  const validation = readInstructionSource(validationPath, 'validation');
-  return [skillBody, workflow, validation].join('\n\n');
-}
-
-/**
  * @param {Mode} mode - Active safe or review mode.
- * @param {string} bundle - Self-contained Agent Evolve ruleset.
- * @returns {string} Context injected into a main session.
+ * @returns {string} Host-independent lazy-loading route injected into a main session.
  */
-export function buildActivationContext(mode, bundle) {
+export function buildActivationContext(mode) {
   if (mode !== 'safe' && mode !== 'review') {
     throw new Error(`Cannot build Agent Evolve activation context for mode: ${mode}`);
   }
-  return `AGENT EVOLVE ACTIVE — mode: ${mode}\n\n${bundle.trim()}`;
+  return [
+    `AGENT EVOLVE ACTIVE — mode: ${mode}`,
+    '自动触发：当前主会话中，用户直接提出了可改进未来项目决策的反馈。',
+    '触发后：按名称加载已安装的 `agent-evolve` Skill，并按当前模式执行其路由。',
+    '普通请求禁止加载。必须根据完整语义判断，禁止仅依赖关键词。',
+    '仍可手动调用 `$agent-evolve`。',
+  ].join('\n');
 }
 
 /**

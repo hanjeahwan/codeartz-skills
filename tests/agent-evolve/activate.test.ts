@@ -33,7 +33,7 @@ function runActivate(input: Record<string, unknown> | string, env: NodeJS.Proces
   });
 }
 
-test('新 Codex session 固化 safe 并注入可见 badge 与完整规则', () => {
+test('新 Codex session 固化 safe 并只注入按需加载路由', () => {
   const env = tempEnv('codex');
   const result = runActivate(
     {
@@ -50,10 +50,11 @@ test('新 Codex session 固化 safe 并注入可见 badge 与完整规则', () =
   assert.equal(output.systemMessage, 'AGENT-EVOLVE:SAFE');
   assert.equal(output.hookSpecificOutput.hookEventName, 'SessionStart');
   assert.match(output.hookSpecificOutput.additionalContext, /^AGENT EVOLVE ACTIVE — mode: safe/);
-  assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve/);
-  assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve 工作流/);
-  assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve 安全验证/);
-  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /^---/m);
+  assert.match(output.hookSpecificOutput.additionalContext, /已安装的 `agent-evolve` Skill/);
+  assert.match(output.hookSpecificOutput.additionalContext, /用户直接提出/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 工作流/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 安全验证/);
+  assert.ok(output.hookSpecificOutput.additionalContext.split('\n').length <= 8);
   assert.equal(readSessionMode('codex-session', env), 'safe');
 });
 
@@ -185,7 +186,7 @@ test('session 状态路径不可读时产生可见证据而不是使用内建 fa
   assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve session state/);
 });
 
-test('skill 缺失时可见失败且不注入部分规则集', () => {
+test('SessionStart 路由不依赖读取 skill 文件', () => {
   const env = tempEnv();
   const output = JSON.parse(
     handleSessionStart(
@@ -194,25 +195,21 @@ test('skill 缺失时可见失败且不注入部分规则集', () => {
         session_id: 'missing-skill',
       },
       env,
-      path.join(os.tmpdir(), 'agent-evolve-does-not-exist', 'SKILL.md'),
     ),
   );
 
-  assert.match(output.systemMessage, /Agent Evolve failed: session activation/);
-  assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve skill/);
-  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+  assert.equal(output.systemMessage, 'AGENT-EVOLVE:SAFE');
+  assert.match(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+  assert.match(output.hookSpecificOutput.additionalContext, /已安装的 `agent-evolve` Skill/);
 });
 
-test('workflow 缺失时可见失败且不注入部分规则集', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-missing-workflow-'));
-  const skillPath = path.join(root, 'SKILL.md');
-  fs.writeFileSync(skillPath, '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n', 'utf8');
+test('SessionStart 路由不预读 workflow 或 validation', () => {
   const output = JSON.parse(
-    handleSessionStart({ hook_event_name: 'SessionStart', session_id: 'missing-workflow' }, tempEnv(), skillPath),
+    handleSessionStart({ hook_event_name: 'SessionStart', session_id: 'missing-workflow' }, tempEnv()),
   );
 
-  assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve workflow/);
-  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+  assert.match(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /Unable to read/);
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve$/m);
 });
 

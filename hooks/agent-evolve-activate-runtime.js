@@ -4,7 +4,6 @@ import {
   buildActivationContext,
   buildFailureOutput,
   buildHookOutput,
-  loadInstructionBundle,
   readStdinWithTimeout,
   writeStdoutSafely,
 } from './agent-evolve-runtime.js';
@@ -17,20 +16,18 @@ import { getOrCreateSessionMode } from './agent-evolve-state.js';
 /**
  * @param {HookInput} input - SessionStart hook payload.
  * @param {NodeJS.ProcessEnv} [env] - Host environment.
- * @param {string} [skillPath] - Skill path override for tests.
  * @returns {string} Serialized hook output or empty string.
  */
-export function handleSessionStart(input, env = process.env, skillPath) {
+export function handleSessionStart(input, env = process.env) {
   try {
     const sessionId = String(input.session_id || '');
     const mode = getOrCreateSessionMode(sessionId, env);
     if (mode === 'off') {
       return '';
     }
-    const instructionBundle = loadInstructionBundle(skillPath);
     return buildHookOutput({
       eventName: 'SessionStart',
-      additionalContext: buildActivationContext(mode, instructionBundle),
+      additionalContext: buildActivationContext(mode),
       ...(env.PLUGIN_DATA ? { systemMessage: `AGENT-EVOLVE:${mode.toUpperCase()}` } : {}),
     });
   } catch (error) {

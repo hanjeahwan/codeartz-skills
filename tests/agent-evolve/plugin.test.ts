@@ -131,6 +131,18 @@ test('hook 源码不包含 feedback classifier 或 event-state 协议', () => {
   assert.equal(source.includes(['AGENT', 'FEEDBACK'].join('-')), false);
 });
 
+test('Agent Evolve 按触发、工作流、安全验证三阶段延迟读取', () => {
+  const skill = fs.readFileSync('skills/agent-evolve/SKILL.md', 'utf8');
+  const workflow = fs.readFileSync('skills/agent-evolve/references/workflow.md', 'utf8');
+  const activation = fs.readFileSync('hooks/agent-evolve-runtime.js', 'utf8');
+
+  assert.match(activation, /普通请求禁止加载/);
+  assert.doesNotMatch(activation, /# Agent Evolve 工作流|# Agent Evolve 安全验证/);
+  assert.match(skill, /读取相对 `references\/workflow\.md`/);
+  assert.match(skill, /禁止预读 `references\/validation\.md`/);
+  assert.match(workflow, /进入安全验证阶段时，读取相对 `validation\.md`/);
+});
+
 test('README 说明 Agent Evolve 模式、lifecycle hook 与命令', () => {
   const readme = fs.readFileSync('README.md', 'utf8');
 

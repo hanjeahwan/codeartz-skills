@@ -91,7 +91,7 @@ test('普通 prompt 即使状态路径不可用也保持静默且不触碰状态
   }
 });
 
-test('session safe 与 review 命令只更新当前 session 并重新注入 skill', () => {
+test('session safe 与 review 命令只更新当前 session 并重新注入短路由', () => {
   for (const mode of ['safe', 'review'] as const) {
     const env = tempEnv();
     writeDefaultMode('off', env);
@@ -103,20 +103,17 @@ test('session safe 与 review 命令只更新当前 session 并重新注入 skil
     const output = JSON.parse(result.stdout);
     assert.equal(output.systemMessage, `Agent Evolve mode: ${mode}; default: off`);
     assert.match(output.hookSpecificOutput.additionalContext, new RegExp(`^AGENT EVOLVE ACTIVE — mode: ${mode}`));
-    assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve/);
-    assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve 工作流/);
-    assert.match(output.hookSpecificOutput.additionalContext, /# Agent Evolve 安全验证/);
+    assert.match(output.hookSpecificOutput.additionalContext, /已安装的 `agent-evolve` Skill/);
+    assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 工作流/);
+    assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 安全验证/);
     assert.equal(readSessionMode('current-session', env), mode);
     assert.equal(readDefaultMode(env), 'off');
   }
 });
 
-test('active mode 切换在修改 session 状态前拒绝不完整 bundle', () => {
+test('active mode 切换不预读不完整 bundle', () => {
   const env = tempEnv();
   writeSessionMode('current-session', 'off', env);
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-evolve-mode-missing-workflow-'));
-  const skillPath = path.join(root, 'SKILL.md');
-  fs.writeFileSync(skillPath, '---\nname: agent-evolve\ndescription: test\n---\n\n# Agent Evolve\n', 'utf8');
 
   const output = JSON.parse(
     handleUserPromptSubmit(
@@ -126,13 +123,13 @@ test('active mode 切换在修改 session 状态前拒绝不完整 bundle', () =
         session_id: 'current-session',
       },
       env,
-      skillPath,
     ),
   );
 
-  assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve workflow/);
-  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
-  assert.equal(readSessionMode('current-session', env), 'off');
+  assert.match(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
+  assert.match(output.hookSpecificOutput.additionalContext, /已安装的 `agent-evolve` Skill/);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /Unable to read/);
+  assert.equal(readSessionMode('current-session', env), 'safe');
 });
 
 test('session off 命令关闭自动行为并保留手动调用', () => {
