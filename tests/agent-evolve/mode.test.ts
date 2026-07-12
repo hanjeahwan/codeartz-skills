@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { handleUserPromptSubmit, parseModeCommand } from '../../hooks/agent-evolve-mode.js';
+import { handleUserPromptSubmit, parseModeCommand } from '../../hooks/agent-evolve-mode-runtime.js';
 import {
   getOrCreateSessionMode,
   readDefaultMode,

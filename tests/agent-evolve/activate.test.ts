@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { handleSessionStart } from '../../hooks/agent-evolve-activate.js';
+import { handleSessionStart } from '../../hooks/agent-evolve-activate-runtime.js';
 import {
   readSessionMode,
   sessionStatePath,
@@ -33,7 +33,7 @@ function runActivate(input: Record<string, unknown> | string, env: NodeJS.Proces
   });
 }
 
-test('新 Codex session 固化 safe 并按 Ponytail 合同注入可见 badge 与完整规则', () => {
+test('新 Codex session 固化 safe 并注入可见 badge 与完整规则', () => {
   const env = tempEnv('codex');
   const result = runActivate(
     {

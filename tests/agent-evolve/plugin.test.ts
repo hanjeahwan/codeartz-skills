@@ -65,12 +65,12 @@ test('manifest 在 Unix 与 Windows 运行 activation 和精确 mode 脚本', ()
   assert.equal(promptHook.statusMessage, 'Tracking Agent Evolve mode...');
 });
 
-test('新 runtime 提供四个带类型 JSDoc 的 hook 文件', () => {
+test('新 runtime 提供薄入口与四个带类型 JSDoc 的逻辑文件', () => {
   const files = [
     'hooks/agent-evolve-state.js',
     'hooks/agent-evolve-runtime.js',
-    'hooks/agent-evolve-activate.js',
-    'hooks/agent-evolve-mode.js',
+    'hooks/agent-evolve-activate-runtime.js',
+    'hooks/agent-evolve-mode-runtime.js',
   ];
 
   for (const filePath of files) {
@@ -79,6 +79,16 @@ test('新 runtime 提供四个带类型 JSDoc 的 hook 文件', () => {
     assert.match(source, /@typedef/);
     assert.match(source, /@param/);
     assert.match(source, /@returns/);
+  }
+});
+
+test('两个可执行 hook 在顶层无条件调用 runtime main', () => {
+  for (const filePath of ['hooks/agent-evolve-activate.js', 'hooks/agent-evolve-mode.js']) {
+    const source = fs.readFileSync(filePath, 'utf8');
+    assert.match(source, /^#!\/usr\/bin\/env node\n/, filePath);
+    assert.match(source, /import \{ main \} from '.\/agent-evolve-.+-runtime\.js';/, filePath);
+    assert.match(source, /main\(\)\.catch/, filePath);
+    assert.doesNotMatch(source, /import\.meta|process\.argv|realpathSync/, filePath);
   }
 });
 
@@ -108,8 +118,8 @@ test('hook 源码不包含 feedback classifier 或 event-state 协议', () => {
   const source = [
     'hooks/agent-evolve-state.js',
     'hooks/agent-evolve-runtime.js',
-    'hooks/agent-evolve-activate.js',
-    'hooks/agent-evolve-mode.js',
+    'hooks/agent-evolve-activate-runtime.js',
+    'hooks/agent-evolve-mode-runtime.js',
   ]
     .map((filePath) => {
       return fs.readFileSync(filePath, 'utf8');
