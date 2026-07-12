@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import process from 'node:process';
 
@@ -34,7 +35,7 @@ const supportedIncrements = new Set<ReleaseType>([
 const { dryRun, preid, target } = parseArgs(process.argv.slice(2));
 
 if (!target) {
-  fail('Usage: npm run bump -- <major|minor|patch|version> [--dry-run] [--preid beta]');
+  fail('Usage: npm run bump -- <major|minor|patch|auto|version> [--dry-run] [--preid beta]');
 }
 
 const manifests = manifestPaths.map((filePath) => {
@@ -65,7 +66,20 @@ if (currentVersions.size !== 1) {
 }
 
 const currentVersion = manifests[0].json.version;
-const nextVersion = resolveNextVersion(currentVersion, target, preid);
+const automatic = target === 'auto';
+const automaticTarget = automatic ? resolveStagedIncrement() : undefined;
+
+if (automatic && !automaticTarget) {
+  console.log('No staged plugin changes; version unchanged.');
+  process.exit(0);
+}
+
+if (automatic && versionAlreadyBumped(currentVersion)) {
+  console.log(`Version already bumped to ${currentVersion}.`);
+  process.exit(0);
+}
+
+const nextVersion = resolveNextVersion(currentVersion, automaticTarget ?? target, preid);
 
 if (lte(nextVersion, currentVersion)) {
   fail(`Next version must be greater than ${currentVersion}; got ${nextVersion}.`);
@@ -87,6 +101,10 @@ for (const { filePath, nextText } of updates) {
   if (!dryRun) {
     writeFileSync(filePath, nextText);
   }
+}
+
+if (automatic && !dryRun) {
+  execFileSync('git', ['add', '--', ...manifestPaths]);
 }
 
 const mode = dryRun ? 'Would bump' : 'Bumped';
@@ -117,6 +135,45 @@ function resolveNextVersion(currentVersion: string, target: string, preid?: stri
 
 function isReleaseType(target: string): target is ReleaseType {
   return supportedIncrements.has(target as ReleaseType);
+}
+
+function resolveStagedIncrement(): 'minor' | 'patch' | undefined {
+  const lines = execFileSync('git', ['diff', '--cached', '--name-status', '--diff-filter=ACMR'], {
+    encoding: 'utf8',
+  })
+    .trim()
+    .split('\n')
+    .filter(Boolean);
+
+  let pluginChanged = false;
+
+  for (const line of lines) {
+    const [status, ...paths] = line.split('\t');
+
+    if (status === 'A' && paths.some((path) => {return /^skills\/[^/]+\/SKILL\.md$/.test(path)})) {
+      return 'minor';
+    }
+
+    pluginChanged ||= paths.some((path) => {return /^(skills|hooks)\//.test(path)});
+  }
+
+  return pluginChanged ? 'patch' : undefined;
+}
+
+function versionAlreadyBumped(currentVersion: string): boolean {
+  try {
+    const headManifest = JSON.parse(
+      execFileSync('git', ['show', `HEAD:${manifestPaths[0]}`], { encoding: 'utf8' }),
+    ) as Manifest;
+
+    return (
+      valid(headManifest.version) !== null &&
+      lte(headManifest.version, currentVersion) &&
+      headManifest.version !== currentVersion
+    );
+  } catch {
+    return false;
+  }
 }
 
 function parseArgs(args: string[]): ParsedArgs {
