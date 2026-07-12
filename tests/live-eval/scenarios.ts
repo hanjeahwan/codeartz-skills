@@ -125,6 +125,7 @@ export function parseScenario(value: unknown, source: string): Scenario {
   return {
     id: requireString(value.id, `${source}.id`),
     skill: requireString(value.skill, `${source}.skill`),
+    ...(value.plugin === true ? { plugin: true } : {}),
     tier: tier as ScenarioTier,
     description: requireString(value.description, `${source}.description`),
     ...(Object.keys(files).length > 0 ? { files } : {}),

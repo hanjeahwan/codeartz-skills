@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { copyFile, cp, mkdir, mkdtemp, readFile, realpath, rm } from 'node:fs/promises';
+import { copyFile, cp, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -13,6 +13,7 @@ interface SessionOptions {
   repoRoot: string;
   workspace: string;
   skillName?: string;
+  plugin?: boolean;
   model?: string;
   timeoutMs: number;
   readOnly?: boolean;
@@ -159,7 +160,54 @@ async function createCodexSession(options: SessionOptions): Promise<AgentSession
   await mkdir(codexHome, { recursive: true });
   const sourceCodexHome = process.env.CODEX_HOME ?? path.join(os.homedir(), '.codex');
   await copyCredentialIfPresent(path.join(sourceCodexHome, 'auth.json'), path.join(codexHome, 'auth.json'));
-  if (options.skillName) {
+  if (options.plugin) {
+    const marketplace = path.join(sessionRoot, 'marketplace');
+    const plugin = path.join(marketplace, 'plugins', 'codeartz-skills');
+    await mkdir(path.join(marketplace, '.agents', 'plugins'), { recursive: true });
+    await mkdir(plugin, { recursive: true });
+    for (const entry of ['.codex-plugin', 'assets', 'hooks']) {
+      await cp(path.join(options.repoRoot, entry), path.join(plugin, entry), { recursive: true });
+    }
+    if (options.skillName) {
+      await cp(
+        path.join(options.repoRoot, 'skills', options.skillName),
+        path.join(plugin, 'skills', options.skillName),
+        { recursive: true },
+      );
+    }
+    await writeFile(
+      path.join(marketplace, '.agents', 'plugins', 'marketplace.json'),
+      `${JSON.stringify({
+        name: 'live-eval',
+        interface: { displayName: 'Live Eval' },
+        plugins: [
+          {
+            name: 'codeartz-skills',
+            description: 'Current workspace plugin for live evaluation.',
+            source: { source: 'local', path: './plugins/codeartz-skills' },
+            policy: { installation: 'AVAILABLE', authentication: 'ON_INSTALL' },
+            category: 'Productivity',
+          },
+        ],
+      })}\n`,
+      'utf8',
+    );
+    const environment = { ...childEnvironment(home), CODEX_HOME: codexHome };
+    await runProcess(
+      'codex',
+      ['plugin', 'marketplace', 'add', marketplace, '--json'],
+      options.workspace,
+      environment,
+      options.timeoutMs,
+    );
+    await runProcess(
+      'codex',
+      ['plugin', 'add', 'codeartz-skills@live-eval', '--json'],
+      options.workspace,
+      environment,
+      options.timeoutMs,
+    );
+  } else if (options.skillName) {
     await cp(
       path.join(options.repoRoot, 'skills', options.skillName),
       path.join(codexHome, 'skills', options.skillName),
@@ -178,7 +226,8 @@ async function createCodexSession(options: SessionOptions): Promise<AgentSession
       const effortArgs = options.effort ? ['-c', `model_reasoning_effort="${options.effort}"`] : [];
       const shared = [
         '--json',
-        '--ignore-user-config',
+        ...(!options.plugin ? ['--ignore-user-config'] : []),
+        ...(options.plugin ? ['--dangerously-bypass-hook-trust'] : []),
         '--skip-git-repo-check',
         '-c',
         'approval_policy="never"',
@@ -339,7 +388,7 @@ function parseJudgeResult(value: unknown, scenario: Scenario): JudgeResult {
 
 export async function judgeTranscript(
   agent: AgentName,
-  options: Omit<SessionOptions, 'agent' | 'readOnly' | 'skillName'>,
+  options: Omit<SessionOptions, 'agent' | 'plugin' | 'readOnly' | 'skillName'>,
   scenario: Scenario,
   transcript: AgentTurnResult[],
 ): Promise<JudgeResult> {

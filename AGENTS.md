@@ -156,6 +156,11 @@
 
 写完后逐项过一遍。
 
+### Agent Evolve 验证
+
+- 修改 Agent Evolve 自动触发、模式路由或 hook 上下文后，运行加载当前本地 plugin 并触发真实 hook 的 live test。
+- 仅复制 Skill 的 live test 不能替代 plugin hook live test。
+
 系统层:
 
 - 这条内容放对文件了吗?(路由进 `SKILL.md`,执行进阶段手册)

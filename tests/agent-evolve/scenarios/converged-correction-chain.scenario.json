@@ -1,0 +1,76 @@
+{
+  "id": "converged-correction-chain",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "Agent 持续修正当前任务产物时不改长期规则，用户明确确认终态后才归约整条纠正链。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n## 建模质量\n\n- 嵌入构件必须看起来结构真实。\n- 禁止积木拼凑感。\n",
+    "model-state.md": "# 当前模型状态\n\n- 墙体是实心块。\n- 窗和门是贴在墙面的平面。\n- 玻璃位于墙洞底部。\n"
+  },
+  "turns": [
+    {
+      "prompt": "继续完成当前建模任务：门窗像贴在墙上的形状，没有真实连接。请先更新 model-state.md 表示修正后的模型状态。",
+      "checks": [
+        { "type": "responseExcludes", "value": "反馈结论：" },
+        { "type": "fileUnchanged", "path": "AGENTS.md" }
+      ]
+    },
+    {
+      "prompt": "继续修正当前模型：墙洞仍只是浅槽，框也悬在墙外。请更新 model-state.md，不要处理长期规则。",
+      "checks": [
+        { "type": "responseExcludes", "value": "反馈结论：" },
+        { "type": "fileUnchanged", "path": "AGENTS.md" }
+      ]
+    },
+    {
+      "prompt": "继续修正当前模型：洞口比框大，四周仍有空隙，不要使用统一余量。请更新 model-state.md。",
+      "checks": [
+        { "type": "responseExcludes", "value": "反馈结论：" },
+        { "type": "fileUnchanged", "path": "AGENTS.md" }
+      ]
+    },
+    {
+      "prompt": "窗框已经正确，但玻璃仍不对：玻璃应该位于框体厚度中心。请继续更新 model-state.md。",
+      "checks": [
+        { "type": "responseExcludes", "value": "反馈结论：" },
+        { "type": "fileUnchanged", "path": "AGENTS.md" }
+      ]
+    },
+    {
+      "prompt": "窗现在对了，门还没解决。请只继续修正 model-state.md 中的门。",
+      "checks": [
+        { "type": "responseExcludes", "value": "反馈结论：" },
+        { "type": "fileUnchanged", "path": "AGENTS.md" }
+      ]
+    },
+    {
+      "prompt": "门也按相同结构改对了，这轮建模纠正已经完成。",
+      "checks": [
+        { "type": "responseIncludes", "value": "反馈结论：已更新" },
+        { "type": "responseIncludes", "value": "原因：" },
+        { "type": "responseIncludes", "value": "证据：" },
+        { "type": "responseIncludes", "value": "目标位置：" }
+      ]
+    }
+  ],
+  "postChecks": [
+    {
+      "type": "fileMatches",
+      "path": "AGENTS.md",
+      "pattern": "洞口[^\\n]*(框体|构件)[^\\n]*(匹配|贴合|外轮廓|外尺寸|尺寸)|(框体|构件)[^\\n]*(匹配|贴合|外轮廓|外尺寸|尺寸)[^\\n]*洞口"
+    },
+    {
+      "type": "fileMatches",
+      "path": "AGENTS.md",
+      "pattern": "(玻璃|填充)[^\\n]*框[^\\n]*(厚度|进深)[^\\n]*(中心|中部)"
+    }
+  ],
+  "criteria": [
+    "前五轮只修正 model-state.md，没有修改 AGENTS.md，也没有输出 Agent Evolve 回执。",
+    "最终轮识别窗先通过分区验收、门随后通过分区验收，并提交完整纠正链。",
+    "最终轮没有把宽泛的结构真实或禁止积木拼凑感误判为同决策粒度覆盖。",
+    "新增规则说明洞口与框体或构件尺寸的匹配关系，以及玻璃在框体厚度中的位置。",
+    "最终规则不保存具体建筑、失败轮次或中间模型状态。"
+  ]
+}

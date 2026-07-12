@@ -171,6 +171,7 @@ async function runScenario(
       repoRoot,
       workspace,
       skillName: scenario.skill,
+      plugin: scenario.plugin,
       model: agent === 'codex' ? options.modelCodex : options.modelClaude,
       timeoutMs: options.timeoutMs,
     });

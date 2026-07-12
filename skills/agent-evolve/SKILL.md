@@ -1,14 +1,15 @@
 ---
 name: agent-evolve
-description: 当主会话需要根据用户直接反馈改进未来项目决策，或用户手动调用 Agent Evolve 评估、提案、批准沉淀时使用。该技能按 safe、review、off 模式路由，把可复用反馈安全合并到未来 agent 会读取的项目已有规则源，并为每条候选提供原因与证据。
+description: 当主会话出现已明确收敛且会改变未来项目决策的直接用户反馈、用户明确确认连续修正的终态，或用户手动调用 Agent Evolve 评估、提案、批准沉淀时使用。
 ---
 
 # Agent Evolve
 
 ## 触发条件
 
-- 上下文存在 `AGENT EVOLVE ACTIVE — mode: safe` 时，对当前主会话中直接来自用户的反馈自动运行本技能。
-- 上下文存在 `AGENT EVOLVE ACTIVE — mode: review` 时，对当前主会话中直接来自用户的反馈自动运行本技能。
+- 上下文存在 `AGENT EVOLVE ACTIVE — mode: safe` 或 `AGENT EVOLVE ACTIVE — mode: review` 时，只对已明确收敛的直接用户反馈自动运行本技能。
+- 当前结果仍在修正或验收时，不自动运行本技能。
+- 用户明确确认连续修正的终态后，自动运行本技能。
 - 用户手动调用 `$agent-evolve` 时运行本技能。
 - 是否触发反馈处理由完整语义决定，不由关键词决定。
 

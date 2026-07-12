@@ -94,7 +94,8 @@ export function buildActivationContext(mode) {
   }
   return [
     `AGENT EVOLVE ACTIVE — mode: ${mode}`,
-    '自动触发：当前主会话中，用户直接提出了可改进未来项目决策的反馈。',
+    '自动触发：当前主会话中，用户直接提出了已明确收敛且可改进未来项目决策的反馈。',
+    '当前结果仍在修正或验收时不触发；用户明确确认终态后再加载 Skill。',
     '触发后：按名称加载已安装的 `agent-evolve` Skill，并按当前模式执行其路由。',
     '普通请求禁止加载。必须根据完整语义判断，禁止仅依赖关键词。',
     '仍可手动调用 `$agent-evolve`。',

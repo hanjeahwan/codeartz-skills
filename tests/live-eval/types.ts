@@ -25,6 +25,7 @@ export interface ScenarioTurn {
 export interface Scenario {
   id: string;
   skill: string;
+  plugin?: boolean;
   tier: ScenarioTier;
   description: string;
   files?: Record<string, string>;

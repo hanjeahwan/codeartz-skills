@@ -29,7 +29,7 @@ test('五个目标 Skill 都包含有效的冒烟场景和完整场景', async (
   }
 });
 
-test('Agent Evolve 场景覆盖完整的 manual-off 语义矩阵', async () => {
+test('Agent Evolve 场景覆盖手动模式与连续纠正语义', async () => {
   const scenarios = await loadScenarios(process.cwd(), new Set(['agent-evolve']), 'all');
   assert.deepEqual(
     new Set(
@@ -38,6 +38,7 @@ test('Agent Evolve 场景覆盖完整的 manual-off 语义矩阵', async () => {
       }),
     ),
     new Set([
+      'converged-correction-chain',
       'manual-already-covered',
       'manual-conflict',
       'manual-multiple-candidates',
@@ -46,6 +47,12 @@ test('Agent Evolve 场景覆盖完整的 manual-off 语义矩阵', async () => {
       'manual-redaction',
       'manual-unrouted-doc',
     ]),
+  );
+  assert.equal(
+    scenarios.find((scenario) => {
+      return scenario.id === 'converged-correction-chain';
+    })?.plugin,
+    true,
   );
 });
 
