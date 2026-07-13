@@ -38,7 +38,7 @@ npx skills add https://github.com/hanjeahwan/codeartz-skills --skill target-boun
 
 **对应 skill：** [`target-boundary`](skills/target-boundary/) 把用户资料先当作假设，再检查仓库事实，明确适用范围、保持原行为、未知、冲突和待裁决项。
 
-**实际结果：** 代码事实、语义边界、目标合同和方案关卡通过后，写入 `.codeartz/<topic>/target-boundary.md`；否则只输出事实或合同缺口。方案文件同时保存关键证据和开工入口，是后续 agent 接手时的唯一方案来源。该 Skill 只允许通过 `$target-boundary` 显式调用。
+**实际结果：** 代码事实、语义边界、目标合同和产物关卡通过后，写入 `.codeartz/<topic>/target-boundary.md`；否则只输出事实或合同缺口。该文件保存唯一已采纳的目标边界约束、关键证据和开工入口，但不替代仓库、项目规则、测试或实现设计。Codex 只允许通过 `$target-boundary` 显式调用；其他宿主使用各自的显式 Skill 调用语法。
 
 ### 3. 项目知识缺失或已经落后于代码
 
@@ -83,7 +83,7 @@ npx skills add https://github.com/hanjeahwan/codeartz-skills --skill target-boun
 | Skill                                                          | 何时使用                                     | 写入或输出什么                       |
 | -------------------------------------------------------------- | -------------------------------------------- | ------------------------------------ |
 | [`agentic-design-navigator`](skills/agentic-design-navigator/) | 输入模糊，或设计讨论发生明显变化             | 意图账本、九维设计分析与四类方案     |
-| [`target-boundary`](skills/target-boundary/)                   | 需求资料与现有系统事实混杂                   | 关卡通过后写入唯一方案文件           |
+| [`target-boundary`](skills/target-boundary/)                   | 需求资料与现有系统事实混杂                   | 关卡通过后写入唯一目标边界合同       |
 | [`project-foundation`](skills/project-foundation/)             | 项目知识缺失或需要跟随代码刷新               | 当前草稿；验证并批准后的项目知识     |
 | [`instruction-doc-audit`](skills/instruction-doc-audit/)       | 指令文档存在隐式分支、深嵌套、重复或语言问题 | 审查结果或修改后的规则文档           |
 | [`agent-evolve`](skills/agent-evolve/)                         | 用户反馈会改变未来项目决策                   | 已更新、已提案、已有规则覆盖或不沉淀 |

@@ -1,0 +1,7 @@
+interface:
+  display_name: '目标边界'
+  short_description: '仅在用户显式调用时裁定目标行为边界并生成可交接的边界合同'
+  default_prompt: '使用 $target-boundary 分析目标行为授权并生成目标边界合同。'
+
+policy:
+  allow_implicit_invocation: false
