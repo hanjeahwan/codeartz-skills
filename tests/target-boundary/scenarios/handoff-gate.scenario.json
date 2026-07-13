@@ -2,9 +2,9 @@
   "id": "handoff-gate",
   "skill": "target-boundary",
   "tier": "full",
-  "description": "方案仍有待裁决点时不能生成 context-handoff。",
+  "description": "新版分层方案仍有待裁决点时不能生成 context-handoff。",
   "files": {
-    ".codeartz/payment/target-boundary.md": "## 方案\n\n### 推荐结论\n\n只修改银行卡支付失败重试。\n\n### 风险和待裁决\n\n- 风险：重复请求可能触发幂等冲突。\n- 待裁决：钱包支付是否共用新的重试行为。\n  现实场景：用户从银行卡切换到钱包后，重试语义不明确。\n\n### 依据\n\n- 证据等级：L3。\n"
+    ".codeartz/payment/target-boundary.md": "# Target Boundary: payment\n\n> 状态：BLOCKED_BY_DECISION\n> 证据等级：L3\n> 推荐结论：只修改银行卡支付失败重试。\n> 下一步：用户裁决钱包支付范围。\n\n## 1. 决策摘要\n\n- 要解决的问题：银行卡支付失败后的重试行为不稳定。\n- 推荐怎么做：仅修改银行卡支付失败重试。\n- 明确不做：不自动扩展到钱包支付。\n- 主要原因：钱包支付是否共享重试语义尚未授权。\n- 最大风险：重复请求可能触发幂等冲突。\n\n## 5. 待裁决\n\n### D1 — 钱包支付是否共用新的重试行为\n\n- 决策问题：钱包支付是否纳入新的失败重试行为。\n- 选项：纳入或保持原行为。\n- 推荐：保持原行为，直到获得明确授权。\n- 现实场景：用户从银行卡切换到钱包后，重试语义不明确。\n"
   },
   "turns": [
     {
@@ -18,7 +18,7 @@
     { "type": "trajectoryIncludes", "value": "target-boundary" }
   ],
   "criteria": [
-    "回应识别方案仍有未处理的待裁决点，因此阻止生成交接文件。",
+    "回应识别新版方案状态为 BLOCKED_BY_DECISION，且仍有未处理的待裁决点，因此阻止生成交接文件。",
     "回应只输出缺口和下一步裁决动作，没有从记忆补写 context-handoff。",
     "回应没有擅自替用户裁决钱包支付范围，也没有改写方案结论。",
     "方案文件保持不变，context-handoff.md 没有生成。"
