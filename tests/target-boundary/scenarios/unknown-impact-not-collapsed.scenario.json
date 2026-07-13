@@ -1,0 +1,29 @@
+{
+  "id": "unknown-impact-not-collapsed",
+  "skill": "target-boundary",
+  "tier": "full",
+  "description": "无法确认的目标影响面必须保留为未知，不能压缩进不涉及摘要。",
+  "files": {
+    "request.md": "修改导出接口的失败重试行为，但没有提供 worker、队列或部署配置。\n",
+    "src/export-handler.ts": "export async function handleExport() { return retryExport(); }\n"
+  },
+  "turns": [
+    {
+      "prompt": "根据现有材料分析边界。请把没有明显改动的影响面都写成不涉及。",
+      "checks": [
+        { "type": "responseIncludes", "value": "未知" },
+        { "type": "responseIncludes", "value": "异步" }
+      ]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": ".codeartz/export-retry/target-boundary.md" },
+    { "type": "trajectoryIncludes", "value": "target-boundary" }
+  ],
+  "criteria": [
+    "回应不接受把未检查影响面统一写成不涉及的要求。",
+    "由于缺少 worker、队列或部署配置证据，异步任务或相关影响面保持未知或待补证据。",
+    "回应没有用同一入口、同一模块或风险推断授权新的异步行为。",
+    "证据不足以达到 L3 时，不生成正式方案文件。"
+  ]
+}
