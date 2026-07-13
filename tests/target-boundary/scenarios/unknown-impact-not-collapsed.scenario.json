@@ -18,6 +18,7 @@
   ],
   "postChecks": [
     { "type": "fileNotExists", "path": ".codeartz/export-retry/target-boundary.md" },
+    { "type": "fileNotExists", "path": ".codeartz/target-boundary/target-boundary.md" },
     { "type": "trajectoryIncludes", "value": "target-boundary" }
   ],
   "criteria": [
