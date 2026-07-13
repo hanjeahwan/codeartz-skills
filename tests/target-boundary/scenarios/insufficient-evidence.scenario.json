@@ -8,9 +8,9 @@
   },
   "turns": [
     {
-      "prompt": "根据 request.md 分析边界并生成 target-boundary 方案。仓库里没有其他实现材料。",
+      "prompt": "使用 $target-boundary 根据 request.md 分析边界并生成方案。仓库里没有其他实现材料。",
       "checks": [
-        { "type": "responseMatches", "pattern": "L[012]" },
+        { "type": "responseMatches", "pattern": "(没有|缺少).*代码" },
         { "type": "responseExcludes", "value": "已验证" }
       ]
     }
@@ -22,7 +22,7 @@
   ],
   "criteria": [
     "回应把 request.md 视为资料假设，而不是代码事实。",
-    "回应将证据等级保持在 L0、L1 或 L2，没有在缺少代码证据时上跳到 L3。",
+    "回应明确缺少代码证据，没有把资料假设升级为系统事实。",
     "回应只输出证据缺口、合同缺口或下一步最小证据动作，没有生成正式推荐方案文件。",
     "回应没有声称目标行为已验证、已修复或完成。"
   ]
