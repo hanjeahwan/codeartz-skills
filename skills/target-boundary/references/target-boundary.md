@@ -134,7 +134,7 @@
 - 没有会改变执行结果的被拒方案时写“不适用”。
 
 ```markdown
-# Target Boundary: <topic>
+# 目标边界：<主题>
 
 > 状态：[BLOCKED_BY_DECISION / READY_FOR_APPROVAL]
 > 证据等级：L3
