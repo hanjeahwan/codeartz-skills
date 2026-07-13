@@ -165,7 +165,7 @@
 
 ## 输出要求
 
-- 达到合同写入关卡后，读取 `../assets/target-boundary-template.md`。
+- 达到合同写入关卡后，从 Skill 根目录加载 `assets/target-boundary-template.md`。
 - 写入合同文件时，使用目标边界合同模板。
 - 明确排除项写入“禁止”分区。
 - 已证明不属于目标的内容写入“不适用”分区。
