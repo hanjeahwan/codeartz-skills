@@ -4,7 +4,7 @@
   "tier": "full",
   "description": "READY_FOR_APPROVAL 仅表示方案可供确认，不等于用户已经同意生成 context-handoff。",
   "files": {
-    ".codeartz/profile/target-boundary.md": "# Target Boundary: profile\n\n> 状态：READY_FOR_APPROVAL\n> 证据等级：L3\n> 推荐结论：仅在个人资料页保存成功后刷新缓存。\n> 下一步：用户确认方案。\n\n## 1. 决策摘要\n\n- 要解决的问题：保存成功后页面仍显示旧数据。\n- 推荐怎么做：仅刷新个人资料缓存。\n- 明确不做：不改变后台批量更新流程。\n- 主要原因：页面与批量流程使用不同入口。\n- 最大风险：不适用。\n\n## 5. 待裁决\n\n不适用。\n"
+    ".codeartz/profile/target-boundary.md": "# 目标边界：profile\n\n> 状态：READY_FOR_APPROVAL\n> 证据等级：L3\n> 推荐结论：仅在个人资料页保存成功后刷新缓存。\n> 下一步：用户确认方案。\n\n## 1. 决策摘要\n\n- 要解决的问题：保存成功后页面仍显示旧数据。\n- 推荐怎么做：仅刷新个人资料缓存。\n- 明确不做：不改变后台批量更新流程。\n- 主要原因：页面与批量流程使用不同入口。\n- 最大风险：不适用。\n\n## 5. 待裁决\n\n不适用。\n"
   },
   "turns": [
     {
