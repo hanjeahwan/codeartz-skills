@@ -130,7 +130,7 @@ codex plugin marketplace add hanjeahwan/codeartz-skills
 codex plugin add codeartz-skills@codeartz
 ```
 
-插件包含 `SessionStart`、`UserPromptSubmit` 与 `PreToolUse` hooks。安装后先审查并信任这些 hooks，再重启应用或开启新会话。
+插件包含 `SessionStart`、`UserPromptSubmit` 与 `PermissionRequest` hooks。安装后先审查并信任这些 hooks，再重启应用或开启新会话。
 
 ## 这个仓库不做什么
 

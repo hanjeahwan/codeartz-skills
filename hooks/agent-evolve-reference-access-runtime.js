@@ -10,7 +10,7 @@ import { readStdinWithTimeout, writeStdoutSafely } from './agent-evolve-runtime.
  * @typedef {{
  *   tool_input?: Record<string, unknown>;
  *   tool_name?: string;
- * }} PreToolUseInput
+ * }} PermissionRequestInput
  */
 
 const SAFE_READ_COMMAND = /^\s*(?:cat|head|tail|sed)\b/;
@@ -65,7 +65,7 @@ export function extractCandidatePaths(toolInput) {
 }
 
 /**
- * @param {PreToolUseInput | null} input - PreToolUse hook payload.
+ * @param {PermissionRequestInput | null} input - PermissionRequest hook payload.
  * @param {NodeJS.ProcessEnv} [env] - Hook environment.
  * @returns {string} Permission output for an allowed reference read, otherwise silence.
  */
@@ -88,9 +88,10 @@ export function handleReferenceAccess(input, env = process.env) {
   }
   return JSON.stringify({
     hookSpecificOutput: {
-      hookEventName: 'PreToolUse',
-      permissionDecision: 'allow',
-      permissionDecisionReason: 'Agent Evolve phase manual read',
+      hookEventName: 'PermissionRequest',
+      decision: {
+        behavior: 'allow',
+      },
     },
   });
 }

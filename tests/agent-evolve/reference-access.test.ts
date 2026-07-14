@@ -20,7 +20,7 @@ function fixture() {
   return { manual, pluginRoot, references };
 }
 
-test('直接读取阶段手册时返回共用 PreToolUse 放行协议', () => {
+test('直接读取阶段手册时返回共用 PermissionRequest 放行协议', () => {
   const { manual, pluginRoot } = fixture();
   const output = JSON.parse(
     handleReferenceAccess({ tool_name: 'Read', tool_input: { file_path: manual } }, { CLAUDE_PLUGIN_ROOT: pluginRoot }),
@@ -28,9 +28,10 @@ test('直接读取阶段手册时返回共用 PreToolUse 放行协议', () => {
 
   assert.deepEqual(output, {
     hookSpecificOutput: {
-      hookEventName: 'PreToolUse',
-      permissionDecision: 'allow',
-      permissionDecisionReason: 'Agent Evolve phase manual read',
+      hookEventName: 'PermissionRequest',
+      decision: {
+        behavior: 'allow',
+      },
     },
   });
 });

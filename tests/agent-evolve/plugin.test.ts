@@ -35,23 +35,23 @@ test('Codex 与 Claude plugin manifest 使用共用 hook 配置', () => {
   assert.equal(claude.hooks, './hooks/claude-codex-hooks.json');
 });
 
-test('共用 hook 配置包含 SessionStart、UserPromptSubmit 与 PreToolUse', () => {
+test('共用 hook 配置包含 SessionStart、UserPromptSubmit 与 PermissionRequest', () => {
   const config = readJson<HookConfig>('hooks/claude-codex-hooks.json');
 
-  assert.deepEqual(Object.keys(config.hooks).sort(), ['PreToolUse', 'SessionStart', 'UserPromptSubmit']);
+  assert.deepEqual(Object.keys(config.hooks).sort(), ['PermissionRequest', 'SessionStart', 'UserPromptSubmit']);
   assert.equal(config.hooks.SessionStart.length, 1);
   assert.equal(config.hooks.UserPromptSubmit.length, 1);
-  assert.equal(config.hooks.PreToolUse.length, 1);
+  assert.equal(config.hooks.PermissionRequest.length, 1);
   assert.equal(config.hooks.SessionStart[0].matcher, 'startup|resume|clear|compact');
   assert.equal(config.hooks.UserPromptSubmit[0].matcher, undefined);
-  assert.equal(config.hooks.PreToolUse[0].matcher, 'Read|Bash');
+  assert.equal(config.hooks.PermissionRequest[0].matcher, 'Read|Bash');
 });
 
 test('manifest 在 Unix 与 Windows 运行 activation、mode 与 reference access 脚本', () => {
   const config = readJson<HookConfig>('hooks/claude-codex-hooks.json');
   const sessionHook = config.hooks.SessionStart[0].hooks[0];
   const promptHook = config.hooks.UserPromptSubmit[0].hooks[0];
-  const accessHook = config.hooks.PreToolUse[0].hooks[0];
+  const accessHook = config.hooks.PermissionRequest[0].hooks[0];
 
   assert.equal(sessionHook.type, 'command');
   assert.match(sessionHook.command ?? '', /agent-evolve-activate\.js/);
