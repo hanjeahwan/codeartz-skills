@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { judgeJsonSchema, parseJudgeResult } from './agents.ts';
 import { parseCli } from './run.ts';
 import { evaluateChecks, loadScenarios, parseScenario } from './scenarios.ts';
 
@@ -112,6 +113,55 @@ test('确定性响应检查会报告证据', async () => {
     }),
     [true, true, true, true, true, true],
   );
+});
+
+test('语义裁判使用索引协议并恢复场景原始标准', () => {
+  const scenario = parseScenario(
+    {
+      id: 'judge-indexes',
+      skill: 'test',
+      tier: 'smoke',
+      description: 'judge index protocol',
+      turns: [{ prompt: 'hello' }],
+      criteria: ['第一条标准', '第二条标准'],
+    },
+    'inline',
+  );
+  assert.deepEqual(
+    parseJudgeResult(
+      {
+        verdict: 'pass',
+        summary: 'passed',
+        criteria: [
+          { criterionIndex: 1, passed: true, evidence: 'second' },
+          { criterionIndex: 0, passed: true, evidence: 'first' },
+        ],
+      },
+      scenario,
+    ),
+    {
+      verdict: 'pass',
+      summary: 'passed',
+      criteria: [
+        { criterion: '第一条标准', passed: true, evidence: 'first' },
+        { criterion: '第二条标准', passed: true, evidence: 'second' },
+      ],
+    },
+  );
+  assert.throws(() => {
+    return parseJudgeResult(
+      {
+        verdict: 'pass',
+        summary: 'duplicate',
+        criteria: [
+          { criterionIndex: 0, passed: true, evidence: 'first' },
+          { criterionIndex: 0, passed: true, evidence: 'again' },
+        ],
+      },
+      scenario,
+    );
+  }, /duplicated/);
+  assert.match(judgeJsonSchema(2), /"minItems":2/);
 });
 
 test('CLI 默认使用两个真实宿主和冒烟层级', () => {

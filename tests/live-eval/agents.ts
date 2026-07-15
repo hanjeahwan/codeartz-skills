@@ -10,6 +10,7 @@ import type { AgentName, AgentSession, AgentTurnResult, JudgeResult, Scenario } 
 interface SessionOptions {
   agent: AgentName;
   effort?: string;
+  jsonSchema?: string;
   repoRoot: string;
   workspace: string;
   skillName?: string;
@@ -305,6 +306,7 @@ async function createClaudeSession(options: SessionOptions): Promise<AgentSessio
         ...(options.skillName ? ['--plugin-dir', options.repoRoot] : []),
         ...(options.model ? ['--model', options.model] : []),
         ...(options.effort ? ['--effort', options.effort] : []),
+        ...(options.jsonSchema ? ['--json-schema', options.jsonSchema] : []),
       ];
       const args =
         turnNumber === 1 ? [...common, '--session-id', sessionId, prompt] : [...common, '--resume', sessionId, prompt];
@@ -355,44 +357,87 @@ function extractJsonObject(response: string): unknown {
   }
 }
 
-function parseJudgeResult(value: unknown, scenario: Scenario): JudgeResult {
+export function judgeJsonSchema(criteriaCount: number): string {
+  return JSON.stringify({
+    type: 'object',
+    properties: {
+      verdict: { type: 'string', enum: ['pass', 'fail'] },
+      summary: { type: 'string' },
+      criteria: {
+        type: 'array',
+        minItems: criteriaCount,
+        maxItems: criteriaCount,
+        items: {
+          type: 'object',
+          properties: {
+            criterionIndex: { type: 'integer', minimum: 0, maximum: criteriaCount - 1 },
+            passed: { type: 'boolean' },
+            evidence: { type: 'string' },
+          },
+          required: ['criterionIndex', 'passed', 'evidence'],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ['verdict', 'summary', 'criteria'],
+    additionalProperties: false,
+  });
+}
+
+export function parseJudgeResult(value: unknown, scenario: Scenario): JudgeResult {
   if (!isRecord(value) || (value.verdict !== 'pass' && value.verdict !== 'fail')) {
     throw new Error('Judge result has an invalid verdict');
   }
   if (typeof value.summary !== 'string' || !Array.isArray(value.criteria)) {
     throw new Error('Judge result is missing summary or criteria');
   }
-  const criteria = value.criteria.map((criterion, index) => {
+  const indexedCriteria = new Map<number, { evidence: string; passed: boolean }>();
+  value.criteria.forEach((criterion, index) => {
     if (
       !isRecord(criterion) ||
-      typeof criterion.criterion !== 'string' ||
+      !Number.isInteger(criterion.criterionIndex) ||
       typeof criterion.passed !== 'boolean' ||
       typeof criterion.evidence !== 'string'
     ) {
       throw new Error(`Judge criterion ${index} is invalid`);
     }
-    if (criterion.criterion !== scenario.criteria[index]) {
-      throw new Error(`Judge criterion ${index} does not match the scenario`);
+    const criterionIndex = Number(criterion.criterionIndex);
+    if (criterionIndex < 0 || criterionIndex >= scenario.criteria.length) {
+      throw new Error(`Judge criterion index ${criterionIndex} is out of range`);
     }
-    return {
-      criterion: criterion.criterion,
+    if (indexedCriteria.has(criterionIndex)) {
+      throw new Error(`Judge criterion index ${criterionIndex} is duplicated`);
+    }
+    indexedCriteria.set(criterionIndex, {
       passed: criterion.passed,
       evidence: criterion.evidence,
-    };
+    });
   });
-  if (criteria.length !== scenario.criteria.length) {
+  if (indexedCriteria.size !== scenario.criteria.length) {
     throw new Error('Judge did not evaluate every scenario criterion');
   }
+  const criteria = scenario.criteria.map((criterion, index) => {
+    const result = indexedCriteria.get(index);
+    if (!result) {
+      throw new Error(`Judge did not evaluate scenario criterion ${index}`);
+    }
+    return { criterion, ...result };
+  });
   return { verdict: value.verdict, summary: value.summary, criteria };
 }
 
 export async function judgeTranscript(
   agent: AgentName,
-  options: Omit<SessionOptions, 'agent' | 'plugin' | 'readOnly' | 'skillName'>,
+  options: Omit<SessionOptions, 'agent' | 'jsonSchema' | 'plugin' | 'readOnly' | 'skillName'>,
   scenario: Scenario,
   transcript: AgentTurnResult[],
 ): Promise<JudgeResult> {
-  const session = await createAgentSession({ ...options, agent, readOnly: true });
+  const session = await createAgentSession({
+    ...options,
+    agent,
+    readOnly: true,
+    ...(agent === 'claude' ? { jsonSchema: judgeJsonSchema(scenario.criteria.length) } : {}),
+  });
   const conversation = transcript
     .map((turn, index) => {
       return [
@@ -405,18 +450,31 @@ export async function judgeTranscript(
   const prompt = [
     'Evaluate the transcript against every criterion. Use only evidence present in the transcript.',
     'Return JSON only with this shape:',
-    '{"verdict":"pass|fail","summary":"...","criteria":[{"criterion":"exact criterion","passed":true,"evidence":"..."}]}',
+    '{"verdict":"pass|fail","summary":"...","criteria":[{"criterionIndex":0,"passed":true,"evidence":"..."}]}',
     'The overall verdict is pass only when every criterion passes.',
     `Criteria:\n${scenario.criteria
-      .map((criterion) => {
-        return `- ${criterion}`;
+      .map((criterion, index) => {
+        return `${index}. ${criterion}`;
       })
       .join('\n')}`,
     `Transcript:\n${conversation}`,
   ].join('\n\n');
   try {
     const result = await session.runTurn(prompt);
-    return parseJudgeResult(extractJsonObject(result.response), scenario);
+    try {
+      return parseJudgeResult(extractJsonObject(result.response), scenario);
+    } catch (initialError) {
+      const retry = await session.runTurn(
+        'The previous judge output failed validation. Return the same judgment again using only the required JSON structure and criterionIndex values.',
+      );
+      try {
+        return parseJudgeResult(extractJsonObject(retry.response), scenario);
+      } catch (retryError) {
+        const initialMessage = initialError instanceof Error ? initialError.message : String(initialError);
+        const retryMessage = retryError instanceof Error ? retryError.message : String(retryError);
+        throw new Error(`Judge output remained invalid after one retry: ${retryMessage}; initial: ${initialMessage}`);
+      }
+    }
   } finally {
     await session.close();
   }
