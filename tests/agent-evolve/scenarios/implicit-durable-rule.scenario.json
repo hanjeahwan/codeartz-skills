@@ -1,0 +1,26 @@
+{
+  "id": "implicit-durable-rule",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "用户直接约束未来任务但未使用沉淀关键词时，仍识别并处理长期规则。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 后台任务\n\n- 后台任务失败时记录任务标识。\n"
+  },
+  "judgeFiles": ["AGENTS.md"],
+  "turns": [
+    {
+      "prompt": "以后所有可能被重复投递的后台任务都必须使用业务幂等键；重试时复用原键，禁止用每次执行生成的新 UUID 绕过重复检测。"
+    }
+  ],
+  "postChecks": [
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应识别用户正在直接约束未来后台任务，没有依赖“沉淀”关键词。",
+    "AGENTS.md 写入业务幂等键和重试复用原键的规则。",
+    "规则保留禁止用新 UUID 绕过重复检测的失败边界。",
+    "回应没有把规则降级为只适用于某个任务。"
+  ]
+}

@@ -15,43 +15,11 @@
   },
   "turns": [
     {
-      "prompt": "$project-foundation 诊断这个没有项目知识文档的仓库并建立草稿。不要把当前多数写法直接当成正式规范，也不要创建正式文件。",
-      "checks": [
-        { "type": "responseMatches", "pattern": "(?:项目事实|稳定模式)" },
-        { "type": "responseMatches", "pattern": "(?:冲突|技术债|待裁决)" }
-      ]
+      "prompt": "$project-foundation 诊断这个没有项目知识文档的仓库，建立必要的项目知识草稿。我还没有批准正式文件。"
     }
   ],
+  "judgeFiles": [".codeartz/project-foundation/draft.md"],
   "postChecks": [
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "项目事实" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "稳定模式" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "技术债" },
-    {
-      "type": "fileExcludes",
-      "path": ".codeartz/project-foundation/draft.md",
-      "value": "唯一权威源"
-    },
-    {
-      "type": "fileExcludes",
-      "path": ".codeartz/project-foundation/draft.md",
-      "value": "禁止新增"
-    },
-    {
-      "type": "fileExcludes",
-      "path": ".codeartz/project-foundation/draft.md",
-      "value": "多个宿主正在使用"
-    },
-    {
-      "type": "fileExcludes",
-      "path": ".codeartz/project-foundation/draft.md",
-      "value": "多 Agent 协作历史"
-    },
-    {
-      "type": "fileExcludes",
-      "path": ".codeartz/project-foundation/draft.md",
-      "value": "完整正式知识"
-    },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "## 待裁决" },
     {
       "type": "markdownHeadingsEqual",
       "path": ".codeartz/project-foundation/draft.md",
@@ -65,7 +33,7 @@
     "package.json 的测试命令被记录为项目事实。",
     "两个模块的相同返回模式只被记录为稳定模式，没有自动升级为正式规范。",
     "legacy 注释被用作技术债或排除证据，而不是长期规则。",
-    "不兼容做法或无法确认的设计意图进入待裁决。",
+    "不兼容做法被用来限制结论强度；只有选择正式方向时才进入待裁决。",
     "Skill 目录只证明能力可用，不证明宿主实际使用。",
     "生成产物只证明产物存在，不证明多 Agent 协作历史。",
     "有限检查范围不被描述成完整项目知识。"

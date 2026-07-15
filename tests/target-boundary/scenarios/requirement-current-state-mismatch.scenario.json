@@ -1,0 +1,25 @@
+{
+  "id": "requirement-current-state-mismatch",
+  "skill": "target-boundary",
+  "tier": "full",
+  "description": "需求对当前行为的描述与代码不一致时以代码确定系统现实。",
+  "files": {
+    "request.md": "当前所有登录失败都会永久锁定账号。目标是只有连续五次密码错误才锁定；单次上游超时不得锁定。\n",
+    "src/login.ts": "export function shouldLock(reason: 'bad-password' | 'upstream-timeout', failures: number) {\n  return reason === 'bad-password' && failures >= 3;\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $target-boundary 分析 request.md 和 src/login.ts。我的目标是把密码错误锁定阈值改为五次，并保持上游超时不锁定；只需要边界结论。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": ".codeartz/login/target-boundary.md" },
+    { "type": "fileUnchanged", "path": "src/login.ts" }
+  ],
+  "criteria": [
+    "回应指出 request.md 对当前行为的描述与 src/login.ts 不一致。",
+    "回应以 src/login.ts 确认当前系统事实：密码错误三次锁定，上游超时不锁定。",
+    "回应仍把用户当前明确提出的五次阈值作为目标授权，而没有因当前状态描述错误而丢弃目标。",
+    "回应没有创建合同或修改实现。"
+  ]
+}

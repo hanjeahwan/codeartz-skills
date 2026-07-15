@@ -1,0 +1,29 @@
+{
+  "id": "nested-scope-routing",
+  "skill": "project-foundation",
+  "tier": "full",
+  "description": "Monorepo 局部知识只进入覆盖证据的最小作用域，读取路径不明确时等待裁决。",
+  "files": {
+    "package.json": "{\n  \"workspaces\": [\"packages/*\"]\n}\n",
+    "packages/payments/package.json": "{\n  \"name\": \"payments\",\n  \"scripts\": {\n    \"test\": \"node --test\"\n  }\n}\n",
+    "packages/payments/src/currency.ts": "export const currency = 'USD';\n",
+    "packages/catalog/src/catalog.ts": "export const currency = 'EUR';\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 为这个 monorepo 建立与 payments 包相关的必要项目知识，先准备草稿。"
+    }
+  ],
+  "judgeFiles": [".codeartz/project-foundation/draft.md"],
+  "postChecks": [
+    { "type": "fileExists", "path": ".codeartz/project-foundation/draft.md" },
+    { "type": "fileNotExists", "path": "AGENTS.md" },
+    { "type": "fileNotExists", "path": "packages/payments/AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "把 USD 限定为 payments 包当前事实，没有扩展为全仓库货币规则。",
+    "识别 catalog 包存在不同事实并用它限制结论范围。",
+    "目标路径或读取入口没有唯一证据时进入待裁决，没有创建根级或包级正式文件。"
+  ]
+}

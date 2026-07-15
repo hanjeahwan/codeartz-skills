@@ -1,0 +1,35 @@
+{
+  "id": "unresolved-chain-not-persisted",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "多轮反馈没有稳定规则时，返回不沉淀而不补造长期结论。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 导入任务\n\n- 导入失败时保留输入批次标识。\n",
+    "import-notes.md": "# 导入策略\n\n- 失败记录为待处理。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "import-notes.md"],
+  "turns": [
+    {
+      "prompt": "先把 import-notes.md 改成瞬时错误自动重试，项目规则先别动。",
+      "checks": [{ "type": "fileUnchanged", "path": "AGENTS.md" }]
+    },
+    {
+      "prompt": "不确定，瞬时错误也可能应该直接进入 dead-letter queue，避免阻塞批次。先把两种方案都记为未决。"
+    },
+    {
+      "prompt": "重试还是进入 dead-letter queue 还没有决定。请评估这段反馈，项目规则先别动。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应识别重试与 dead-letter queue 仍是互斥未决方案。",
+    "回应返回不沉淀，原因是不存在可由用户原话支持的精确稳定规则。",
+    "AGENTS.md 保持不变。",
+    "回应没有把任一方案包装成项目默认，也没有生成虚假的精确提案。"
+  ]
+}

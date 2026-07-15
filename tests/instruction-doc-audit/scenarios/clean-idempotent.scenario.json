@@ -1,0 +1,23 @@
+{
+  "id": "clean-idempotent",
+  "skill": "instruction-doc-audit",
+  "tier": "full",
+  "description": "没有命中时保持文件不变，重复运行不制造润色型 diff。",
+  "files": {
+    "rules.md": "# 验证规则\n\n- 修改 TypeScript 文件后运行 npm run typecheck。\n- 命令失败时，报告退出码和失败命令。\n- 未运行检查时，将验证状态标记为未验证。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 instruction-doc-audit 修改 rules.md，直到没有问题。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "rules.md" },
+    { "type": "trajectoryIncludes", "value": "instruction-doc-audit" }
+  ],
+  "criteria": [
+    "判断现有规则已经可执行，没有为了显示工作量而改写。",
+    "目标文件保持字节不变。",
+    "报告无指令或正文反模式，没有虚构命中。"
+  ]
+}

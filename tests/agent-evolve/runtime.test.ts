@@ -24,8 +24,10 @@ test('buildActivationContext 生成宿主无关的短路由', () => {
 
   assert.match(context, /^AGENT EVOLVE ACTIVE — mode: review/);
   assert.match(context, /已安装的 `agent-evolve` Skill/);
-  assert.match(context, /已明确收敛/);
-  assert.match(context, /仍在修正或验收时不触发/);
+  assert.match(context, /直接提出可复用规则/);
+  assert.match(context, /明确要求项目沉淀/);
+  assert.match(context, /暂定、待验证、冲突和未确认的精确候选仍加载 Skill/);
+  assert.match(context, /只有当前细节、明确禁止泛化或普通否定时不加载/);
   assert.match(context, /普通请求禁止加载/);
   assert.ok(context.split('\n').length <= 8);
   assert.doesNotMatch(context, /references\/workflow|references\/validation/);

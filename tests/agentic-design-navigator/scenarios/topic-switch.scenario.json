@@ -1,0 +1,21 @@
+{
+  "id": "topic-switch",
+  "skill": "agentic-design-navigator",
+  "tier": "full",
+  "description": "无关新主题结束旧状态，上下文不足时不补造历史确认。",
+  "turns": [
+    {
+      "prompt": "我们在探索远程评审里新人求助的问题，暂定边界是不排名。"
+    },
+    {
+      "prompt": "先停止这个探索。新任务：帮我判断办公室门禁排队为什么变长；之前没有讨论过门禁。",
+      "checks": [{ "type": "questionCountAtMost", "max": 1 }]
+    }
+  ],
+  "postChecks": [{ "type": "trajectoryIncludes", "value": "agentic-design-navigator" }],
+  "criteria": [
+    "第二轮结束远程评审主题，没有把不排名边界套到门禁问题。",
+    "门禁问题作为独立主题处理，没有把主题切换标记为方向变化或意图漂移。",
+    "新主题中的原因保持为暂定或待验证，没有写成已确认事实。"
+  ]
+}

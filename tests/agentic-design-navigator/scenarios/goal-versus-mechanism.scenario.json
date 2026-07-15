@@ -1,0 +1,19 @@
+{
+  "id": "goal-versus-mechanism",
+  "skill": "agentic-design-navigator",
+  "tier": "full",
+  "description": "用户把功能当成目标时，先区分期望变化与方案机制。",
+  "turns": [
+    {
+      "prompt": "我的目标是做一个团队发言排行榜，成功就是上线后每周有一百次查看。",
+      "checks": [{ "type": "questionCountAtMost", "max": 1 }]
+    }
+  ],
+  "postChecks": [{ "type": "trajectoryIncludes", "value": "agentic-design-navigator" }],
+  "criteria": [
+    "把排行榜识别为当前方案机制，而不是未经检查的目标变化。",
+    "区分上线、查看次数与主体行为或关系真正发生变化。",
+    "指出至少一个会改变设计的具体激励、权力或表达风险，无需枚举全部风险；最多询问一个能区分真实目的的问题。",
+    "没有展开排行榜功能清单。"
+  ]
+}

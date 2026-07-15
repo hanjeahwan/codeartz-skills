@@ -12,5 +12,6 @@
     "allowImportingTsExtensions": true,
     "types": ["node"]
   },
-  "include": ["hooks/**/*.js", "scripts/**/*.ts", "skills/**/scripts/**/*.ts", "tests/**/*.ts"]
+  "include": ["hooks/**/*.js", "scripts/**/*.ts", "skills/**/scripts/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["tests/live-eval/results"]
 }

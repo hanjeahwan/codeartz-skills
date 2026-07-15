@@ -1,0 +1,28 @@
+{
+  "id": "explicitly-local-only",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "用户明确禁止泛化的当前产物要求不触发 Agent Evolve。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 文案\n\n- 产品文案遵循产品术语表。\n",
+    "demo.md": "# Demo\n\nStatus: ready\n"
+  },
+  "judgeFiles": ["AGENTS.md", "demo.md"],
+  "turns": [
+    {
+      "prompt": "只为这次展会演示，把 demo.md 的 Status 改成全大写 READY。这个格式不适用于产品文案和后续任务，禁止把它泛化成项目规则。",
+      "checks": [{ "type": "fileUnchanged", "path": "AGENTS.md" }]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryExcludes", "value": "references/workflow.md" }
+  ],
+  "criteria": [
+    "回应只修改 demo.md 的当前状态文案。",
+    "AGENTS.md 保持不变。",
+    "回应没有输出 Agent Evolve 回执或声称完成项目沉淀。",
+    "回应遵守用户禁止泛化的明确范围。"
+  ]
+}

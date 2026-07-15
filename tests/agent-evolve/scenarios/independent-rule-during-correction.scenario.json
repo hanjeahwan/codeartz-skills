@@ -1,0 +1,31 @@
+{
+  "id": "independent-rule-during-correction",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "当前产物尚未验收时，用户给出的独立通用原则仍在当轮沉淀。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 数据迁移\n\n- 迁移必须记录执行结果。\n",
+    "migration-runbook.md": "# 迁移手册\n\n- 失败后从头重跑。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "migration-runbook.md"],
+  "turns": [
+    {
+      "prompt": "继续修改 migration-runbook.md，把失败后从头重跑改成从检查点恢复。整份手册还没验收，先不要推断项目规范。",
+      "checks": [{ "type": "fileUnchanged", "path": "AGENTS.md" }]
+    },
+    {
+      "prompt": "还有一个明确边界：项目里的所有长时间迁移都必须保存可验证检查点，并能在重复执行时安全恢复，否则发布中断后会重复写数据。继续修手册，但整份手册仍未验收。"
+    }
+  ],
+  "postChecks": [
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "第一轮只修改 migration-runbook.md，AGENTS.md 保持不变。",
+    "第二轮识别检查点和安全恢复是可独立成立的跨任务原则，不等待整份手册验收。",
+    "AGENTS.md 写入长时间迁移必须保存可验证检查点并支持重复执行时安全恢复。",
+    "长期规则保留防止中断后重复写数据的失败边界，不保存本次手册状态。"
+  ]
+}

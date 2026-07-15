@@ -1,0 +1,28 @@
+{
+  "id": "stale-baseline-recovery",
+  "skill": "project-foundation",
+  "tier": "full",
+  "description": "长期基线合同失效且知识文件缺失时回到有边界诊断。",
+  "files": {
+    "package.json": "{\n  \"scripts\": {\n    \"check\": \"node --check src/index.js\"\n  }\n}\n",
+    "src/index.js": "export const ready = true;\n",
+    "docs/project-foundation-baseline.json": "{\n  \"version\": 2,\n  \"sourceCommit\": null,\n  \"knowledgeFiles\": [\"AGENTS.md\"]\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 刷新项目知识；先更新草稿，不创建或修改正式文件。"
+    }
+  ],
+  "judgeFiles": ["docs/project-foundation-baseline.json", ".codeartz/project-foundation/draft.md"],
+  "postChecks": [
+    { "type": "fileExists", "path": ".codeartz/project-foundation/draft.md" },
+    { "type": "fileUnchanged", "path": "docs/project-foundation-baseline.json" },
+    { "type": "fileNotExists", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "识别 baseline version 不受支持且 knowledgeFiles 中的 AGENTS.md 缺失。",
+    "不沿用损坏 baseline 的完整性结论，回到有边界的仓库诊断。",
+    "只更新草稿，保持损坏 baseline 和正式目标不变。"
+  ]
+}

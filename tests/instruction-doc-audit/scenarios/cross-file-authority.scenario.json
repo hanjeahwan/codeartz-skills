@@ -1,0 +1,28 @@
+{
+  "id": "cross-file-authority",
+  "skill": "instruction-doc-audit",
+  "tier": "full",
+  "description": "非权威规则重复并冲突时引用唯一权威来源，不复制易漂移的事实。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n- 请求超时以 runtime-config.md 为唯一权威来源。\n",
+    "runtime-config.md": "# 运行配置\n\n- 请求超时为 30 秒。\n",
+    "service-rules.md": "# 服务规则\n\n- 请求超时为 60 秒。\n"
+  },
+  "turns": [
+    {
+      "prompt": "审查 AGENTS.md、runtime-config.md 和 service-rules.md 的规则职责，只给建议，不修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "fileUnchanged", "path": "runtime-config.md" },
+    { "type": "fileUnchanged", "path": "service-rules.md" },
+    { "type": "trajectoryIncludes", "value": "instruction-doc-audit" }
+  ],
+  "criteria": [
+    "根据 AGENTS.md 的明确路由识别 runtime-config.md 是请求超时的唯一权威来源。",
+    "识别 service-rules.md 重复维护且与权威值冲突。",
+    "建议 service-rules.md 引用权威来源，而不是在多个文件继续复制 30 秒。",
+    "没有猜测 60 秒仍可能正确，也没有修改任何文件。"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "mixed-document-routing",
+  "skill": "instruction-doc-audit",
+  "tier": "smoke",
+  "description": "规则和实施计划混在同一文件时按章节确定适用范围。",
+  "files": {
+    "migration.md": "# OAuth 迁移\n\n## 执行规则\n\n- 适当处理 token 刷新失败。\n- 操作完成后及时通知相关人员。\n\n## 实施计划\n\n第一周盘点调用点，第二周迁移 token 刷新路径，第三周删除旧客户端。迁移期间保留回滚开关。\n"
+  },
+  "turns": [
+    {
+      "prompt": "请用 instruction-doc-audit 审查 migration.md，只给建议，不修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "migration.md" },
+    { "type": "trajectoryIncludes", "value": "instruction-doc-audit" }
+  ],
+  "criteria": [
+    "按章节判断适用范围：审查“执行规则”，不把整个文件判为适用或不适用。",
+    "识别执行规则中的不可测处理方式或隐藏责任人，并在证据不足时给出待裁决。",
+    "没有把实施计划的正常时间顺序误报为指令反模式。",
+    "提案模式保持文件不变。"
+  ]
+}

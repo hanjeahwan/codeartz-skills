@@ -1,0 +1,24 @@
+{
+  "id": "proposal-read-only",
+  "skill": "instruction-doc-audit",
+  "tier": "smoke",
+  "description": "只要求评价时进入提案模式，报告问题但不修改目标文件。",
+  "files": {
+    "rules.md": "# 发布规则\n\n- 用户给出路径时优先使用该路径，不要扫描无关目录。\n- 适当处理错误。\n- 目前我们使用新版 API。\n"
+  },
+  "turns": [
+    {
+      "prompt": "请审查 rules.md，只给评价和改写建议，不要修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "rules.md" },
+    { "type": "trajectoryIncludes", "value": "instruction-doc-audit" }
+  ],
+  "criteria": [
+    "使用提案模式，目标文件保持不变。",
+    "识别复合句挤压、空洞限定词和会腐烂的时效性断言，并遵守同句只报主要问题。",
+    "每个命中给出位置、类型、理由和不补造项目事实的建议改写。",
+    "没有声称已经修改或重扫目标文件。"
+  ]
+}

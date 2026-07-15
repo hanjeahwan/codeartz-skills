@@ -1,0 +1,26 @@
+{
+  "id": "explicit-persistence-settled",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "用户明确要求沉淀一条已收敛规则时，同轮写入项目规则源。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件是未来 agent 自动读取的唯一项目规则源。\n\n## 事务与事件\n\n- 数据写入与事件发布必须保持一致。\n"
+  },
+  "judgeFiles": ["AGENTS.md"],
+  "turns": [
+    {
+      "prompt": "这条规则已经定了，请现在沉淀进项目：数据库事务提交后才能发布对外事件；需要原子一致性时使用 outbox，禁止在未提交事务中直接调用消息平台。"
+    }
+  ],
+  "postChecks": [
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应把用户明确指定的规则视为已收敛，没有再次询问是否沉淀。",
+    "AGENTS.md 写入事务提交、对外事件发布与 outbox 的边界。",
+    "规则禁止在未提交事务中直接调用消息平台，没有扩展无关架构要求。",
+    "回应使用 validation.md 规定的反馈结论、原因、证据、目标位置与建议变更字段输出安全验证回执。"
+  ]
+}

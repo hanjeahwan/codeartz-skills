@@ -118,6 +118,81 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function compactText(value: string, maxLength = 500): string {
+  const compacted = value.replaceAll(/\s+/g, ' ').trim();
+  return compacted.length <= maxLength ? compacted : `${compacted.slice(0, maxLength)}…`;
+}
+
+function claudeToolResults(events: unknown[]): Map<string, string> {
+  const results = new Map<string, string>();
+  for (const event of events) {
+    if (
+      !isRecord(event) ||
+      event.type !== 'user' ||
+      !isRecord(event.message) ||
+      !Array.isArray(event.message.content)
+    ) {
+      continue;
+    }
+    for (const content of event.message.content) {
+      if (!isRecord(content) || content.type !== 'tool_result' || typeof content.tool_use_id !== 'string') {
+        continue;
+      }
+      results.set(content.tool_use_id, content.is_error === true ? 'failed' : 'completed');
+    }
+  }
+  return results;
+}
+
+function claudeToolDetail(name: string, input: Record<string, unknown>): string {
+  if (name === 'Bash' && typeof input.command === 'string') {
+    return compactText(input.command);
+  }
+  for (const key of ['file_path', 'path'] as const) {
+    if (typeof input[key] === 'string') {
+      return compactText(input[key]);
+    }
+  }
+  return '';
+}
+
+export function compactToolTrace(events: unknown[]): string[] {
+  const trace: string[] = [];
+  const claudeResults = claudeToolResults(events);
+  for (const event of events) {
+    if (!isRecord(event)) {
+      continue;
+    }
+    if (event.type === 'item.completed' && isRecord(event.item)) {
+      if (event.item.type === 'command_execution' && typeof event.item.command === 'string') {
+        const exitCode = typeof event.item.exit_code === 'number' ? `exit ${event.item.exit_code}` : 'completed';
+        trace.push(`command [${exitCode}]: ${compactText(event.item.command)}`);
+      } else if (event.item.type === 'file_change' && Array.isArray(event.item.changes)) {
+        for (const change of event.item.changes) {
+          if (isRecord(change) && typeof change.path === 'string') {
+            const kind = typeof change.kind === 'string' ? change.kind : 'changed';
+            trace.push(`file_change [${kind}]: ${compactText(change.path)}`);
+          }
+        }
+      }
+      continue;
+    }
+    if (event.type !== 'assistant' || !isRecord(event.message) || !Array.isArray(event.message.content)) {
+      continue;
+    }
+    for (const content of event.message.content) {
+      if (!isRecord(content) || content.type !== 'tool_use' || typeof content.name !== 'string') {
+        continue;
+      }
+      const input = isRecord(content.input) ? content.input : {};
+      const detail = claudeToolDetail(content.name, input);
+      const status = typeof content.id === 'string' ? (claudeResults.get(content.id) ?? 'unknown') : 'unknown';
+      trace.push(`${content.name} [${status}]${detail ? `: ${detail}` : ''}`);
+    }
+  }
+  return trace.length <= 50 ? trace : [...trace.slice(0, 24), '… omitted tool actions …', ...trace.slice(-25)];
+}
+
 function findString(records: unknown[], keys: string[]): string | undefined {
   for (const value of records) {
     if (!isRecord(value)) {
@@ -357,73 +432,88 @@ function extractJsonObject(response: string): unknown {
   }
 }
 
-export function judgeJsonSchema(criteriaCount: number): string {
-  return JSON.stringify({
+export function judgeJsonSchema(criteriaCount: number) {
+  return {
     type: 'object',
     properties: {
-      verdict: { type: 'string', enum: ['pass', 'fail'] },
-      summary: { type: 'string' },
-      criteria: {
+      passed: {
         type: 'array',
         minItems: criteriaCount,
         maxItems: criteriaCount,
-        items: {
-          type: 'object',
-          properties: {
-            criterionIndex: { type: 'integer', minimum: 0, maximum: criteriaCount - 1 },
-            passed: { type: 'boolean' },
-            evidence: { type: 'string' },
-          },
-          required: ['criterionIndex', 'passed', 'evidence'],
-          additionalProperties: false,
-        },
+        items: { type: 'boolean' },
+      },
+      evidence: {
+        type: 'array',
+        minItems: criteriaCount,
+        maxItems: criteriaCount,
+        items: { type: 'string', minLength: 1 },
       },
     },
-    required: ['verdict', 'summary', 'criteria'],
+    required: ['passed', 'evidence'],
     additionalProperties: false,
-  });
+  } as const;
 }
 
 export function parseJudgeResult(value: unknown, scenario: Scenario): JudgeResult {
-  if (!isRecord(value) || (value.verdict !== 'pass' && value.verdict !== 'fail')) {
-    throw new Error('Judge result has an invalid verdict');
+  if (!isRecord(value)) {
+    throw new Error('Judge result must be an object');
   }
-  if (typeof value.summary !== 'string' || !Array.isArray(value.criteria)) {
-    throw new Error('Judge result is missing summary or criteria');
-  }
-  const indexedCriteria = new Map<number, { evidence: string; passed: boolean }>();
-  value.criteria.forEach((criterion, index) => {
-    if (
-      !isRecord(criterion) ||
-      !Number.isInteger(criterion.criterionIndex) ||
-      typeof criterion.passed !== 'boolean' ||
-      typeof criterion.evidence !== 'string'
-    ) {
-      throw new Error(`Judge criterion ${index} is invalid`);
-    }
-    const criterionIndex = Number(criterion.criterionIndex);
-    if (criterionIndex < 0 || criterionIndex >= scenario.criteria.length) {
-      throw new Error(`Judge criterion index ${criterionIndex} is out of range`);
-    }
-    if (indexedCriteria.has(criterionIndex)) {
-      throw new Error(`Judge criterion index ${criterionIndex} is duplicated`);
-    }
-    indexedCriteria.set(criterionIndex, {
-      passed: criterion.passed,
-      evidence: criterion.evidence,
-    });
+  const unsupportedField = Object.keys(value).find((field) => {
+    return field !== 'passed' && field !== 'evidence';
   });
-  if (indexedCriteria.size !== scenario.criteria.length) {
-    throw new Error('Judge did not evaluate every scenario criterion');
+  if (unsupportedField) {
+    throw new Error(`Judge result has unsupported field: ${unsupportedField}`);
+  }
+  if (!Array.isArray(value.passed) || !Array.isArray(value.evidence)) {
+    throw new Error('Judge result is missing passed or evidence');
+  }
+  const passed = value.passed;
+  const evidence = value.evidence;
+  const expectedCount = scenario.criteria.length;
+  if (passed.length !== expectedCount || evidence.length !== expectedCount) {
+    throw new Error(`Judge result must contain exactly ${expectedCount} results`);
+  }
+  if (
+    passed.some((result) => {
+      return typeof result !== 'boolean';
+    })
+  ) {
+    throw new Error('Judge passed values must be booleans');
+  }
+  if (
+    evidence.some((result) => {
+      return typeof result !== 'string' || result.trim() === '';
+    })
+  ) {
+    throw new Error('Judge evidence values must be non-empty strings');
   }
   const criteria = scenario.criteria.map((criterion, index) => {
-    const result = indexedCriteria.get(index);
-    if (!result) {
-      throw new Error(`Judge did not evaluate scenario criterion ${index}`);
-    }
-    return { criterion, ...result };
+    return {
+      criterion,
+      passed: passed[index] as boolean,
+      evidence: evidence[index] as string,
+    };
   });
-  return { verdict: value.verdict, summary: value.summary, criteria };
+  const failed = criteria.flatMap((criterion, index) => {
+    return criterion.passed ? [] : [index];
+  });
+  return {
+    verdict: failed.length === 0 ? 'pass' : 'fail',
+    summary: failed.length === 0 ? `All ${criteria.length} criteria passed` : `Failed criteria: ${failed.join(', ')}`,
+    criteria,
+  };
+}
+
+export async function retryJudge<T>(attempt: () => Promise<T>): Promise<T> {
+  const errors: string[] = [];
+  for (let index = 0; index < 2; index += 1) {
+    try {
+      return await attempt();
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+  throw new Error(`Judge failed after 2 independent attempts: ${errors.join(' | ')}`);
 }
 
 export async function judgeTranscript(
@@ -431,26 +521,28 @@ export async function judgeTranscript(
   options: Omit<SessionOptions, 'agent' | 'jsonSchema' | 'plugin' | 'readOnly' | 'skillName'>,
   scenario: Scenario,
   transcript: AgentTurnResult[],
+  artifacts: Record<string, string> = {},
 ): Promise<JudgeResult> {
-  const session = await createAgentSession({
-    ...options,
-    agent,
-    readOnly: true,
-    ...(agent === 'claude' ? { jsonSchema: judgeJsonSchema(scenario.criteria.length) } : {}),
-  });
+  const jsonSchema = JSON.stringify(judgeJsonSchema(scenario.criteria.length));
   const conversation = transcript
     .map((turn, index) => {
+      const toolTrace = compactToolTrace(turn.rawEvents);
       return [
         `Turn ${index + 1}`,
         `User: ${scenario.turns[index]?.prompt ?? '(missing prompt)'}`,
         `Agent: ${turn.response}`,
+        ...(toolTrace.length > 0 ? [`Observed tool actions:\n${toolTrace.join('\n')}`] : []),
       ].join('\n');
     })
     .join('\n\n');
+  const artifactText = Object.entries(artifacts)
+    .map(([filePath, content]) => {
+      return [`Artifact: ${filePath}`, content].join('\n');
+    })
+    .join('\n\n');
   const prompt = [
-    'Evaluate the transcript against every criterion. Use only evidence present in the transcript.',
-    'Return JSON only with this shape:',
-    '{"verdict":"pass|fail","summary":"...","criteria":[{"criterionIndex":0,"passed":true,"evidence":"..."}]}',
+    'Evaluate the transcript and supplied artifacts against every criterion. Use only evidence present in them.',
+    `Submit a concise judgment matching this JSON Schema:\n${jsonSchema}`,
     'The overall verdict is pass only when every criterion passes.',
     `Criteria:\n${scenario.criteria
       .map((criterion, index) => {
@@ -458,24 +550,20 @@ export async function judgeTranscript(
       })
       .join('\n')}`,
     `Transcript:\n${conversation}`,
+    ...(artifactText ? [`Artifacts after the final turn:\n${artifactText}`] : []),
   ].join('\n\n');
-  try {
-    const result = await session.runTurn(prompt);
+  return retryJudge(async () => {
+    const session = await createAgentSession({
+      ...options,
+      agent,
+      readOnly: true,
+      ...(agent === 'claude' ? { jsonSchema } : {}),
+    });
     try {
+      const result = await session.runTurn(prompt);
       return parseJudgeResult(extractJsonObject(result.response), scenario);
-    } catch (initialError) {
-      const retry = await session.runTurn(
-        'The previous judge output failed validation. Return the same judgment again using only the required JSON structure and criterionIndex values.',
-      );
-      try {
-        return parseJudgeResult(extractJsonObject(retry.response), scenario);
-      } catch (retryError) {
-        const initialMessage = initialError instanceof Error ? initialError.message : String(initialError);
-        const retryMessage = retryError instanceof Error ? retryError.message : String(retryError);
-        throw new Error(`Judge output remained invalid after one retry: ${retryMessage}; initial: ${initialMessage}`);
-      }
+    } finally {
+      await session.close();
     }
-  } finally {
-    await session.close();
-  }
+  });
 }

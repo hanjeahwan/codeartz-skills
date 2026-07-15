@@ -3,19 +3,14 @@ export type AgentName = 'claude' | 'codex';
 export type ScenarioTier = 'full' | 'smoke';
 
 export type ScenarioCheck =
-  | { type: 'fileContains'; path: string; value: string }
-  | { type: 'fileExcludes'; path: string; value: string }
-  | { type: 'fileMatches'; path: string; pattern: string; flags?: string }
   | { type: 'markdownHeadingsEqual'; path: string; level: number; headings: string[] }
   | { type: 'markdownFencesBalanced'; path: string }
   | { type: 'fileExists'; path: string }
   | { type: 'fileNotExists'; path: string }
   | { type: 'fileUnchanged'; path: string }
   | { type: 'questionCountAtMost'; max: number }
-  | { type: 'responseExcludes'; value: string }
-  | { type: 'responseIncludes'; value: string }
-  | { type: 'responseMatches'; pattern: string; flags?: string }
-  | { type: 'trajectoryIncludes'; value: string };
+  | { type: 'trajectoryIncludes'; value: string }
+  | { type: 'trajectoryExcludes'; value: string };
 
 export interface ScenarioTurn {
   prompt: string;
@@ -29,6 +24,7 @@ export interface Scenario {
   tier: ScenarioTier;
   description: string;
   files?: Record<string, string>;
+  judgeFiles?: string[];
   turns: ScenarioTurn[];
   criteria: string[];
   postChecks?: ScenarioCheck[];
@@ -76,5 +72,6 @@ export interface LiveEvalVerdict {
   checks: CheckResult[];
   judge?: JudgeResult;
   error?: string;
+  indeterminatePhase?: 'judge' | 'target';
   durationMs: number;
 }

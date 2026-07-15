@@ -1,0 +1,35 @@
+{
+  "id": "create-draft-from-evidence",
+  "skill": "project-foundation",
+  "tier": "smoke",
+  "description": "仓库存在可复用事实与稳定模式时先建立草稿，不把模式升级为正式规则。",
+  "files": {
+    "package.json": "{\n  \"scripts\": {\n    \"test\": \"node --test\"\n  }\n}\n",
+    "src/catalog.ts": "export function findProduct(id: string): string | undefined {\n  return id === 'p1' ? 'Keyboard' : undefined;\n}\n",
+    "src/orders.ts": "export function findOrder(id: string): string | undefined {\n  return id === 'o1' ? 'paid' : undefined;\n}\n",
+    "test/catalog.test.ts": "import assert from 'node:assert/strict';\nimport test from 'node:test';\nimport { findProduct } from '../src/catalog.ts';\n\ntest('missing product', () => {\n  assert.equal(findProduct('missing'), undefined);\n});\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 为这个没有正式项目知识的仓库建立知识基础。先根据代码、配置和测试准备草稿，我没有批准创建正式文件。"
+    }
+  ],
+  "judgeFiles": [".codeartz/project-foundation/draft.md"],
+  "postChecks": [
+    { "type": "fileExists", "path": ".codeartz/project-foundation/draft.md" },
+    {
+      "type": "markdownHeadingsEqual",
+      "path": ".codeartz/project-foundation/draft.md",
+      "level": 2,
+      "headings": ["检查范围", "建议变更", "待裁决", "最终内容", "验证计划"]
+    },
+    { "type": "fileNotExists", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "先检查代码、配置和测试，再建立可跨会话维护的草稿。",
+    "package.json 中的测试命令只记录为当前项目事实。",
+    "两个模块返回 undefined 的一致写法最多记录为稳定模式，没有自动升级为正式规则。",
+    "用户没有批准正式目标，因此没有创建正式知识文件或长期 baseline。"
+  ]
+}

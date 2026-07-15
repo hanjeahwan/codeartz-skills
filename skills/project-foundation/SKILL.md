@@ -7,11 +7,11 @@ description: 当现有仓库缺少可靠的 AGENTS.md、CLAUDE.md、架构说明
 
 ## 目标
 
-根据现有代码建立或刷新可追溯的项目知识基础。先维护可跨会话跟踪的当前草稿与待裁决项，用户批准最终内容后再合并为正式文件。
+根据现有代码建立或刷新可追溯的项目知识基础。先识别会改变未来 agent 决策的知识；需要继续处理时维护可跨会话跟踪的草稿与待裁决项，用户批准最终内容后再合并为正式文件。
 
 ## 全局边界
 
-- 固定使用 `.codeartz/project-foundation/draft.md` 跟踪本次奠基工作。
+- 需要草稿时固定使用 `.codeartz/project-foundation/draft.md` 跟踪本次奠基工作。
 - 固定使用 `docs/project-foundation-baseline.json` 保存上一次成功落地的长期基线。
 - 草稿是工作产物，不是正式规则源。
 - 长期基线是维护状态，不是正式规则源。

@@ -1,0 +1,26 @@
+{
+  "id": "incomplete-evidence",
+  "skill": "instruction-doc-audit",
+  "tier": "full",
+  "description": "引用的权威文件缺失时保留未验证状态，不把局部扫描包装成完整审查。",
+  "files": {
+    "rules.md": "# 发布规则\n\n- 发布审批人和豁免条件以 governance.md 为准。\n- 目前使用最新审批流程。\n"
+  },
+  "judgeFiles": ["rules.md", "governance.md"],
+  "turns": [
+    {
+      "prompt": "全面审查 rules.md 以及它引用的 governance.md，只给建议。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "rules.md" },
+    { "type": "fileNotExists", "path": "governance.md" },
+    { "type": "trajectoryIncludes", "value": "instruction-doc-audit" }
+  ],
+  "criteria": [
+    "明确指出 governance.md 缺失，跨文件职责、审批人和豁免条件无法完整验证。",
+    "仍审查可见的 rules.md，并识别会腐烂的时效性断言。",
+    "没有声称完成全面审查、跨文件零命中或 governance.md 已验证。",
+    "没有补造缺失文件的审批人、豁免条件或流程内容。"
+  ]
+}

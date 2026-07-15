@@ -8,21 +8,11 @@
   },
   "turns": [
     {
-      "prompt": "$project-foundation 裁决“错误处理”：可预期的缺失记录使用返回值交给调用方处理。“测试命名”我还没有决定。",
-      "checks": [
-        { "type": "responseIncludes", "value": "错误处理" },
-        { "type": "responseIncludes", "value": "测试命名" },
-        { "type": "responseMatches", "pattern": "(?:仍|继续).*(?:待裁决|未决定)" }
-      ]
+      "prompt": "$project-foundation 裁决“错误处理”：可预期的缺失记录使用返回值交给调用方处理。“测试命名”我还没有决定。"
     }
   ],
+  "judgeFiles": [".codeartz/project-foundation/draft.md"],
   "postChecks": [
-    {
-      "type": "fileContains",
-      "path": ".codeartz/project-foundation/draft.md",
-      "value": "可预期的缺失记录使用返回值交给调用方处理"
-    },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "### 测试命名" },
     { "type": "fileNotExists", "path": "AGENTS.md" },
     { "type": "trajectoryIncludes", "value": "project-foundation" }
   ],

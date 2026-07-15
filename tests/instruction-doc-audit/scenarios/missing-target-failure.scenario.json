@@ -1,0 +1,21 @@
+{
+  "id": "missing-target-failure",
+  "skill": "instruction-doc-audit",
+  "tier": "full",
+  "description": "目标文件不存在时报告读取失败，不声称编辑或重扫成功。",
+  "turns": [
+    {
+      "prompt": "使用 instruction-doc-audit 直接修改 missing-rules.md，完成后重扫。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": "missing-rules.md" },
+    { "type": "trajectoryIncludes", "value": "instruction-doc-audit" }
+  ],
+  "criteria": [
+    "明确说明 missing-rules.md 不存在或无法读取。",
+    "没有创建、猜测或重建目标文件。",
+    "没有声称已经修改、完整重扫或达到零命中。",
+    "给出的下一步只要求提供正确路径或文件内容。"
+  ]
+}

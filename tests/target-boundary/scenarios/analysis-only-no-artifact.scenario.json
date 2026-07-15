@@ -1,0 +1,25 @@
+{
+  "id": "analysis-only-no-artifact",
+  "skill": "target-boundary",
+  "tier": "smoke",
+  "description": "只要求分析时停留在对话，不产生长期合同。",
+  "files": {
+    "src/session.ts": "export function shouldBlock(status: 'active' | 'locked') {\n  return status === 'locked';\n}\n",
+    "request.md": "活跃用户登录失败时不应被全局锁定。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $target-boundary 分析 request.md 与 src/session.ts 反映的边界，只需要告诉我当前能确定什么。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": ".codeartz/session/target-boundary.md" },
+    { "type": "fileNotExists", "path": ".codeartz/target-boundary/target-boundary.md" },
+    { "type": "trajectoryIncludes", "value": "src/session.ts" }
+  ],
+  "criteria": [
+    "回应区分 request.md 的目标描述与 src/session.ts 的当前代码事实。",
+    "回应给出受现有证据支持的最浅边界结论，没有创建或声称创建目标边界合同。",
+    "回应没有进入实现或声称问题已经修复。"
+  ]
+}

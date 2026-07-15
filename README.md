@@ -28,9 +28,9 @@ npx skills add https://github.com/hanjeahwan/codeartz-skills --skill target-boun
 
 **现实问题：** 一句模糊想法往往对应多个完全不同的设计方向。agent 如果立刻写方案，只是在替用户猜。
 
-**对应 skill：** [`agentic-design-navigator`](skills/agentic-design-navigator/) 先稳定主体、情境、目的和成功标准，再建立设计理解、生成选项；讨论发生变化时，它会显式指出意图漂移。
+**对应 skill：** [`agentic-design-navigator`](skills/agentic-design-navigator/) 通过反映、关键区分、判断探针和单点追问形成设计意图基线，再基于同一基线比较方向；用户明确转向时更新基线，只有未经确认的替换才判定为意图漂移。
 
-**实际结果：** 先形成持续更新的意图账本，再完成九个设计维度的分析，并在阶段关卡通过后生成四类方案。它不会在关键意图仍未确定时假装需求已经清楚。
+**实际结果：** 普通回合只展示新增、修正或冲突，九个设计维度作为后台导航地图。设计意图足以支持选择后，再生成少量具有实质差异的方向；它不会为了填满维度或方案数量补造内容。
 
 ### 2. 需求、issue、review notes 和代码事实混在一起
 
@@ -62,14 +62,14 @@ npx skills add https://github.com/hanjeahwan/codeartz-skills --skill target-boun
 
 **对应 skill：** [`agent-evolve`](skills/agent-evolve/) 判断反馈是否能跨任务复用，寻找唯一权威位置和已有读取路径，再查重、查冲突并进行安全验证；缺少读取路径时，只提出增加路由的建议。
 
-**实际结果：** 给出“已更新、已有规则覆盖、已提案、不沉淀或处理失败”之一。只有唯一权威位置、读取路径、无重复和无冲突等安全门全部通过时才自动写入。普通问题、一次性选择和当前文件的局部修改不会被沉淀。
+**实际结果：** 给出“已更新、已有规则覆盖、已提案、不沉淀或处理失败”之一。只有语义已收敛、唯一权威位置、读取路径、无重复和无冲突等安全门全部通过时才自动写入。只有当前细节、明确禁止泛化或没有具体原则的普通否定不会触发；一次性任务中可独立复用的原因、失败机制和决策边界仍会被评估。
 
 ## 如何组合使用
 
 这些 skills 不是必须完整执行的流水线：
 
 ```text
-模糊想法 ── agentic-design-navigator ──► 意图账本、设计分析与方案
+模糊想法 ── agentic-design-navigator ──► 暂定目标、设计意图基线与方向比较
 混合资料 ── target-boundary ──────────► 目标边界或证据缺口
 项目失忆 ── project-foundation ───────► 经验证和批准的项目知识
 规则失效 ── instruction-doc-audit ────► 可独立执行的规则
@@ -82,7 +82,7 @@ npx skills add https://github.com/hanjeahwan/codeartz-skills --skill target-boun
 
 | Skill                                                          | 何时使用                                     | 写入或输出什么                       |
 | -------------------------------------------------------------- | -------------------------------------------- | ------------------------------------ |
-| [`agentic-design-navigator`](skills/agentic-design-navigator/) | 输入模糊，或设计讨论发生明显变化             | 意图账本、九维设计分析与四类方案     |
+| [`agentic-design-navigator`](skills/agentic-design-navigator/) | 输入模糊、存在竞争理解或设计方向发生变化     | 暂定目标、设计意图基线与方向比较     |
 | [`target-boundary`](skills/target-boundary/)                   | 需求资料与现有系统事实混杂                   | 关卡通过后写入唯一目标边界合同       |
 | [`project-foundation`](skills/project-foundation/)             | 项目知识缺失或需要跟随代码刷新               | 当前草稿；验证并批准后的项目知识     |
 | [`instruction-doc-audit`](skills/instruction-doc-audit/)       | 指令文档存在隐式分支、深嵌套、重复或语言问题 | 审查结果或修改后的规则文档           |

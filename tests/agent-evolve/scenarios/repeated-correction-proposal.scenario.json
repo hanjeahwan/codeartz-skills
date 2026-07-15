@@ -1,0 +1,32 @@
+{
+  "id": "repeated-correction-proposal",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "重复纠正形成精确候选但用户未授权泛化时，只输出提案。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 错误边界\n\n- 调用方必须处理可预期错误。\n",
+    "parser-design.md": "# 解析设计\n\n- 每个调用方自行捕获解析异常。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "parser-design.md"],
+  "turns": [
+    {
+      "prompt": "又出现相同问题：不要让每个调用方各自捕获同一种输入异常，先把 parser-design.md 改成共享解析器返回结构化失败。项目规则先别动。",
+      "checks": [{ "type": "fileUnchanged", "path": "AGENTS.md" }]
+    },
+    {
+      "prompt": "这已经重复发生了：可预期输入错误应该由共享解析层统一转成结构化失败，不要在每个调用方重复加 guard。请评估是否应成为项目规则，但没有我的确认先不要写入。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应从用户重复纠正中提取共享解析层返回结构化失败这一精确候选。",
+    "回应返回已提案，没有把重复本身当成自动写入授权。",
+    "AGENTS.md 保持不变。",
+    "Agent Evolve 的建议变更与回执没有引入用户未表达的异常类型、返回字段或框架实现；第一轮当前任务对 parser-design.md 的编辑不作为本条长期规则提案的内容。"
+  ]
+}

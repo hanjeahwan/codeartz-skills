@@ -1,0 +1,35 @@
+{
+  "id": "confirmed-chain-synthesis",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "用户确认多轮纠正终态后，只沉淀最终保留关系。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 日志隐私\n\n- 日志不得保存凭证。\n",
+    "logging-guide.md": "# 日志指南\n\n- 删除所有用户字段。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "logging-guide.md"],
+  "turns": [
+    {
+      "prompt": "继续修 logging-guide.md：日志里先删除凭证和用户标识。这条纠正还没完成，不要改项目规则。",
+      "checks": [{ "type": "fileUnchanged", "path": "AGENTS.md" }]
+    },
+    {
+      "prompt": "用户标识不能全部删除，排障需要关联性；改成稳定假名，但原始值不能进入日志。继续修改，仍不要沉淀。",
+      "checks": [{ "type": "fileUnchanged", "path": "AGENTS.md" }]
+    },
+    {
+      "prompt": "现在终态确认：凭证必须删除，用户标识必须稳定假名化，原始标识禁止进入日志。把这条最终规则沉淀到项目。"
+    }
+  ],
+  "postChecks": [
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "前两轮只修改 logging-guide.md，AGENTS.md 保持不变。",
+    "最终轮按用户确认关系保留删除凭证、稳定假名化用户标识和禁止原始标识入日志。",
+    "AGENTS.md 没有保留被替代的删除所有用户字段方案。",
+    "回应输出已更新回执，并引用最终确认与写入结果。"
+  ]
+}

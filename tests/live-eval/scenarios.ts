@@ -28,20 +28,6 @@ function parseCheck(value: unknown, field: string): ScenarioCheck {
   const type = requireString(value.type, `${field}.type`);
 
   switch (type) {
-    case 'fileContains':
-    case 'fileExcludes':
-      return {
-        type,
-        path: requireString(value.path, `${field}.path`),
-        value: requireString(value.value, `${field}.value`),
-      };
-    case 'fileMatches':
-      return {
-        type,
-        path: requireString(value.path, `${field}.path`),
-        pattern: requireString(value.pattern, `${field}.pattern`),
-        ...(typeof value.flags === 'string' ? { flags: value.flags } : {}),
-      };
     case 'markdownHeadingsEqual': {
       if (!Number.isInteger(value.level) || Number(value.level) < 1 || Number(value.level) > 6) {
         throw new Error(`${field}.level must be an integer from 1 to 6`);
@@ -68,16 +54,9 @@ function parseCheck(value: unknown, field: string): ScenarioCheck {
         throw new Error(`${field}.max must be a non-negative integer`);
       }
       return { type, max: Number(value.max) };
-    case 'responseExcludes':
-    case 'responseIncludes':
+    case 'trajectoryExcludes':
     case 'trajectoryIncludes':
       return { type, value: requireString(value.value, `${field}.value`) };
-    case 'responseMatches':
-      return {
-        type,
-        pattern: requireString(value.pattern, `${field}.pattern`),
-        ...(typeof value.flags === 'string' ? { flags: value.flags } : {}),
-      };
     default:
       throw new Error(`${field}.type is unsupported: ${type}`);
   }
@@ -122,6 +101,16 @@ export function parseScenario(value: unknown, source: string): Scenario {
     }
   }
 
+  let judgeFiles: string[] | undefined;
+  if (value.judgeFiles !== undefined) {
+    if (!Array.isArray(value.judgeFiles)) {
+      throw new Error(`${source}.judgeFiles must be an array`);
+    }
+    judgeFiles = value.judgeFiles.map((filePath, index) => {
+      return requireString(filePath, `${source}.judgeFiles[${index}]`);
+    });
+  }
+
   return {
     id: requireString(value.id, `${source}.id`),
     skill: requireString(value.skill, `${source}.skill`),
@@ -129,6 +118,7 @@ export function parseScenario(value: unknown, source: string): Scenario {
     tier: tier as ScenarioTier,
     description: requireString(value.description, `${source}.description`),
     ...(Object.keys(files).length > 0 ? { files } : {}),
+    ...(judgeFiles ? { judgeFiles } : {}),
     turns: value.turns.map((turn, index) => {
       if (!isRecord(turn)) {
         throw new Error(`${source}.turns[${index}] must be an object`);
@@ -144,6 +134,15 @@ export function parseScenario(value: unknown, source: string): Scenario {
     }),
     ...(postChecks ? { postChecks } : {}),
   };
+}
+
+export async function readJudgeFiles(paths: string[], workspace: string): Promise<Record<string, string>> {
+  const artifacts: Record<string, string> = {};
+  for (const filePath of paths) {
+    const target = resolveWorkspacePath(workspace, filePath);
+    artifacts[filePath] = (await fileExists(target)) ? await readFile(target, 'utf8') : '[missing]';
+  }
+  return artifacts;
 }
 
 export async function loadScenarios(
@@ -238,25 +237,6 @@ export async function evaluateChecks(
 
   for (const check of checks) {
     switch (check.type) {
-      case 'responseIncludes': {
-        const passed = response.includes(check.value);
-        results.push({ check, passed, evidence: passed ? `found ${check.value}` : `missing ${check.value}` });
-        break;
-      }
-      case 'responseExcludes': {
-        const passed = !response.includes(check.value);
-        results.push({ check, passed, evidence: passed ? `absent ${check.value}` : `found ${check.value}` });
-        break;
-      }
-      case 'responseMatches': {
-        const passed = new RegExp(check.pattern, check.flags).test(response);
-        results.push({
-          check,
-          passed,
-          evidence: passed ? `matched /${check.pattern}/` : `did not match /${check.pattern}/`,
-        });
-        break;
-      }
       case 'questionCountAtMost': {
         const count = [...response.matchAll(/[?？]/g)].length;
         const passed = count <= check.max;
@@ -269,6 +249,15 @@ export async function evaluateChecks(
           check,
           passed,
           evidence: passed ? `trajectory contains ${check.value}` : `trajectory missing ${check.value}`,
+        });
+        break;
+      }
+      case 'trajectoryExcludes': {
+        const passed = !trajectory.includes(check.value);
+        results.push({
+          check,
+          passed,
+          evidence: passed ? `trajectory excludes ${check.value}` : `trajectory contains ${check.value}`,
         });
         break;
       }
@@ -291,39 +280,6 @@ export async function evaluateChecks(
           check,
           passed,
           evidence: `${check.path} ${passed ? 'is unchanged' : 'changed or disappeared'}`,
-        });
-        break;
-      }
-      case 'fileContains': {
-        const target = resolveWorkspacePath(workspace, check.path);
-        const actual = (await fileExists(target)) ? await readFile(target, 'utf8') : '';
-        const passed = actual.includes(check.value);
-        results.push({
-          check,
-          passed,
-          evidence: `${check.path} ${passed ? 'contains' : 'does not contain'} ${check.value}`,
-        });
-        break;
-      }
-      case 'fileExcludes': {
-        const target = resolveWorkspacePath(workspace, check.path);
-        const actual = (await fileExists(target)) ? await readFile(target, 'utf8') : '';
-        const passed = !actual.includes(check.value);
-        results.push({
-          check,
-          passed,
-          evidence: `${check.path} ${passed ? 'does not contain' : 'contains'} ${check.value}`,
-        });
-        break;
-      }
-      case 'fileMatches': {
-        const target = resolveWorkspacePath(workspace, check.path);
-        const actual = (await fileExists(target)) ? await readFile(target, 'utf8') : '';
-        const passed = new RegExp(check.pattern, check.flags).test(actual);
-        results.push({
-          check,
-          passed,
-          evidence: `${check.path} ${passed ? 'matches' : 'does not match'} /${check.pattern}/`,
         });
         break;
       }

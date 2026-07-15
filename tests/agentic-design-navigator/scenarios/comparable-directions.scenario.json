@@ -1,0 +1,18 @@
+{
+  "id": "comparable-directions",
+  "skill": "agentic-design-navigator",
+  "tier": "full",
+  "description": "设计意图已足够时停止追问，比较少量机制上不同的方向。",
+  "turns": [
+    {
+      "prompt": "目标是让远程评审中的新人更早暴露阻碍。主体是入职三个月内的工程师；不能排名，也不能把求助记录交给主管。成功是他们在返工发生前提出阻碍。请直接比较可行方向。"
+    }
+  ],
+  "postChecks": [{ "type": "trajectoryIncludes", "value": "references/generate-options.md" }],
+  "criteria": [
+    "先展示由用户输入形成的设计意图基线，再进入方向比较。",
+    "提供两个或三个机制上实质不同且可比较的方向，没有为了数量编造方案。",
+    "至少考虑一个不依赖新增产品功能的方向，前提是它能服务目标。",
+    "每个方向说明关键机制、取舍、假设、风险和最小验证，没有改写不排名和不向主管暴露记录的边界。"
+  ]
+}

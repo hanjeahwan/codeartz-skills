@@ -121,6 +121,16 @@ function validBaseline(value: unknown): boolean {
   );
 }
 
+function repositoryRelativePath(value: string): boolean {
+  const normalized = value.trim().replaceAll('\\', '/');
+  return (
+    normalized !== '' &&
+    !path.posix.isAbsolute(normalized) &&
+    !/^[A-Za-z]:\//.test(normalized) &&
+    !normalized.split('/').includes('..')
+  );
+}
+
 function thirdLevelBlocks(content: string): string[] {
   const matches = [...content.matchAll(/^### [^\n]+$/gm)];
   return matches.map((match, index) => {
@@ -212,6 +222,32 @@ export function validateDraft(markdown: string): DraftValidationResult {
     baselineEvidence = 'baseline JSON 合同有效';
   }
   add('baseline-contract', hasPending || validBaseline(baseline), baselineEvidence);
+
+  const finalTargets = [...finalContent.matchAll(/^###\s+([^\n]+)$/gm)].map((match) => {
+    return match[1].trim();
+  });
+  const baselineTargets =
+    typeof baseline === 'object' && baseline !== null && !Array.isArray(baseline)
+      ? (baseline as Record<string, unknown>).knowledgeFiles
+      : undefined;
+  const paths = [
+    ...finalTargets,
+    ...(Array.isArray(baselineTargets)
+      ? baselineTargets.filter((value): value is string => {
+          return typeof value === 'string';
+        })
+      : []),
+  ];
+  const unsafePaths = paths.filter((value) => {
+    return !repositoryRelativePath(value);
+  });
+  let pathEvidence = `正式目标均为仓库内相对路径：${[...new Set(paths)].join('、') || '无'}`;
+  if (hasPending) {
+    pathEvidence = '存在待裁决，本项不适用';
+  } else if (unsafePaths.length > 0) {
+    pathEvidence = `越界或绝对路径：${[...new Set(unsafePaths)].join('、')}`;
+  }
+  add('repository-relative-paths', hasPending || unsafePaths.length === 0, pathEvidence);
 
   return {
     status: checks.every((check) => {

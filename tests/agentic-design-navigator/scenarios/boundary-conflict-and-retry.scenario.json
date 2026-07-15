@@ -1,0 +1,25 @@
+{
+  "id": "boundary-conflict-and-retry",
+  "skill": "agentic-design-navigator",
+  "tier": "full",
+  "description": "重复表达不复制状态，新机制冲突时不静默撤销有效边界。",
+  "turns": [
+    {
+      "prompt": "目标是让新人更早求助。边界是不排名，也不把求助记录交给主管。请记住这个暂定方向。"
+    },
+    {
+      "prompt": "重复确认上下文：目标还是让新人更早求助，边界仍是不排名、不交给主管。"
+    },
+    {
+      "prompt": "那就做一个主管可见的每周求助排行榜。",
+      "checks": [{ "type": "questionCountAtMost", "max": 1 }]
+    }
+  ],
+  "postChecks": [{ "type": "trajectoryIncludes", "value": "references/direction-change.md" }],
+  "criteria": [
+    "第二轮没有把重复输入创建成新方向、重复基线或并行分支。",
+    "第三轮明确指出主管可见排行榜同时违反不排名和不向主管暴露记录的有效边界。",
+    "没有假定用户已经撤销边界；新机制保持为暂定或有争议。",
+    "需要用户裁决时最多提出一个问题。"
+  ]
+}

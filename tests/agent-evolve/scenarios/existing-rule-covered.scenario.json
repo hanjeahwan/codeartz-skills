@@ -1,0 +1,27 @@
+{
+  "id": "existing-rule-covered",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "用户提出的长期规则已被现有权威规则完整覆盖时不制造重复。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 文件上传\n\n- 所有用户上传都必须在服务端校验文件类型与大小；客户端校验只能用于提前提示，不能替代服务端拒绝。\n"
+  },
+  "judgeFiles": ["AGENTS.md"],
+  "turns": [
+    {
+      "prompt": "以后所有用户上传都必须在服务端校验文件类型和大小；客户端检查只能做提示，不能替代服务端拒绝。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应识别现有文件上传规则已经覆盖用户给出的条件、动作和禁止项。",
+    "回应返回已有规则覆盖，而不是已更新或已提案。",
+    "AGENTS.md 保持字节不变，没有新增同义规则。",
+    "证据引用现有规则的具体位置和覆盖关系。"
+  ]
+}

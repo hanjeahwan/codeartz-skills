@@ -9,30 +9,21 @@
   },
   "turns": [
     {
-      "prompt": "$project-foundation 验证当前草稿；验证通过后告诉我 draftSha256，不要合并。",
-      "checks": [
-        { "type": "responseIncludes", "value": "draftSha256" },
-        { "type": "responseMatches", "pattern": "[a-f0-9]{64}" }
-      ]
+      "prompt": "$project-foundation 验证当前草稿；验证通过后告诉我 draftSha256，不要合并。"
     },
     {
-      "prompt": "$project-foundation 我明确批准上一轮验证 hash 对应的唯一最终内容，请合并。",
-      "checks": [
-        { "type": "responseIncludes", "value": "冲突" },
-        { "type": "responseIncludes", "value": "待裁决" }
-      ]
+      "prompt": "$project-foundation 我明确批准上一轮验证 hash 对应的唯一最终内容，请合并。"
     }
   ],
+  "judgeFiles": ["AGENTS.md", ".codeartz/project-foundation/draft.md"],
   "postChecks": [
     { "type": "fileUnchanged", "path": "AGENTS.md" },
-    { "type": "fileContains", "path": ".codeartz/project-foundation/draft.md", "value": "所有缺失记录必须抛出异常" },
     { "type": "fileNotExists", "path": "docs/project-foundation-baseline.json" },
     { "type": "trajectoryIncludes", "value": "project-foundation" }
   ],
   "criteria": [
-    "合并前发现正式 AGENTS.md 在草稿建立后出现。",
+    "回应引用当前 AGENTS.md 的具体规则判断冲突，没有仅依赖草稿记录的旧状态。",
     "回应识别正式规则与批准内容之间的语义冲突。",
-    "正式 AGENTS.md 保持不变。",
     "冲突差异被写回待裁决。"
   ]
 }

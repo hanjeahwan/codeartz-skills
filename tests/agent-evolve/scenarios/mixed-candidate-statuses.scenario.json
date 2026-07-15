@@ -1,0 +1,26 @@
+{
+  "id": "mixed-candidate-statuses",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "同一消息中的已收敛候选与暂定候选分别处理。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 缓存与鉴权\n\n- 缓存失败时回源。\n"
+  },
+  "judgeFiles": ["AGENTS.md"],
+  "turns": [
+    {
+      "prompt": "两件事分别处理。第一条已经确定：多租户缓存键必须包含 tenant id，禁止跨租户共享缓存条目。第二条还只是暂定：鉴权服务故障时也许允许读取五分钟旧权限，这条还没批准。"
+    }
+  ],
+  "postChecks": [
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应把两条候选分开判断，没有用一个汇总结论覆盖不同状态。",
+    "AGENTS.md 写入 tenant id 和禁止跨租户共享缓存条目的已收敛规则。",
+    "AGENTS.md 没有写入暂定的五分钟旧权限方案。",
+    "回应分别输出已更新与已提案回执，并指出第二条仍未批准。"
+  ]
+}

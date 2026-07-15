@@ -1,0 +1,25 @@
+{
+  "id": "unresolved-choice-contract",
+  "skill": "target-boundary",
+  "tier": "full",
+  "description": "互斥参数未裁决时合同不能伪装成已采纳。",
+  "files": {
+    "src/worker.ts": "export async function runJob() {\n  return execute();\n}\n\ndeclare function execute(): Promise<void>;\n",
+    "ops.md": "任务偶发网络超时。监控只允许总执行时间不超过 30 秒。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $target-boundary 生成任务重试合同。团队对网络超时后重试两次还是三次没有定论，我还没决定；其他错误不重试。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "src/worker.ts" },
+    { "type": "fileUnchanged", "path": "ops.md" }
+  ],
+  "judgeFiles": [".codeartz/task-retry/target-boundary.md"],
+  "criteria": [
+    "回应没有把两次或三次中的任一选择伪装成已由用户确定。",
+    "若生成合同，合同把重试次数保留为待裁决且状态不是已采纳；若证据门阻止写入，则明确说明阻塞原因。",
+    "回应没有放行实现或修改 src/worker.ts。"
+  ]
+}

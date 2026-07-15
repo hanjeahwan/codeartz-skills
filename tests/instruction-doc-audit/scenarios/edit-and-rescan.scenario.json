@@ -1,0 +1,26 @@
+{
+  "id": "edit-and-rescan",
+  "skill": "instruction-doc-audit",
+  "tier": "smoke",
+  "description": "明确授权修改时最小改写，保留有效规则并在完整重扫后报告结果。",
+  "files": {
+    "rules.md": "# 发布规则\n\n- 发布前运行 npm test。\n- 用户给出路径时优先使用该路径，不要扫描无关目录。\n- 适当处理失败。\n"
+  },
+  "judgeFiles": ["rules.md"],
+  "turns": [
+    {
+      "prompt": "使用 instruction-doc-audit 直接修改 rules.md，保留有效规则。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "rules.md" },
+    { "type": "trajectoryIncludes", "value": "instruction-doc-audit" }
+  ],
+  "criteria": [
+    "实际修改 rules.md，而不是只提供提案。",
+    "保留了运行 npm test 的有效规则。",
+    "把路径规则拆成可独立执行的动作与禁止项。",
+    "没有为“适当处理失败”补造错误类型、负责人或阈值；无法无损确定时使用具体待裁决。",
+    "回应基于重新读取最终文件完成内容重扫后才报告结果；git diff 不可用本身不影响内容重扫，但没有重新读取目标、仍有 HIT 或原文信息未承载时不得报告零命中。"
+  ]
+}

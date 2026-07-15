@@ -121,3 +121,18 @@ test('拒绝缺少字段的建议与损坏的 baseline 合同', () => {
     'fail',
   );
 });
+
+test('拒绝正式目标和 baseline knowledgeFiles 逃逸仓库', () => {
+  const result = validateDraft(
+    validDraft
+      .replaceAll('AGENTS.md', '../outside.md')
+      .replace('docs/project-foundation-baseline.json', '/tmp/baseline.json'),
+  );
+  assert.equal(result.status, 'fail');
+  const pathCheck = result.checks.find((check) => {
+    return check.id === 'repository-relative-paths';
+  });
+  assert.equal(pathCheck?.status, 'fail');
+  assert.match(pathCheck?.evidence ?? '', /\.\.\/outside\.md/);
+  assert.match(pathCheck?.evidence ?? '', /\/tmp\/baseline\.json/);
+});

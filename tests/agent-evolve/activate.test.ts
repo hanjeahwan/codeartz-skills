@@ -51,7 +51,9 @@ test('新 Codex session 固化 safe 并只注入按需加载路由', () => {
   assert.equal(output.hookSpecificOutput.hookEventName, 'SessionStart');
   assert.match(output.hookSpecificOutput.additionalContext, /^AGENT EVOLVE ACTIVE — mode: safe/);
   assert.match(output.hookSpecificOutput.additionalContext, /已安装的 `agent-evolve` Skill/);
-  assert.match(output.hookSpecificOutput.additionalContext, /用户直接提出/);
+  assert.match(output.hookSpecificOutput.additionalContext, /当前任务、连续纠正中形成精确反馈候选/);
+  assert.match(output.hookSpecificOutput.additionalContext, /未确认的精确候选仍加载 Skill/);
+  assert.match(output.hookSpecificOutput.additionalContext, /普通否定时不加载/);
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 工作流/);
   assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 安全验证/);
   assert.ok(output.hookSpecificOutput.additionalContext.split('\n').length <= 8);

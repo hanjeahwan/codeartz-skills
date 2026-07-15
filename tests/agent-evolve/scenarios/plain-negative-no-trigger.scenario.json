@@ -1,0 +1,28 @@
+{
+  "id": "plain-negative-no-trigger",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "没有具体原则的普通否定只推动当前任务，不触发 Agent Evolve。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 文档\n\n- 文档说明实际行为。\n",
+    "draft.md": "# 说明\n\n这个功能大概可以工作。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "draft.md"],
+  "turns": [
+    {
+      "prompt": "这版还是不对，继续把 draft.md 改得更准确一些。",
+      "checks": [{ "type": "fileUnchanged", "path": "AGENTS.md" }]
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryExcludes", "value": "references/workflow.md" }
+  ],
+  "criteria": [
+    "回应只继续修改当前 draft.md。",
+    "回应没有从“还是不对”补造写作规范或长期规则。",
+    "AGENTS.md 保持不变。",
+    "回应没有输出 Agent Evolve 回执。"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "direct-task-bypass",
+  "skill": "agentic-design-navigator",
+  "tier": "smoke",
+  "description": "目标和输出已经明确时直接执行，不启动设计导航。",
+  "turns": [
+    {
+      "prompt": "把“我们需要进一步深入思考这个问题”改成不超过八个汉字，只给改写结果。",
+      "checks": [{ "type": "questionCountAtMost", "max": 0 }]
+    }
+  ],
+  "postChecks": [{ "type": "trajectoryExcludes", "value": "agentic-design-navigator" }],
+  "criteria": ["直接给出符合字数要求的改写结果。", "没有启动意图探索、展示设计基线或追加澄清问题。"]
+}

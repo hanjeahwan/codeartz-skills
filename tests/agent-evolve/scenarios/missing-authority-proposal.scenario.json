@@ -1,0 +1,27 @@
+{
+  "id": "missing-authority-proposal",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "仓库没有权威规则源或未来读取入口时只提出最小落点方案。",
+  "files": {
+    "service.ts": "export async function charge() {\n  return 'ok';\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "这条规则已经确定，请沉淀到项目：所有支付请求必须携带业务幂等键，超时重试必须复用原键。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": "AGENTS.md" },
+    { "type": "fileNotExists", "path": "CLAUDE.md" },
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应识别候选规则已收敛，但仓库没有唯一权威规则源和未来 agent 读取路径。",
+    "回应返回已提案，没有随机写入 service.ts、创建 README 或同时创建多个宿主入口。",
+    "提案保留业务幂等键与重试复用原键的完整边界。",
+    "推荐操作只要求用户批准一个最小读取入口及精确规则文本。"
+  ]
+}

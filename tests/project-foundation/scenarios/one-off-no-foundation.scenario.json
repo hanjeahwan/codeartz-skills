@@ -1,0 +1,24 @@
+{
+  "id": "one-off-no-foundation",
+  "skill": "project-foundation",
+  "tier": "smoke",
+  "description": "一次性局部实现没有可复用知识候选时不制造奠基产物。",
+  "files": {
+    "scripts/convert-once.ts": "const input = process.argv[2] ?? '';\nprocess.stdout.write(input.toUpperCase());\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 为这个只有一次性转换脚本的仓库建立必要的项目知识基础。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": ".codeartz/project-foundation/draft.md" },
+    { "type": "fileNotExists", "path": "docs/project-foundation-baseline.json" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "识别该脚本只呈现一次性局部实现，没有足以改变未来 agent 决策的知识候选。",
+    "没有创建草稿、baseline 或正式知识文件。",
+    "没有把单文件存在或实现细节包装成项目规范。"
+  ]
+}

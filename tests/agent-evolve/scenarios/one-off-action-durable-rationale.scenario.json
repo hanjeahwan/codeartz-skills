@@ -1,0 +1,27 @@
+{
+  "id": "one-off-action-durable-rationale",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "一次性动作包含跨任务失败机制时，拆分局部参数与长期原则。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 外部调用\n\n- 外部调用失败时记录依赖名称。\n",
+    "release-note.md": "# 发布修复\n\n- 发票同步使用默认网络配置。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "release-note.md"],
+  "turns": [
+    {
+      "prompt": "这次发布只需把 release-note.md 改成发票同步使用 4 秒超时。这里暴露的通用问题是：所有外部调用都必须设置显式超时和有上限的重试，否则 worker 会被无限占用；这个原则不只针对本次发布。"
+    }
+  ],
+  "postChecks": [
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应分别处理本次发布动作和跨任务原则。",
+    "release-note.md 记录发票同步使用 4 秒超时。",
+    "AGENTS.md 只沉淀显式超时、有上限重试和防止 worker 无限占用的通用边界。",
+    "长期规则没有包含发票同步、本次发布或固定 4 秒。"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "vague-one-off-intent",
+  "skill": "agentic-design-navigator",
+  "tier": "smoke",
+  "description": "一次性任务仍有方向性歧义时提供认知增量，而不是盲目执行。",
+  "turns": [
+    {
+      "prompt": "只做这一次：帮我改善明天的远程评审。我感觉新人总是不敢说自己卡住了，但还不知道该改什么。",
+      "checks": [{ "type": "questionCountAtMost", "max": 1 }]
+    }
+  ],
+  "postChecks": [{ "type": "trajectoryIncludes", "value": "agentic-design-navigator" }],
+  "criteria": [
+    "没有因为任务只执行一次就跳过方向判断。",
+    "准确反映新人不敢暴露阻碍的现象，并提供一个可能改变问题定义的区分、假设或张力。",
+    "最多提出一个用户能凭明天评审的具体经验回答的问题，没有生成完整方案或问卷。",
+    "未经确认的理解保持暂定。"
+  ]
+}

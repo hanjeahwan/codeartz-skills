@@ -1,0 +1,27 @@
+{
+  "id": "blocked-candidate-proposal",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "精确候选同时处于暂定状态并与既有规则冲突时，只提案并指出阻塞。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 事务边界\n\n- 应用服务负责开启和提交事务；领域服务不得控制事务生命周期。\n"
+  },
+  "judgeFiles": ["AGENTS.md"],
+  "turns": [
+    {
+      "prompt": "有个暂定方向需要评估：以后由领域服务自己开启和提交事务，应用服务不再负责事务边界。这个方向还没批准；请给出精确提案，不要修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应识别候选规则内容明确，但同时处于暂定状态并与既有事务边界直接冲突。",
+    "回应返回已提案，没有修改 AGENTS.md。",
+    "证据指出现有规则位置和具体冲突，不以主题相同代替冲突说明。",
+    "推荐操作要求用户先裁决事务所有权，不能声称普通批准已经满足全部写入条件。"
+  ]
+}

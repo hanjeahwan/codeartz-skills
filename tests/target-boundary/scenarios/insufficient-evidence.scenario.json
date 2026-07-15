@@ -8,11 +8,7 @@
   },
   "turns": [
     {
-      "prompt": "使用 $target-boundary 根据 request.md 分析边界并生成方案。仓库里没有其他实现材料。",
-      "checks": [
-        { "type": "responseMatches", "pattern": "(没有|缺少).*代码" },
-        { "type": "responseExcludes", "value": "已验证" }
-      ]
+      "prompt": "使用 $target-boundary 根据 request.md 分析边界并生成方案。仓库里没有其他实现材料。"
     }
   ],
   "postChecks": [

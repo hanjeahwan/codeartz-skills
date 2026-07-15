@@ -1,0 +1,22 @@
+{
+  "id": "unconfirmed-probe",
+  "skill": "agentic-design-navigator",
+  "tier": "full",
+  "description": "沉默不构成确认，抽象问题无法回答时切换为一种具体判断探针。",
+  "turns": [
+    {
+      "prompt": "我觉得团队会议哪里不对，但说不清。",
+      "checks": [{ "type": "questionCountAtMost", "max": 1 }]
+    },
+    {
+      "prompt": "先继续吧，我不知道怎么回答，刚才的问题还是太抽象。",
+      "checks": [{ "type": "questionCountAtMost", "max": 1 }]
+    }
+  ],
+  "postChecks": [{ "type": "trajectoryIncludes", "value": "references/stabilize-intent.md" }],
+  "criteria": [
+    "第二轮没有把“先继续”或用户未反对解释为确认第一轮理解。",
+    "第二轮没有重复抽象问题，只使用一种具体判断探针。",
+    "探针仍提供新的判断价值，且没有扩展为诊断清单、正式方向或功能方案。"
+  ]
+}

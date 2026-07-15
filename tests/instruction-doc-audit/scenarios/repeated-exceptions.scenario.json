@@ -1,0 +1,25 @@
+{
+  "id": "repeated-exceptions",
+  "skill": "instruction-doc-audit",
+  "tier": "full",
+  "description": "多条只替换对象名称的防错规则收敛为可执行的上位不变量。",
+  "files": {
+    "evidence-rules.md": "# 证据规则\n\n- Skill 目录存在只能证明 Skill 可用，不能证明项目实际采用。\n- 软链接存在只能证明链接布局存在，不能证明对应宿主实际使用。\n- 依赖存在只能证明依赖可用，不能证明它承担全局职责。\n- 生成产物存在只能证明产物存在，不能证明团队执行过对应协作流程。\n"
+  },
+  "turns": [
+    {
+      "prompt": "请审查 evidence-rules.md，只给建议，不修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "evidence-rules.md" },
+    { "type": "trajectoryIncludes", "value": "instruction-doc-audit" }
+  ],
+  "criteria": [
+    "识别四条规则只替换对象名称，命中同构特例堆叠。",
+    "建议稿用“存在证据只证明对象以当前形态存在”和上位的禁止推断范围替代四条特例；为表达共同不变量可以概括采用、使用、职责、流程、设计意图或规范强度，但不得补造具体项目事实。",
+    "保留可执行边界，没有只写“合理抽象”或“统一处理”。",
+    "没有把具有不同风险、后果或处理方式的规则强行合并。",
+    "提案模式保持目标文件不变。"
+  ]
+}

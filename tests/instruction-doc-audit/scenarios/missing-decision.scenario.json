@@ -1,0 +1,24 @@
+{
+  "id": "missing-decision",
+  "skill": "instruction-doc-audit",
+  "tier": "full",
+  "description": "缺少责任人和阈值时输出待裁决，不用常识补造制度。",
+  "files": {
+    "operations.md": "# 故障处理\n\n- 严重故障应当被及时升级。\n- 失败后重试若干次，必要时通知相关人员。\n"
+  },
+  "turns": [
+    {
+      "prompt": "审查 operations.md，并给出可以直接采用的建议稿；不要修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "operations.md" },
+    { "type": "trajectoryIncludes", "value": "instruction-doc-audit" }
+  ],
+  "criteria": [
+    "识别严重程度、及时、重试次数、必要条件和通知对象缺少可判断标准。",
+    "建议稿把无法由原文确定的负责人、阈值和停止条件写为具体待裁决。",
+    "没有自行指定值班人员、分钟数、重试次数或升级渠道。",
+    "没有为了生成“可直接采用”的稿件而隐藏未知事实。"
+  ]
+}

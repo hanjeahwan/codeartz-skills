@@ -1,0 +1,28 @@
+{
+  "id": "partial-merge-failure",
+  "skill": "project-foundation",
+  "tier": "full",
+  "description": "多个正式目标中有路径无法创建时在任何写入前停止并保持 baseline 不变。",
+  "files": {
+    "docs": "这个路径是普通文件，不能作为目录。\n",
+    ".codeartz/project-foundation/draft.md": "# 项目知识草稿\n\n## 检查范围\n\n- 已检查 package.json。\n\n## 建议变更\n\n### 建议 1\n\n- 目标：AGENTS.md\n- 动作：创建\n- 精确内容：完整内容见最终内容。\n- 依据：用户已确认\n- 不确定性：不适用\n\n### 建议 2\n\n- 目标：docs/architecture.md\n- 动作：创建\n- 精确内容：完整内容见最终内容。\n- 依据：用户已确认\n- 不确定性：不适用\n\n## 待裁决\n\n不适用\n\n## 最终内容\n\n### AGENTS.md\n\n```markdown\n# Agent 指南\n```\n\n### docs/architecture.md\n\n```markdown\n# Architecture\n```\n\n### docs/project-foundation-baseline.json\n\n```json\n{\n  \"version\": 1,\n  \"sourceCommit\": null,\n  \"knowledgeFiles\": [\"AGENTS.md\", \"docs/architecture.md\"]\n}\n```\n\n## 验证计划\n\n- 重新读取两个正式目标与 baseline。\n"
+  },
+  "turns": [
+    {
+      "prompt": "$project-foundation 验证当前草稿并告诉我 draftSha256，不要合并。"
+    },
+    {
+      "prompt": "$project-foundation 我明确批准上一轮验证 hash 对应的全部唯一最终内容，请合并。"
+    }
+  ],
+  "judgeFiles": ["docs", ".codeartz/project-foundation/draft.md"],
+  "postChecks": [
+    { "type": "fileNotExists", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "project-foundation" }
+  ],
+  "criteria": [
+    "合并前检查全部目标，识别 docs 是普通文件导致后续目标和 baseline 无法创建。",
+    "在写入 AGENTS.md 之前停止，而不是制造部分合并。",
+    "准确报告阻塞并保持 baseline 不存在，没有声称合并成功。"
+  ]
+}
