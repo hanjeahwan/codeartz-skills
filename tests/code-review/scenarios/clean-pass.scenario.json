@@ -1,0 +1,22 @@
+{
+  "id": "clean-pass",
+  "skill": "code-review",
+  "tier": "smoke",
+  "description": "完整变更差异满足目标且验证通过时明确通过，不制造评论。",
+  "files": {
+    "goal.md": "展示昵称前去除首尾空格；空字符串保持为空。\n",
+    "changes.diff": "diff --git a/src/name.ts b/src/name.ts\nindex 1111111..2222222 100644\n--- a/src/name.ts\n+++ b/src/name.ts\n@@ -1 +1 @@\n-export const displayName = (name: string) => name;\n+export const displayName = (name: string) => name.trim();\ndiff --git a/src/name.test.ts b/src/name.test.ts\nindex 3333333..4444444 100644\n--- a/src/name.test.ts\n+++ b/src/name.test.ts\n@@ -1 +1,3 @@\n assert.equal(displayName('Alice'), 'Alice');\n+assert.equal(displayName(' Alice '), 'Alice');\n+assert.equal(displayName(''), '');\n",
+    "verification.txt": "PASS src/name.test.ts\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 根据 goal.md 审查 changes.diff，并参考 verification.txt。"
+    }
+  ],
+  "criteria": [
+    "确认变更差异覆盖去除首尾空格和空字符串保持行为，并引用实际通过的验证结果。",
+    "没有实质审查发现时明确给出通过结论。",
+    "没有制造代码风格、命名偏好、泛化重构或其他缺少失败路径的建议。",
+    "没有声称运行了 verification.txt 之外的测试。"
+  ]
+}

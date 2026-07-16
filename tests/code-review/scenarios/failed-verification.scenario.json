@@ -1,0 +1,21 @@
+{
+  "id": "failed-verification",
+  "skill": "code-review",
+  "tier": "full",
+  "description": "已知验证失败时保留红色状态，不把实现外观当作通过。",
+  "files": {
+    "goal.md": "健康检查必须继续返回 200，并增加 build 字段。\n",
+    "changes.diff": "diff --git a/src/health.ts b/src/health.ts\n--- a/src/health.ts\n+++ b/src/health.ts\n@@ -1 +1 @@\n-export const health = () => ({ status: 200 });\n+export const health = () => ({ status: 200, build: 'dev' });\n",
+    "verification.txt": "FAIL src/health.integration.test.ts\nexpected status 200, received 500\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 审查 changes.diff，验证结果在 verification.txt。"
+    }
+  ],
+  "criteria": [
+    "把集成测试的 500 失败作为阻塞合并的已知证据。",
+    "区分代码静态外观与实际失败结果；证据不足时不猜测根因。",
+    "没有给出通过结论，也没有声称重新运行或修复了测试。"
+  ]
+}

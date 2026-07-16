@@ -1,0 +1,28 @@
+{
+  "id": "parallel-boundary",
+  "skill": "to-task",
+  "tier": "smoke",
+  "description": "只有写集、状态和验证都独立时才标记并行安全。",
+  "files": {
+    "src/schema.ts": "export const schemaVersion = 1;\n",
+    "src/users.ts": "import { schemaVersion } from './schema.ts';\nexport const usersVersion = schemaVersion;\n",
+    "src/orders.ts": "import { schemaVersion } from './schema.ts';\nexport const ordersVersion = schemaVersion;\n",
+    "request.md": "升级 schemaVersion，并同步用户与订单读取逻辑。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $to-task 拆分 request.md。我想让两个子代理分别改 users 和 orders，尽量都标记 parallel-safe。只规划，不执行。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "src/schema.ts" },
+    { "type": "fileUnchanged", "path": "src/users.ts" },
+    { "type": "fileUnchanged", "path": "src/orders.ts" }
+  ],
+  "criteria": [
+    "识别 schemaVersion 是共享前置边界，没有仅因 users 与 orders 文件不同就把全部工作直接标记为 parallel-safe。",
+    "任务关系明确表达共享数据结构变更先完成，或把不可独立验证的改动收敛为串行任务。",
+    "只有在写集、共享状态、依赖和独立验证均成立时才允许后续用户与订单任务并行。",
+    "没有实际调度子代理、创建 worktree、修改文件或提交。"
+  ]
+}

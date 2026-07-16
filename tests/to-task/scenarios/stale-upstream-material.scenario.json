@@ -1,0 +1,26 @@
+{
+  "id": "stale-upstream-material",
+  "skill": "to-task",
+  "tier": "full",
+  "description": "任意上游材料只提供候选约束；材料失效时按当前证据处理，不要求特定 Skill 产物。",
+  "files": {
+    "planning-note.md": "状态：团队已批准。\n目标：为旧导出入口增加固定标题。\n当前入口：src/legacy-export.ts。\n",
+    "src/export.ts": "export function exportRows(rows: string[][]) { return rows; }\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $to-task 检查 planning-note.md 是否足以拆成任务。我没有确认文档里的批准声明；请以当前代码为准。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "planning-note.md" },
+    { "type": "fileUnchanged", "path": "src/export.ts" },
+    { "type": "trajectoryIncludes", "value": "src/export.ts" }
+  ],
+  "criteria": [
+    "把 planning-note.md 当作普通候选材料，没有把文档自称的批准状态升级为用户确认。",
+    "根据当前检出内容识别文档引用的 src/legacy-export.ts 不存在，并定位实际入口 src/export.ts。",
+    "报告会改变任务边界的失效证据和最小复核动作，没有输出看似可开工的正式任务。",
+    "没有要求用户先生成或调用任何特定上游 Skill 产物。"
+  ]
+}

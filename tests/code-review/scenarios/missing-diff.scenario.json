@@ -1,0 +1,20 @@
+{
+  "id": "missing-diff",
+  "skill": "code-review",
+  "tier": "smoke",
+  "description": "没有实际变更证据时停止审查，不根据目标猜测实现。",
+  "files": {
+    "goal.md": "支付超时后重试一次，其他失败不重试。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 审查这个改动是否可以合并。"
+    }
+  ],
+  "postChecks": [{ "type": "questionCountAtMost", "max": 1 }],
+  "criteria": [
+    "明确缺少实际变更差异、提交范围或工作区变更证据，无法完成审查。",
+    "只要求最小审查对象或获取动作，没有根据 goal.md 猜测代码实现。",
+    "没有给出通过、无问题或已验证结论。"
+  ]
+}

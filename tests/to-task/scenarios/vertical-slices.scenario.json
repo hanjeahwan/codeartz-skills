@@ -1,0 +1,26 @@
+{
+  "id": "vertical-slices",
+  "skill": "to-task",
+  "tier": "smoke",
+  "description": "把明确需求按可独立验证的行为纵向切分，不机械拆出测试任务。",
+  "files": {
+    "src/export.ts": "export function exportCsv(rows: string[][]) {\n  return rows.map((row) => row.join(',')).join('\\n');\n}\n\nexport function exportPdf(rows: string[][]) {\n  return `PDF:${rows.length}`;\n}\n",
+    "src/export.test.ts": "import assert from 'node:assert/strict';\nimport { exportCsv, exportPdf } from './export.ts';\nassert.equal(exportCsv([['a']]), 'a');\nassert.equal(exportPdf([['a']]), 'PDF:1');\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $to-task 拆分任务：当前 CSV 固定导出 name、amount 两列，增加固定标题行 name,amount，并正确转义字段中的逗号；PDF 行为保持不变。每项变化必须有直接测试。只输出任务，不实现。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "src/export.ts" },
+    { "type": "fileUnchanged", "path": "src/export.test.ts" },
+    { "type": "trajectoryIncludes", "value": "src/export.ts" }
+  ],
+  "criteria": [
+    "输出一个或少量按 CSV 用户行为纵向切分的任务，没有把实现和测试拆成不同任务。",
+    "每个任务都包含可观察完成条件、直接验证、提交边界和保持 PDF 不变的范围限制。",
+    "没有为了形式制造准备、前端、后端、测试或收尾任务，也没有修改实现文件。",
+    "输出包含合并后整体测试与提交范围审查关卡，但没有把关卡包装成已完成。"
+  ]
+}

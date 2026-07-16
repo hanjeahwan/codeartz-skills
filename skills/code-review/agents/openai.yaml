@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Code Review'
+  short_description: '审查实际变更差异与完整提交范围，报告可触发的工程风险'
+  default_prompt: '使用 $code-review 审查这个提交范围是否可以合并。'

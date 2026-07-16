@@ -1,0 +1,20 @@
+{
+  "id": "incomplete-diff",
+  "skill": "code-review",
+  "tier": "full",
+  "description": "变更差异截断或二进制内容不可见时明确未审范围，不给完整通过。",
+  "files": {
+    "goal.md": "更新上传校验和客户端资源。\n",
+    "changes.diff": "diff --git a/src/upload.ts b/src/upload.ts\n--- a/src/upload.ts\n+++ b/src/upload.ts\n@@ -1 +1 @@\n-export const maxSize = 10;\n+export const maxSize = 20;\ndiff --git a/public/client.bin b/public/client.bin\nBinary files differ\n[output truncated: 2 changed files omitted]\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 全面审查 changes.diff 是否可以合并。"
+    }
+  ],
+  "criteria": [
+    "明确识别二进制内容不可见和两个变更文件被截断。",
+    "列出未审范围或最小补证据动作，没有把可见 upload.ts 片段代表完整变更差异。",
+    "拒绝完整通过，同时可以审查当前可见部分。"
+  ]
+}

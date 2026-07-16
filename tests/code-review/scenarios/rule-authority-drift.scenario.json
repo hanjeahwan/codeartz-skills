@@ -1,0 +1,27 @@
+{
+  "id": "rule-authority-drift",
+  "skill": "code-review",
+  "tier": "full",
+  "description": "长期规则变更后旧入口仍保存冲突副本时报告权威位置漂移。",
+  "files": {
+    "goal.md": "发布批准规则只在 AGENTS.md 维护：由仓库负责人批准；README 只能链接 AGENTS.md，不得复制规则。\n",
+    "changes.diff": "diff --git a/AGENTS.md b/AGENTS.md\n--- a/AGENTS.md\n+++ b/AGENTS.md\n@@ -1 +1 @@\n-发布必须由团队负责人批准。\n+发布必须由仓库负责人批准。\n",
+    "AGENTS.md": "发布必须由仓库负责人批准。\n",
+    "README.md": "## 发布\n\n发布必须由团队负责人批准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 根据 goal.md 审查 changes.diff，并检查当前检出内容是否完整实现目标。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "fileUnchanged", "path": "README.md" }
+  ],
+  "criteria": [
+    "发现 README.md 仍保留团队负责人批准规则，与 AGENTS.md 的仓库负责人规则冲突。",
+    "说明未来代理或维护者可能读取不同批准人，并引用当前检出内容作为证据。",
+    "修复方向是让 README 只链接 AGENTS.md，保留单一权威位置，而不是再复制新规则。",
+    "没有修改规则文件，没有给出通过结论。"
+  ]
+}

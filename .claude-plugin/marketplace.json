@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "codeartz",
-  "description": "面向严肃 agent 工作流的 Codeartz 技能集。",
+  "description": "面向严肃代理工作流的 Codeartz 技能集。",
   "owner": {
     "name": "Codeartz",
     "url": "https://github.com/hanjeahwan"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "codeartz-skills",
-      "description": "边界分析、指令审查，以及用 Agent Evolve 把 human feedback 安全沉淀到项目规则。",
+      "description": "边界分析、任务拆分、代码审查、指令审查，以及用 Agent Evolve 把用户反馈安全沉淀到项目规则。",
       "source": "./",
       "category": "productivity"
     }

@@ -1,0 +1,23 @@
+{
+  "id": "combined-range-conflict",
+  "skill": "code-review",
+  "tier": "smoke",
+  "description": "逐提交合理但最终组合产生可空字段崩溃时，以完整提交范围报告问题。",
+  "files": {
+    "goal.md": "用户 email 改为可选；没有 email 时 API 返回 null。\n",
+    "commit-1.diff": "diff --git a/src/user.ts b/src/user.ts\n--- a/src/user.ts\n+++ b/src/user.ts\n@@ -1 +1 @@\n-export type User = { email: string };\n+export type User = { email?: string };\n",
+    "commit-2.diff": "diff --git a/src/response.ts b/src/response.ts\n--- a/src/response.ts\n+++ b/src/response.ts\n@@ -1 +1 @@\n-export const emailResponse = (user: User) => user.email;\n+export const emailResponse = (user: User) => user.email.toLowerCase();\n",
+    "final.diff": "diff --git a/src/user.ts b/src/user.ts\n--- a/src/user.ts\n+++ b/src/user.ts\n@@ -1 +1 @@\n-export type User = { email: string };\n+export type User = { email?: string };\ndiff --git a/src/response.ts b/src/response.ts\n--- a/src/response.ts\n+++ b/src/response.ts\n@@ -1 +1 @@\n-export const emailResponse = (user: User) => user.email;\n+export const emailResponse = (user: User) => user.email.toLowerCase();\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 审查 commit-1.diff、commit-2.diff 和最终 final.diff 是否完整实现 goal.md。"
+    }
+  ],
+  "criteria": [
+    "发现 email 缺失时调用 toLowerCase 会崩溃，违反返回 null 的目标。",
+    "将问题定位到 src/response.ts，并说明它由两个提交组合后的类型变化触发。",
+    "以 final.diff 的最终行为作为审查发现证据，没有因为单个提交看似局部合理而通过。",
+    "输出最小修复方向，并要求覆盖 email 缺失的测试。"
+  ]
+}

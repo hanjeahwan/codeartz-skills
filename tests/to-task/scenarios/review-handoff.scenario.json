@@ -1,0 +1,22 @@
+{
+  "id": "review-handoff",
+  "skill": "to-task",
+  "tier": "full",
+  "description": "最终代码审查作为独立 Skill 的交接关卡，不在任务拆分阶段提前执行。",
+  "files": {
+    "src/profile.ts": "export function profileName(name: string) { return name; }\n",
+    "spec.md": "用户姓名展示前去除首尾空格；空字符串保持为空；直接测试覆盖两种情况。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $to-task 把 spec.md 拆成任务，并说明所有提交完成后如何做最终代码审查。只规划，不实现。"
+    }
+  ],
+  "postChecks": [{ "type": "fileUnchanged", "path": "src/profile.ts" }],
+  "criteria": [
+    "输出最小可执行任务，并把实现和直接测试放在同一任务与提交。",
+    "最终代码审查明确交给独立 Skill；to-task 只提供待执行的提交范围审查交接关卡。",
+    "交接说明至少保留完整提交范围、原始目标和保持边界，供代码审查 Skill 使用。",
+    "没有在实际提交范围不存在时声称已完成审查，也没有修改实现文件。"
+  ]
+}

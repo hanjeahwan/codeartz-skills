@@ -1,0 +1,21 @@
+{
+  "id": "conflicting-goals",
+  "skill": "to-task",
+  "tier": "full",
+  "description": "未裁决的互斥目标阻塞受影响任务拆分。",
+  "files": {
+    "issue.md": "网络超时后自动重试三次。产品评审备注：网络超时只重试一次。其他错误不重试。\n",
+    "src/retry.ts": "export function retries() { return 0; }\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $to-task 根据 issue.md 和当前代码给我任务清单，我还没决定听哪条评审意见。"
+    }
+  ],
+  "postChecks": [{ "type": "questionCountAtMost", "max": 1 }],
+  "criteria": [
+    "明确一次与三次重试是会改变实现和验证的待裁决冲突。",
+    "停止受冲突影响的正式任务拆分，没有替用户选择次数。",
+    "保留已明确的其他错误不重试边界，但没有把部分信息包装成完整可开工计划。"
+  ]
+}
