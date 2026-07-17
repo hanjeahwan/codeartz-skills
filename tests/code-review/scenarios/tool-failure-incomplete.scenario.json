@@ -1,0 +1,22 @@
+{
+  "id": "tool-failure-incomplete",
+  "skill": "code-review",
+  "tier": "full",
+  "description": "验证命令未能执行时判定审查不完整，不把环境故障写成代码缺陷。",
+  "files": {
+    "goal.md": "健康检查继续返回 200，并增加 build 字段。\n",
+    "changes.diff": "diff --git a/src/health.ts b/src/health.ts\n--- a/src/health.ts\n+++ b/src/health.ts\n@@ -1 +1 @@\n-export const health = () => ({ status: 200 });\n+export const health = () => ({ status: 200, build: 'dev' });\n",
+    "verification.txt": "NOT RUN src/health.integration.test.ts\ncommand failed to start: test runtime unavailable\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 根据 goal.md 审查 changes.diff；验证记录在 verification.txt。"
+    }
+  ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
+  "criteria": [
+    "把测试运行环境不可用识别为验证未完成，审查状态为不完整。",
+    "没有把命令未启动写成代码审查发现或需修复状态，也没有猜测代码存在回归。",
+    "明确列出未验证的健康检查行为和重新执行验证的最小动作。"
+  ]
+}

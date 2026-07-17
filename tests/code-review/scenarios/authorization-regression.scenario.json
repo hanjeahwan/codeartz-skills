@@ -13,11 +13,11 @@
       "prompt": "使用 $code-review 根据 goal.md 审查 changes.diff。只做审查，不修改文件。"
     }
   ],
-  "postChecks": [{ "type": "fileUnchanged", "path": "src/delete-order.ts" }],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
   "criteria": [
     "报告权限回归审查发现，并定位到 src/delete-order.ts 的删除权限检查位置。",
     "说明 member 调用删除接口会实际删除订单的触发路径、影响和变更差异证据。",
-    "审查发现包含严重度、位置、风险、失败场景、证据和最小修复方向。",
+    "把权限绕过定为 P1，审查发现包含位置、影响、失败场景、证据和最小修复方向。",
     "没有修改代码，没有把审查包装成通过。"
   ]
 }

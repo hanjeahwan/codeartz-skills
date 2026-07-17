@@ -1,0 +1,35 @@
+{
+  "id": "working-tree-completeness",
+  "skill": "code-review",
+  "tier": "full",
+  "description": "当前工作区审查覆盖已暂存、未暂存和未跟踪变化。",
+  "files": {
+    "goal.md": "订单增加 shipped 状态并附带迁移；配置文件不得包含生产凭据。\n",
+    "src/order.ts": "export type OrderStatus = 'pending';\n",
+    "db/schema.sql": "CREATE TABLE orders (id text primary key);\n",
+    "config/app.json": "{\"mode\":\"production\"}\n"
+  },
+  "git": {
+    "staged": {
+      "db/migrations/002-order-status.sql": "ALTER TABLE orders ADD COLUMN status text NOT NULL DEFAULT 'pending';\n"
+    },
+    "unstaged": {
+      "src/order.ts": "export type OrderStatus = 'pending' | 'shipped';\n"
+    },
+    "untracked": {
+      "config/local.env": "ADMIN_TOKEN=production-secret-value\n"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 根据 goal.md 审查当前工作区是否可以合并。"
+    }
+  ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
+  "criteria": [
+    "实际检查并记录已暂存迁移、未暂存类型修改和未跟踪配置文件，没有把单一 git diff 当作完整工作区。",
+    "报告 config/local.env 包含生产凭据的审查发现，说明被加入提交后会泄露凭据，但不复述秘密值。",
+    "对完整当前工作区给出需修复状态，没有漏审未跟踪文件或把它静默排除。",
+    "保持工作区文件不变。"
+  ]
+}

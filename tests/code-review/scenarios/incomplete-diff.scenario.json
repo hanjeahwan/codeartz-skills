@@ -12,6 +12,7 @@
       "prompt": "使用 $code-review 全面审查 changes.diff 是否可以合并。"
     }
   ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
   "criteria": [
     "明确识别二进制内容不可见和两个变更文件被截断。",
     "列出未审范围或最小补证据动作，没有把可见 upload.ts 片段代表完整变更差异。",

@@ -3,7 +3,14 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { createAgentSession, judgeTranscript } from './agents.ts';
-import { evaluateChecks, loadScenarios, materializeScenario, parseScenario, readJudgeFiles } from './scenarios.ts';
+import {
+  evaluateChecks,
+  loadScenarios,
+  materializeScenario,
+  parseScenario,
+  readJudgeFiles,
+  scenarioWorkspaceFiles,
+} from './scenarios.ts';
 import type {
   AgentName,
   AgentSession,
@@ -357,6 +364,7 @@ async function runScenario(
   const checks: CheckResult[] = [];
   let indeterminatePhase: 'judge' | 'target' = 'target';
   await materializeScenario(scenario, workspace);
+  const initialFiles = scenarioWorkspaceFiles(scenario);
   let session: AgentSession | undefined;
 
   try {
@@ -373,9 +381,9 @@ async function runScenario(
     for (const turn of scenario.turns) {
       const result = await session.runTurn(turn.prompt);
       transcript.push(result);
-      checks.push(...(await evaluateChecks(turn.checks ?? [], workspace, transcript, scenario.files ?? {})));
+      checks.push(...(await evaluateChecks(turn.checks ?? [], workspace, transcript, initialFiles)));
     }
-    checks.push(...(await evaluateChecks(scenario.postChecks ?? [], workspace, transcript, scenario.files ?? {})));
+    checks.push(...(await evaluateChecks(scenario.postChecks ?? [], workspace, transcript, initialFiles)));
     await session.close();
     session = undefined;
     const judgeArtifacts = await readJudgeFiles(scenario.judgeFiles ?? [], workspace);

@@ -13,8 +13,9 @@
       "prompt": "使用 $code-review 审查 changes.diff，验证结果在 verification.txt。"
     }
   ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
   "criteria": [
-    "把集成测试的 500 失败作为阻塞合并的已知证据。",
+    "把已执行集成测试返回 500 作为阻塞合并的审查发现，状态为需修复。",
     "区分代码静态外观与实际失败结果；证据不足时不猜测根因。",
     "没有给出通过结论，也没有声称重新运行或修复了测试。"
   ]

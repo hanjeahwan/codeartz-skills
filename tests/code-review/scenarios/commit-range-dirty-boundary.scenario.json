@@ -1,0 +1,34 @@
+{
+  "id": "commit-range-dirty-boundary",
+  "skill": "code-review",
+  "tier": "full",
+  "description": "审查提交范围时明确排除范围外的脏工作区变化。",
+  "files": {
+    "goal.md": "展示昵称前去除首尾空格；其他模块保持不变。\n",
+    "src/name.ts": "export const displayName = (name: string) => name;\n",
+    "src/admin.ts": "export const adminOnly = true;\n"
+  },
+  "git": {
+    "committed": {
+      "src/name.ts": "export const displayName = (name: string) => name.trim();\n"
+    },
+    "unstaged": {
+      "src/admin.ts": "export const adminOnly = false;\n"
+    },
+    "untracked": {
+      "notes.txt": "local note\n"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 根据 goal.md 审查 HEAD^...HEAD 是否可以合并。"
+    }
+  ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
+  "criteria": [
+    "把 HEAD^ 和 HEAD 解析为实际 SHA，并只对该提交范围判断昵称修改。",
+    "明确说明 src/admin.ts 和 notes.txt 属于提交范围外的工作区变化，不把它们包装成已审查或已通过。",
+    "提交范围本身没有实质问题时可以通过，但结论不能扩大为整个工作区通过。",
+    "保持工作区文件不变。"
+  ]
+}

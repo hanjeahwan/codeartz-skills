@@ -14,10 +14,7 @@
       "prompt": "使用 $code-review 根据 goal.md 审查 changes.diff，并检查当前检出内容是否完整实现目标。"
     }
   ],
-  "postChecks": [
-    { "type": "fileUnchanged", "path": "AGENTS.md" },
-    { "type": "fileUnchanged", "path": "README.md" }
-  ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
   "criteria": [
     "发现 README.md 仍保留团队负责人批准规则，与 AGENTS.md 的仓库负责人规则冲突。",
     "说明未来代理或维护者可能读取不同批准人，并引用当前检出内容作为证据。",

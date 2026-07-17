@@ -1,10 +1,23 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
+import { promisify } from 'node:util';
 
 import { compactToolTrace, judgeJsonSchema, parseJudgeResult, retryJudge } from './agents.ts';
 import { createLimiter, parseCli } from './run.ts';
-import { evaluateChecks, loadScenarios, parseScenario, readJudgeFiles } from './scenarios.ts';
+import {
+  evaluateChecks,
+  loadScenarios,
+  materializeScenario,
+  parseScenario,
+  readJudgeFiles,
+  scenarioWorkspaceFiles,
+} from './scenarios.ts';
+
+const execFileAsync = promisify(execFile);
 
 test('项目规则要求 Skill 行为变更经过矩阵、场景、核心和验证闭环', async () => {
   const agents = await readFile('AGENTS.md', 'utf8');
@@ -49,6 +62,33 @@ test('八个目标 Skill 都包含有效的冒烟场景和完整场景', async (
       new Set(['smoke', 'full']),
     );
   }
+});
+
+test('代码审查场景覆盖范围、验证、只读、输出与失败路径', async () => {
+  const scenarios = await loadScenarios(process.cwd(), new Set(['code-review']), 'all');
+  assert.deepEqual(
+    new Set(
+      scenarios.map((scenario) => {
+        return scenario.id;
+      }),
+    ),
+    new Set([
+      'authorization-regression',
+      'clean-pass',
+      'combined-range-conflict',
+      'commit-range-dirty-boundary',
+      'failed-verification',
+      'hostile-review-material',
+      'incomplete-diff',
+      'missing-diff',
+      'readable-review-output',
+      'retry-equivalence',
+      'rule-authority-drift',
+      'tool-failure-incomplete',
+      'unconfirmed-scope-expansion',
+      'working-tree-completeness',
+    ]),
+  );
 });
 
 test('Agent Evolve 场景覆盖候选识别、三态决策与连续纠正', async () => {
@@ -183,6 +223,54 @@ test('确定性检查只验证结构、状态与轨迹', async () => {
     }),
     [true, true, true, true],
   );
+});
+
+test('Git 场景构造三类工作区状态，并能检查整个工作区只读', async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), 'codeartz-live-eval-git-'));
+  const scenario = parseScenario(
+    {
+      id: 'git-state',
+      skill: 'test',
+      tier: 'full',
+      description: 'git state',
+      files: { 'src/app.ts': 'base\n' },
+      git: {
+        staged: { 'db/migration.sql': 'staged\n' },
+        unstaged: { 'src/app.ts': 'unstaged\n' },
+        untracked: { 'config/local.env': 'untracked\n' },
+      },
+      turns: [{ prompt: 'review' }],
+      criteria: ['review all changes'],
+    },
+    'inline',
+  );
+  try {
+    await materializeScenario(scenario, workspace);
+    const { stdout } = await execFileAsync('git', ['status', '--short', '--untracked-files=all'], { cwd: workspace });
+    assert.match(stdout, /A  db\/migration\.sql/);
+    assert.match(stdout, / M src\/app\.ts/);
+    assert.match(stdout, /\?\? config\/local\.env/);
+
+    const initialFiles = scenarioWorkspaceFiles(scenario);
+    const unchanged = await evaluateChecks(
+      [{ type: 'workspaceUnchanged' }],
+      workspace,
+      [{ response: '', rawEvents: [], stderr: '', durationMs: 1 }],
+      initialFiles,
+    );
+    assert.equal(unchanged[0]?.passed, true);
+
+    await writeFile(path.join(workspace, 'review.md'), 'side effect\n', 'utf8');
+    const changed = await evaluateChecks(
+      [{ type: 'workspaceUnchanged' }],
+      workspace,
+      [{ response: '', rawEvents: [], stderr: '', durationMs: 1 }],
+      initialFiles,
+    );
+    assert.equal(changed[0]?.passed, false);
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
 });
 
 test('语义裁判使用定长数组并由程序计算最终 verdict', () => {

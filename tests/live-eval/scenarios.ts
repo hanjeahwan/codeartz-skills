@@ -1,7 +1,11 @@
+import { execFile } from 'node:child_process';
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { promisify } from 'node:util';
 
-import type { AgentTurnResult, CheckResult, Scenario, ScenarioCheck, ScenarioTier } from './types.ts';
+import type { AgentTurnResult, CheckResult, Scenario, ScenarioCheck, ScenarioGitState, ScenarioTier } from './types.ts';
+
+const execFileAsync = promisify(execFile);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -49,6 +53,8 @@ function parseCheck(value: unknown, field: string): ScenarioCheck {
     case 'fileUnchanged':
     case 'markdownFencesBalanced':
       return { type, path: requireString(value.path, `${field}.path`) };
+    case 'workspaceUnchanged':
+      return { type };
     case 'questionCountAtMost':
       if (!Number.isInteger(value.max) || Number(value.max) < 0) {
         throw new Error(`${field}.max must be a non-negative integer`);
@@ -74,6 +80,36 @@ function parseChecks(value: unknown, field: string): ScenarioCheck[] | undefined
   });
 }
 
+function parseFiles(value: unknown, field: string): Record<string, string> {
+  if (!isRecord(value)) {
+    throw new Error(`${field} must be an object`);
+  }
+  const files: Record<string, string> = {};
+  for (const [filePath, content] of Object.entries(value)) {
+    files[filePath] = requireText(content, `${field}.${filePath}`);
+  }
+  return files;
+}
+
+function parseGitState(value: unknown, field: string): ScenarioGitState | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!isRecord(value)) {
+    throw new Error(`${field} must be an object`);
+  }
+  const git: ScenarioGitState = {};
+  for (const state of ['committed', 'staged', 'unstaged', 'untracked'] as const) {
+    if (value[state] !== undefined) {
+      git[state] = parseFiles(value[state], `${field}.${state}`);
+    }
+  }
+  if (Object.keys(git).length === 0) {
+    throw new Error(`${field} must define committed, staged, unstaged, or untracked files`);
+  }
+  return git;
+}
+
 export function parseScenario(value: unknown, source: string): Scenario {
   if (!isRecord(value)) {
     throw new Error(`${source} must contain an object`);
@@ -91,15 +127,8 @@ export function parseScenario(value: unknown, source: string): Scenario {
   }
   const postChecks = parseChecks(value.postChecks, `${source}.postChecks`);
 
-  const files: Record<string, string> = {};
-  if (value.files !== undefined) {
-    if (!isRecord(value.files)) {
-      throw new Error(`${source}.files must be an object`);
-    }
-    for (const [filePath, content] of Object.entries(value.files)) {
-      files[filePath] = requireText(content, `${source}.files.${filePath}`);
-    }
-  }
+  const files = value.files === undefined ? {} : parseFiles(value.files, `${source}.files`);
+  const git = parseGitState(value.git, `${source}.git`);
 
   let judgeFiles: string[] | undefined;
   if (value.judgeFiles !== undefined) {
@@ -118,6 +147,7 @@ export function parseScenario(value: unknown, source: string): Scenario {
     tier: tier as ScenarioTier,
     description: requireString(value.description, `${source}.description`),
     ...(Object.keys(files).length > 0 ? { files } : {}),
+    ...(git ? { git } : {}),
     ...(judgeFiles ? { judgeFiles } : {}),
     turns: value.turns.map((turn, index) => {
       if (!isRecord(turn)) {
@@ -201,11 +231,65 @@ function resolveWorkspacePath(workspace: string, relativePath: string): string {
 export async function materializeScenario(scenario: Scenario, workspace: string): Promise<void> {
   const { mkdir } = await import('node:fs/promises');
   await mkdir(workspace, { recursive: true });
-  for (const [relativePath, content] of Object.entries(scenario.files ?? {})) {
-    const destination = resolveWorkspacePath(workspace, relativePath);
-    await mkdir(path.dirname(destination), { recursive: true });
-    await writeFile(destination, content, 'utf8');
+  const writeFiles = async (files: Record<string, string>): Promise<void> => {
+    for (const [relativePath, content] of Object.entries(files)) {
+      const destination = resolveWorkspacePath(workspace, relativePath);
+      await mkdir(path.dirname(destination), { recursive: true });
+      await writeFile(destination, content, 'utf8');
+    }
+  };
+  await writeFiles(scenario.files ?? {});
+  if (!scenario.git) {
+    return;
   }
+
+  await execFileAsync('git', ['init', '--quiet'], { cwd: workspace });
+  await execFileAsync('git', ['config', 'user.name', 'Live Eval'], { cwd: workspace });
+  await execFileAsync('git', ['config', 'user.email', 'live-eval@example.invalid'], { cwd: workspace });
+  await execFileAsync('git', ['add', '--all'], { cwd: workspace });
+  await execFileAsync('git', ['commit', '--quiet', '--allow-empty', '-m', 'baseline'], { cwd: workspace });
+
+  await writeFiles(scenario.git.committed ?? {});
+  if (Object.keys(scenario.git.committed ?? {}).length > 0) {
+    await execFileAsync('git', ['add', '--all'], { cwd: workspace });
+    await execFileAsync('git', ['commit', '--quiet', '--allow-empty', '-m', 'change'], { cwd: workspace });
+  }
+  await writeFiles(scenario.git.staged ?? {});
+  const stagedPaths = Object.keys(scenario.git.staged ?? {});
+  if (stagedPaths.length > 0) {
+    await execFileAsync('git', ['add', '--', ...stagedPaths], { cwd: workspace });
+  }
+  await writeFiles(scenario.git.unstaged ?? {});
+  await writeFiles(scenario.git.untracked ?? {});
+}
+
+export function scenarioWorkspaceFiles(scenario: Scenario): Record<string, string> {
+  return {
+    ...scenario.files,
+    ...scenario.git?.committed,
+    ...scenario.git?.staged,
+    ...scenario.git?.unstaged,
+    ...scenario.git?.untracked,
+  };
+}
+
+async function readWorkspaceFiles(workspace: string): Promise<Record<string, string>> {
+  const files: Record<string, string> = {};
+  const visit = async (directory: string): Promise<void> => {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      if (entry.name === '.git' && directory === workspace) {
+        continue;
+      }
+      const target = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await visit(target);
+      } else if (entry.isFile()) {
+        files[path.relative(workspace, target)] = await readFile(target, 'utf8');
+      }
+    }
+  };
+  await visit(workspace);
+  return files;
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
@@ -280,6 +364,21 @@ export async function evaluateChecks(
           check,
           passed,
           evidence: `${check.path} ${passed ? 'is unchanged' : 'changed or disappeared'}`,
+        });
+        break;
+      }
+      case 'workspaceUnchanged': {
+        const actual = await readWorkspaceFiles(workspace);
+        const sorted = (files: Record<string, string>): Array<[string, string]> => {
+          return Object.entries(files).sort(([left], [right]) => {
+            return left.localeCompare(right);
+          });
+        };
+        const passed = JSON.stringify(sorted(actual)) === JSON.stringify(sorted(initialFiles));
+        results.push({
+          check,
+          passed,
+          evidence: passed ? 'workspace files are unchanged' : 'workspace files changed',
         });
         break;
       }

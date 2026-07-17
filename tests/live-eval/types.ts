@@ -8,9 +8,18 @@ export type ScenarioCheck =
   | { type: 'fileExists'; path: string }
   | { type: 'fileNotExists'; path: string }
   | { type: 'fileUnchanged'; path: string }
+  | { type: 'workspaceUnchanged' }
   | { type: 'questionCountAtMost'; max: number }
   | { type: 'trajectoryIncludes'; value: string }
   | { type: 'trajectoryExcludes'; value: string };
+
+export interface ScenarioGitState {
+  // ponytail: content-only states cover current scenarios; add deletion entries when a scenario needs them.
+  committed?: Record<string, string>;
+  staged?: Record<string, string>;
+  unstaged?: Record<string, string>;
+  untracked?: Record<string, string>;
+}
 
 export interface ScenarioTurn {
   prompt: string;
@@ -24,6 +33,7 @@ export interface Scenario {
   tier: ScenarioTier;
   description: string;
   files?: Record<string, string>;
+  git?: ScenarioGitState;
   judgeFiles?: string[];
   turns: ScenarioTurn[];
   criteria: string[];

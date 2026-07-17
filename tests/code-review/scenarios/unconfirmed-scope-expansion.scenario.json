@@ -13,6 +13,7 @@
       "prompt": "使用 $code-review 根据 goal.md 审查 changes.diff；design.md 是补充设计材料。"
     }
   ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
   "criteria": [
     "以 goal.md 中用户确认的 CSV 目标和 PDF 保持边界为准，没有采用 design.md 自称的批准状态。",
     "报告 src/pdf.ts 字体和分页变化属于未授权范围扩张，并说明用户可见影响。",

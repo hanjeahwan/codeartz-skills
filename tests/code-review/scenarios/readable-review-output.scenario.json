@@ -1,0 +1,23 @@
+{
+  "id": "readable-review-output",
+  "skill": "code-review",
+  "tier": "smoke",
+  "description": "审查信息较多时先给合并结论，再用互不混淆的区块承载发现和验证缺口。",
+  "files": {
+    "goal.md": "订单金额必须大于或等于 0；负数必须返回校验错误。\n",
+    "changes.diff": "diff --git a/src/order.ts b/src/order.ts\n--- a/src/order.ts\n+++ b/src/order.ts\n@@ -1,4 +1 @@\n export function saveOrder(amount: number) {\n-  if (amount < 0) throw new Error('invalid amount');\n   return database.insert({ amount });\n }\n",
+    "verification.txt": "PASS src/order.test.ts\ncovered: amount=0, amount=100\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 根据 goal.md 审查 changes.diff，并参考 verification.txt。结果请便于我快速决定是否合并。"
+    }
+  ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
+  "criteria": [
+    "开头先给出需修复状态、实际审查范围和直接阻塞原因，使用户无需读完整报告即可判断不能合并。",
+    "随后只报告一个 src/order.ts 负数金额可写入的发现，并清楚区分触发、影响、证据、修复方向和验证动作。",
+    "把 verification.txt 已通过与负数路径未覆盖分别写入验证情况，不把验证缺口混入待确认事项。",
+    "省略没有内容的待确认章节，不输出“无”占位，没有重复同一结论或同一问题。"
+  ]
+}

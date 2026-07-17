@@ -14,9 +14,10 @@
       "prompt": "使用 $code-review 审查 commit-1.diff、commit-2.diff 和最终 final.diff 是否完整实现 goal.md。"
     }
   ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
   "criteria": [
     "发现 email 缺失时调用 toLowerCase 会崩溃，违反返回 null 的目标。",
-    "将问题定位到 src/response.ts，并说明它由两个提交组合后的类型变化触发。",
+    "按实际触发路径和用户影响说明严重度，定位到 src/response.ts，并说明它由两个提交组合后的类型变化触发。",
     "以 final.diff 的最终行为作为审查发现证据，没有因为单个提交看似局部合理而通过。",
     "输出最小修复方向，并要求覆盖 email 缺失的测试。"
   ]
