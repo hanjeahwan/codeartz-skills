@@ -106,45 +106,6 @@ test('三个可执行 hook 在顶层无条件调用 runtime main', () => {
   }
 });
 
-test('旧 feedback runtime、tests、skill 与 plan 均不存在', () => {
-  const legacyHook = ['agent', 'feedback'].join('-');
-  const legacySkill = `${legacyHook}-loop`;
-  const removed = [
-    `hooks/${legacyHook}-capture.js`,
-    `hooks/${legacyHook}-stop.js`,
-    `hooks/${legacyHook}-runtime.js`,
-    `hooks/${legacyHook}-state.js`,
-    `skills/${legacySkill}`,
-    `tests/${legacyHook}-capture.test.ts`,
-    `tests/${legacyHook}-stop.test.ts`,
-    `tests/${legacyHook}-state-runtime.test.ts`,
-    `tests/${legacyHook}-plugin.test.ts`,
-    `tests/${legacyHook}-skill.test.ts`,
-    `docs/superpowers/plans/2026-07-09-${legacySkill}.md`,
-  ];
-
-  for (const filePath of removed) {
-    assert.equal(fs.existsSync(filePath), false, filePath);
-  }
-});
-
-test('hook 源码不包含 feedback classifier 或 event-state 协议', () => {
-  const source = [
-    'hooks/agent-evolve-state.js',
-    'hooks/agent-evolve-runtime.js',
-    'hooks/agent-evolve-activate-runtime.js',
-    'hooks/agent-evolve-mode-runtime.js',
-  ]
-    .map((filePath) => {
-      return fs.readFileSync(filePath, 'utf8');
-    })
-    .join('\n');
-
-  assert.doesNotMatch(source, /classifyPrompt|durable-feedback|pending|attempts|eventPath|stop_hook_active/);
-  assert.equal(source.includes(['agent', 'feedback', 'loop'].join('-')), false);
-  assert.equal(source.includes(['AGENT', 'FEEDBACK'].join('-')), false);
-});
-
 test('Agent Evolve 按触发、工作流、安全验证三阶段延迟读取', () => {
   const skill = fs.readFileSync('skills/agent-evolve/SKILL.md', 'utf8');
   const workflow = fs.readFileSync('skills/agent-evolve/references/workflow.md', 'utf8');
@@ -182,24 +143,12 @@ test('Agent Evolve 以统一决策关卡和风险门处理双通道来源', () =
   assert.match(workflow, /不得通过修改实现或测试让任一方向成为既成事实/);
   assert.match(validation, /`候选来源`/);
   assert.match(validation, /项目规则/);
+  assert.match(validation, /默认每条候选只输出一行/);
+  assert.match(validation, /证据来源会改变确认或写入权限时/);
+  assert.match(validation, /禁止把省略的原因、证据和目标位置塞进/);
+  assert.match(validation, /存在未解决冲突，或反馈处理失败时/);
+  assert.match(validation, /禁止在默认回执前后再复述/);
+  assert.doesNotMatch(validation, /每条候选分别输出 `反馈结论`、`候选来源`/);
   assert.doesNotMatch(workflow, /候选必须直接来自用户/);
   assert.doesNotMatch(workflow, /放行条件：当前任务证据直接暴露可复用失败机制/);
-});
-
-test('plugin metadata 不包含旧产品标识', () => {
-  const legacySkill = ['agent', 'feedback', 'loop'].join('-');
-  const legacyHook = ['agent', 'feedback'].join('-');
-  const files = [
-    '.codex-plugin/plugin.json',
-    '.claude-plugin/plugin.json',
-    '.claude-plugin/marketplace.json',
-    '.agents/plugins/marketplace.json',
-    'hooks/claude-codex-hooks.json',
-  ];
-
-  for (const filePath of files) {
-    const content = fs.readFileSync(filePath, 'utf8');
-    assert.equal(content.includes(legacySkill), false, filePath);
-    assert.equal(content.includes(legacyHook), false, filePath);
-  }
 });

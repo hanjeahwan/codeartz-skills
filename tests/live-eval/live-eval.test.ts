@@ -60,6 +60,7 @@ test('Agent Evolve 场景覆盖候选识别、三态决策与连续纠正', asyn
       }),
     ),
     new Set([
+      'compact-default-proposal',
       'explicit-persistence-settled',
       'implicit-durable-rule',
       'existing-rule-covered',

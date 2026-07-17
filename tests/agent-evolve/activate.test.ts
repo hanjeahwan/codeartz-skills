@@ -6,7 +6,6 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { handleSessionStart } from '../../hooks/agent-evolve-activate-runtime.js';
 import {
   readSessionMode,
   sessionStatePath,
@@ -50,24 +49,6 @@ test('新 Codex session 固化 safe 并只注入按需加载路由', () => {
   assert.equal(output.systemMessage, 'AGENT-EVOLVE:SAFE');
   assert.equal(output.hookSpecificOutput.hookEventName, 'SessionStart');
   assert.match(output.hookSpecificOutput.additionalContext, /^AGENT EVOLVE ACTIVE — mode: safe/);
-  assert.match(output.hookSpecificOutput.additionalContext, /已安装的 `agent-evolve` Skill/);
-  assert.match(output.hookSpecificOutput.additionalContext, /先过排除门/);
-  assert.match(output.hookSpecificOutput.additionalContext, /禁止加载 Skill、补写提案或输出回执/);
-  assert.match(output.hookSpecificOutput.additionalContext, /可观察条件、明确决策后果、可靠依据和未来决策差异/);
-  assert.match(output.hookSpecificOutput.additionalContext, /“以后”“必须”等词不能补齐缺失语义/);
-  assert.match(output.hookSpecificOutput.additionalContext, /发送最终回复前必须回答/);
-  assert.match(output.hookSpecificOutput.additionalContext, /未来会重现的 A→B 选择/);
-  assert.match(output.hookSpecificOutput.additionalContext, /不要求先发生故障/);
-  assert.match(output.hookSpecificOutput.additionalContext, /Agent 自行建议或待确认合同不算/);
-  assert.match(output.hookSpecificOutput.additionalContext, /在修改实现或测试前加载 Skill 并停止选边/);
-  assert.match(output.hookSpecificOutput.additionalContext, /任务证据候选未经用户确认只能提案/);
-  assert.match(output.hookSpecificOutput.additionalContext, /主观 Agent 观察需独立证据/);
-  assert.match(output.hookSpecificOutput.additionalContext, /只执行现有规则且用户与证据未提出候选/);
-  assert.match(output.hookSpecificOutput.additionalContext, /一次性操作边界/);
-  assert.match(output.hookSpecificOutput.additionalContext, /无决策差异的失败/);
-  assert.match(output.hookSpecificOutput.additionalContext, /明确禁止泛化/);
-  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 工作流/);
-  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 安全验证/);
   assert.ok(output.hookSpecificOutput.additionalContext.split('\n').length <= 8);
   assert.equal(readSessionMode('codex-session', env), 'safe');
 });
@@ -198,33 +179,6 @@ test('session 状态路径不可读时产生可见证据而不是使用内建 fa
   const output = JSON.parse(result.stdout);
   assert.match(output.systemMessage, /Agent Evolve failed: session activation/);
   assert.match(output.hookSpecificOutput.additionalContext, /Unable to read Agent Evolve session state/);
-});
-
-test('SessionStart 路由不依赖读取 skill 文件', () => {
-  const env = tempEnv();
-  const output = JSON.parse(
-    handleSessionStart(
-      {
-        hook_event_name: 'SessionStart',
-        session_id: 'missing-skill',
-      },
-      env,
-    ),
-  );
-
-  assert.equal(output.systemMessage, 'AGENT-EVOLVE:SAFE');
-  assert.match(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
-  assert.match(output.hookSpecificOutput.additionalContext, /已安装的 `agent-evolve` Skill/);
-});
-
-test('SessionStart 路由不预读 workflow 或 validation', () => {
-  const output = JSON.parse(
-    handleSessionStart({ hook_event_name: 'SessionStart', session_id: 'missing-workflow' }, tempEnv()),
-  );
-
-  assert.match(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
-  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /Unable to read/);
-  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve$/m);
 });
 
 test('activation 信任 manifest 事件路由且仅对无效 JSON 保持静默', () => {

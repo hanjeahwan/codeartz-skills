@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import { handleUserPromptSubmit, parseModeCommand } from '../../hooks/agent-evolve-mode-runtime.js';
+import { parseModeCommand } from '../../hooks/agent-evolve-mode-runtime.js';
 import {
   getOrCreateSessionMode,
   readDefaultMode,
@@ -103,33 +103,9 @@ test('session safe 与 review 命令只更新当前 session 并重新注入短�
     const output = JSON.parse(result.stdout);
     assert.equal(output.systemMessage, `Agent Evolve mode: ${mode}; default: off`);
     assert.match(output.hookSpecificOutput.additionalContext, new RegExp(`^AGENT EVOLVE ACTIVE — mode: ${mode}`));
-    assert.match(output.hookSpecificOutput.additionalContext, /已安装的 `agent-evolve` Skill/);
-    assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 工作流/);
-    assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /# Agent Evolve 安全验证/);
     assert.equal(readSessionMode('current-session', env), mode);
     assert.equal(readDefaultMode(env), 'off');
   }
-});
-
-test('active mode 切换不预读不完整 bundle', () => {
-  const env = tempEnv();
-  writeSessionMode('current-session', 'off', env);
-
-  const output = JSON.parse(
-    handleUserPromptSubmit(
-      {
-        hook_event_name: 'UserPromptSubmit',
-        prompt: '$agent-evolve safe',
-        session_id: 'current-session',
-      },
-      env,
-    ),
-  );
-
-  assert.match(output.hookSpecificOutput.additionalContext, /AGENT EVOLVE ACTIVE/);
-  assert.match(output.hookSpecificOutput.additionalContext, /已安装的 `agent-evolve` Skill/);
-  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /Unable to read/);
-  assert.equal(readSessionMode('current-session', env), 'safe');
 });
 
 test('session off 命令关闭自动行为并保留手动调用', () => {

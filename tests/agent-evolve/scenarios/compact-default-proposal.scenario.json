@@ -1,0 +1,27 @@
+{
+  "id": "compact-default-proposal",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "单个普通候选只返回可执行的紧凑回执。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n\n## Webhook\n\n- 重放任务必须限制并发。\n"
+  },
+  "judgeFiles": ["AGENTS.md"],
+  "turns": [
+    {
+      "prompt": "请评估这条候选，但暂时不要写入项目规则：批量重放 webhook 时，相同 event id 必须幂等，重试不能重复产生业务副作用。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应识别出 webhook 重放幂等候选，遵守用户暂不写入的边界，AGENTS.md 保持不变。",
+    "Agent Evolve 回执默认只用一行表达结论、精确变更和解除当前阻塞所需的下一步。",
+    "没有冲突或处理失败时，回应不再分别罗列候选来源、原因、证据和目标位置。",
+    "回应没有声称规则已经更新，也没有扩展无关 webhook 或重试设计。"
+  ]
+}
