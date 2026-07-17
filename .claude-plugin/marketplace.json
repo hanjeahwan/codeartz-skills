@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "codeartz-skills",
-      "description": "边界分析、任务拆分、代码审查、指令审查，以及用 Agent Evolve 把用户反馈安全沉淀到项目规则。",
+      "description": "边界分析、任务拆分、代码审查、指令审查，以及用 Agent Evolve 把用户反馈或任务证据安全沉淀到项目规则。",
       "source": "./",
       "category": "productivity"
     }

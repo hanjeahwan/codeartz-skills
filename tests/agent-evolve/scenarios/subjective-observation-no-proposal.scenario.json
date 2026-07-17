@@ -1,0 +1,27 @@
+{
+  "id": "subjective-observation-no-proposal",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "只有主观表达观察而没有独立证据时，不形成证据派生候选。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 文档\n\n- 文档必须忠于已确认事实。\n",
+    "draft.md": "# 发布说明\n\n我们在这一次的版本更新过程当中，对系统所具有的部分提示内容做出了一些相应调整。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "draft.md"],
+  "turns": [
+    {
+      "prompt": "请审阅 draft.md 的表达，给出三条改进建议，不修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "fileUnchanged", "path": "draft.md" },
+    { "type": "trajectoryExcludes", "value": "references/workflow.md" }
+  ],
+  "criteria": [
+    "回应只完成 draft.md 的表达审阅，没有把一次主观风格判断升级为项目规则候选。",
+    "回应没有输出 Agent Evolve 回执，也没有声称用户确认了任何长期写作规则。",
+    "AGENTS.md 与 draft.md 均保持不变。"
+  ]
+}

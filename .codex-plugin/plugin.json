@@ -1,7 +1,7 @@
 {
   "name": "codeartz-skills",
-  "version": "0.4.0",
-  "description": "面向 Codex agent 工作流的 Codeartz 技能集，支持边界分析、指令审查与 Agent Evolve feedback 沉淀。",
+  "version": "0.4.1",
+  "description": "面向 Codex agent 工作流的 Codeartz 技能集，支持边界分析、指令审查与 Agent Evolve 规则演化。",
   "author": {
     "name": "Codeartz",
     "url": "https://github.com/hanjeahwan"
@@ -15,7 +15,7 @@
   "interface": {
     "displayName": "Codeartz 技能集",
     "shortDescription": "边界分析、指令审查与 Agent Evolve。",
-    "longDescription": "帮助 agent 把复杂需求收敛为可评审工程产物，并把直接 human feedback 安全合并到未来 agent 会读取的项目规则源。",
+    "longDescription": "帮助 agent 把复杂需求收敛为可评审工程产物，并把用户反馈或任务证据安全合并到未来 agent 会读取的项目规则源。",
     "developerName": "Codeartz",
     "category": "Productivity",
     "capabilities": ["Instructions", "Planning", "Review", "Lifecycle hooks"],
@@ -23,7 +23,7 @@
     "defaultPrompt": [
       "分析这组需求和代码上下文的边界。",
       "把这些资料整理成可评审的目标边界合同。",
-      "用 Agent Evolve 判断这条 human feedback 是否应沉淀。"
+      "用 Agent Evolve 判断这条反馈或任务证据是否应形成项目规则。"
     ],
     "brandColor": "#A11D5F",
     "composerIcon": "./assets/icon.png",

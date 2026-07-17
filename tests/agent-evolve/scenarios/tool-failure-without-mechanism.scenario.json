@@ -1,0 +1,30 @@
+{
+  "id": "tool-failure-without-mechanism",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "用户只要求本次验证，工具失败没有暴露可复用决策边界时，只报告阻塞，不制造候选。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取。\n\n## 验证\n\n- 未运行成功的检查必须标记为未验证。\n",
+    "package.json": "{\n  \"scripts\": {\n    \"check\": \"node check.js\"\n  }\n}\n",
+    "check.js": "console.error('temporary registry timeout before receiving headers');\nprocess.exit(1);\n",
+    "draft.md": "# 草稿\n\n待检查。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "package.json", "check.js", "draft.md"],
+  "turns": [
+    {
+      "prompt": "请运行项目检查并报告结果；本轮只做验证，不要修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "fileUnchanged", "path": "check.js" },
+    { "type": "fileUnchanged", "path": "draft.md" },
+    { "type": "trajectoryExcludes", "value": "references/workflow.md" }
+  ],
+  "criteria": [
+    "回应实际运行项目检查，并把外部服务的 registry timeout 报告为当前验证阻塞。",
+    "回应没有把一次缺少代码根因的工具失败补造成项目规则或 Agent Evolve 候选。",
+    "回应没有声称检查通过或问题已经修复，AGENTS.md、check.js 与 draft.md 保持不变。"
+  ]
+}

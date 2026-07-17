@@ -157,6 +157,35 @@ test('Agent Evolve 按触发、工作流、安全验证三阶段延迟读取', (
   assert.match(workflow, /进入安全验证阶段时，读取相对 `validation\.md`/);
 });
 
+test('Agent Evolve 以统一决策关卡和风险门处理双通道来源', () => {
+  const skill = fs.readFileSync('skills/agent-evolve/SKILL.md', 'utf8');
+  const workflow = fs.readFileSync('skills/agent-evolve/references/workflow.md', 'utf8');
+  const validation = fs.readFileSync('skills/agent-evolve/references/validation.md', 'utf8');
+
+  assert.match(skill, /当前任务证据/);
+  assert.match(skill, /发送当前任务的最终回复前/);
+  assert.match(skill, /未来会重现的 A→B 选择/);
+  assert.match(skill, /不要求先发生故障/);
+  assert.match(skill, /空泛目标缺少用户或任务证据直接支持/);
+  assert.match(workflow, /证据派生候选/);
+  assert.match(workflow, /决策差异/);
+  assert.match(workflow, /可判定/);
+  assert.match(workflow, /可执行/);
+  assert.match(workflow, /可迁移/);
+  assert.match(workflow, /一次性操作边界本身不能证明跨任务范围/);
+  assert.match(workflow, /作用域可收敛/);
+  assert.match(workflow, /证据载体，不限定候选能力范围/);
+  assert.match(workflow, /没有失败发生不影响判断/);
+  assert.match(workflow, /依赖可变前提时保留复审条件/);
+  assert.match(workflow, /主观 Agent 观察必须由另一项可核对/);
+  assert.match(workflow, /高风险变更/);
+  assert.match(workflow, /不得通过修改实现或测试让任一方向成为既成事实/);
+  assert.match(validation, /`候选来源`/);
+  assert.match(validation, /项目规则/);
+  assert.doesNotMatch(workflow, /候选必须直接来自用户/);
+  assert.doesNotMatch(workflow, /放行条件：当前任务证据直接暴露可复用失败机制/);
+});
+
 test('plugin metadata 不包含旧产品标识', () => {
   const legacySkill = ['agent', 'feedback', 'loop'].join('-');
   const legacyHook = ['agent', 'feedback'].join('-');

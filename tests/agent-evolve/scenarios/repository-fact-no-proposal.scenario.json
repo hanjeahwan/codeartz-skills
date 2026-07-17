@@ -1,0 +1,29 @@
+{
+  "id": "repository-fact-no-proposal",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "仓库事实只描述当前技术栈、没有形成未来决策合同时，不制造长期规则。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n",
+    "package.json": "{\n  \"type\": \"module\",\n  \"dependencies\": {\n    \"pg\": \"8.16.3\"\n  }\n}\n",
+    "src/db.js": "import pg from 'pg';\n\nexport const pool = new pg.Pool();\n",
+    "src/users.js": "import { pool } from './db.js';\n\nexport async function listUsers() {\n  return (await pool.query('select id from users')).rows;\n}\n"
+  },
+  "judgeFiles": ["AGENTS.md", "package.json", "src/db.js", "src/users.js"],
+  "turns": [
+    {
+      "prompt": "请从当前代码总结持久化技术栈和数据库连接入口，不要修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryExcludes", "value": "references/workflow.md" },
+    { "type": "trajectoryExcludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应准确说明当前代码通过 pg 和 src/db.js 的 pool 访问 PostgreSQL。",
+    "回应把这些内容保持为当前仓库事实，没有改写成未来必须继续使用 PostgreSQL的项目规则或 Agent Evolve 候选。",
+    "回应没有修改文件，也没有声称用户批准了技术选型。"
+  ]
+}

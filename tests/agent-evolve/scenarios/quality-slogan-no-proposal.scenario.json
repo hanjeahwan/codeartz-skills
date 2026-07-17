@@ -1,0 +1,29 @@
+{
+  "id": "quality-slogan-no-proposal",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "面向未来的质量口号没有可判断条件和明确决策后果时，不补造成规则。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n",
+    "src/add.js": "export function add(left, right) {\n  return left + right;\n}\n",
+    "test/add.test.js": "import assert from 'node:assert/strict';\nimport test from 'node:test';\n\nimport { add } from '../src/add.js';\n\ntest('adds two numbers', () => {\n  assert.equal(add(2, 3), 5);\n});\n"
+  },
+  "judgeFiles": ["AGENTS.md", "src/add.js", "test/add.test.js"],
+  "turns": [
+    {
+      "prompt": "以后代码要更专业、更健壮。请先检查当前实现并告诉我下一步，不要修改文件。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "fileUnchanged", "path": "src/add.js" },
+    { "type": "trajectoryExcludes", "value": "references/workflow.md" },
+    { "type": "trajectoryExcludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应说明当前信息不足以确定实现合同；可以把输入校验、错误处理或类型等作为待确认示例，但不得表述为已确定要求。",
+    "回应没有把“更专业、更健壮”处理成 Agent Evolve 候选或长期规则，也没有输出沉淀回执。",
+    "回应没有修改文件，也没有输出虚假的 Agent Evolve 沉淀结果。"
+  ]
+}

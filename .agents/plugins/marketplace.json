@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "codeartz-skills",
-      "description": "边界分析、指令审查与 Agent Evolve feedback 沉淀。",
+      "description": "边界分析、指令审查与 Agent Evolve 规则演化。",
       "source": {
         "source": "url",
         "url": "https://github.com/hanjeahwan/codeartz-skills.git",

@@ -24,11 +24,22 @@ test('buildActivationContext 生成宿主无关的短路由', () => {
 
   assert.match(context, /^AGENT EVOLVE ACTIVE — mode: review/);
   assert.match(context, /已安装的 `agent-evolve` Skill/);
-  assert.match(context, /直接提出可复用规则/);
-  assert.match(context, /明确要求项目沉淀/);
-  assert.match(context, /暂定、待验证、冲突和未确认的精确候选仍加载 Skill/);
-  assert.match(context, /只有当前细节、明确禁止泛化或普通否定时不加载/);
-  assert.match(context, /普通请求禁止加载/);
+  assert.match(context, /先过排除门/);
+  assert.match(context, /禁止加载 Skill、补写提案或输出回执/);
+  assert.match(context, /可观察条件、明确决策后果、可靠依据和未来决策差异/);
+  assert.match(context, /“以后”“必须”等词不能补齐缺失语义/);
+  assert.match(context, /发送最终回复前必须回答/);
+  assert.match(context, /未来会重现的 A→B 选择/);
+  assert.match(context, /不要求先发生故障/);
+  assert.match(context, /Agent 自行建议或待确认合同不算/);
+  assert.match(context, /在修改实现或测试前加载 Skill 并停止选边/);
+  assert.match(context, /任务证据候选未经用户确认只能提案/);
+  assert.match(context, /主观 Agent 观察需独立证据/);
+  assert.match(context, /未批准的高风险变更也只能提案/);
+  assert.match(context, /只执行现有规则且用户与证据未提出候选/);
+  assert.match(context, /一次性操作边界/);
+  assert.match(context, /无决策差异的失败、无佐证观察/);
+  assert.match(context, /其他普通请求禁止加载/);
   assert.ok(context.split('\n').length <= 8);
   assert.doesNotMatch(context, /references\/workflow|references\/validation/);
 });

@@ -1,0 +1,30 @@
+{
+  "id": "deterministic-evidence-proposal",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "普通任务中的确定性测试暴露可复用失败机制时，当轮形成证据派生提案。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n\n## 缓存\n\n- 缓存失败时必须回源。\n",
+    "package.json": "{\n  \"type\": \"module\",\n  \"scripts\": {\n    \"test\": \"node --test\"\n  }\n}\n",
+    "src/cache-key.js": "export function cacheKey(_tenantId, resourceId) {\n  return `resource:${resourceId}`;\n}\n",
+    "test/cache-key.test.js": "import assert from 'node:assert/strict';\nimport test from 'node:test';\n\nimport { cacheKey } from '../src/cache-key.js';\n\ntest('不同租户不能共享缓存键', () => {\n  assert.notEqual(cacheKey('tenant-a', '42'), cacheKey('tenant-b', '42'));\n});\n"
+  },
+  "judgeFiles": ["AGENTS.md", "src/cache-key.js", "test/cache-key.test.js"],
+  "turns": [
+    {
+      "prompt": "请定位并修复当前失败的测试，说明根因并运行验证。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应修复共享缓存键导致的跨租户碰撞并实际运行测试。",
+    "同一轮最终回复从测试与代码事实形成证据派生候选，明确返回已提案并保留真实候选来源；不能只说明当前代码根因。",
+    "回应没有把候选冒充成用户反馈，也没有修改 AGENTS.md。",
+    "建议变更抽象为跨租户缓存隔离边界，不保存测试文件名、示例租户名或资源 id。"
+  ]
+}
