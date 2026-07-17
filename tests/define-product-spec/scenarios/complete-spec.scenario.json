@@ -1,0 +1,28 @@
+{
+  "id": "complete-spec",
+  "skill": "define-product-spec",
+  "tier": "smoke",
+  "description": "从明确需求和当前代码生成同一份产品与技术规格并写入默认 docs 路径。",
+  "files": {
+    "brief.md": "规格名称：团队邀请\n\n管理员需要创建有效期 24 小时、只能使用一次的团队邀请链接。未登录访问者先登录，随后继续加入流程。链接过期、已使用或被撤销时不得加入，并显示可区分的原因。现有邮箱邀请流程必须保持不变。本功能先向内部团队开放两周，再决定是否扩大。验收以链接状态、登录后续接和邮箱邀请回归测试为准。\n",
+    "src/invitations.ts": "export type Invite = { token: string; expiresAt: number; usedAt?: number; revokedAt?: number };\n\nexport function canJoin(invite: Invite, now: number) {\n  return !invite.usedAt && !invite.revokedAt && invite.expiresAt > now;\n}\n",
+    "tests/invitations.test.ts": "import { strict as assert } from 'node:assert';\nimport { canJoin } from '../src/invitations';\nassert.equal(canJoin({ token: 'x', expiresAt: 2 }, 1), true);\n"
+  },
+  "judgeFiles": ["docs/specs/团队邀请.md"],
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 根据 brief.md 和当前仓库整理产品与技术规格。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "docs/specs/团队邀请.md" },
+    { "type": "fileUnchanged", "path": "src/invitations.ts" },
+    { "type": "markdownFencesBalanced", "path": "docs/specs/团队邀请.md" }
+  ],
+  "criteria": [
+    "生成一份同时包含产品行为合同和技术设计的规格，产品行为使用稳定标识，技术部分能够追溯到对应行为而没有重写另一套需求。",
+    "规格准确保留一次性链接、登录后续接、三类失效原因、邮箱邀请回归和两周内部试验边界，并以当前代码作为技术事实来源。",
+    "产物状态只表达当前规格的生命周期与确认程度；事实、假设、未验证项和用户决定没有被混写，也没有替代后续任务拆分的判断职责。",
+    "只创建默认规格文件，没有修改实现或测试。"
+  ]
+}

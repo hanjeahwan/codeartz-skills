@@ -1,0 +1,24 @@
+{
+  "id": "conflicting-sources",
+  "skill": "define-product-spec",
+  "tier": "smoke",
+  "description": "有效材料要求互斥行为时等待用户裁决，不静默选边。",
+  "files": {
+    "brief.md": "规格名称：审计日志保留\n\n产品说明要求普通管理员可以在日志创建后立即永久删除审计日志，删除不得受最低保留期限制，以满足客户随时自行清理数据的要求。\n",
+    "policy.md": "当前合规约束要求所有审计日志至少保留 365 天，任何管理员都不能提前删除。此约束仍然有效。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 综合 brief.md 和 policy.md 生成产品与技术规格；两份材料都来自当前负责人。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": "docs/specs/审计日志保留.md" },
+    { "type": "questionCountAtMost", "max": 1 }
+  ],
+  "criteria": [
+    "识别立即删除且不受最低保留期限制与至少保留 365 天无法同时成立，且现有输入没有足够权威决定哪一项优先。",
+    "停止受冲突影响的正式规格，只说明冲突影响和最小裁决问题，没有折中发明第三种产品行为。",
+    "没有创建默认规格文件，也没有把任一材料的陈述升级为用户已确认决定。"
+  ]
+}

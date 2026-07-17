@@ -1,6 +1,6 @@
 ---
 name: target-boundary
-description: 仅当用户主动使用当前宿主的显式 Skill 调用语法调用 target-boundary，并要求分析需求与仓库证据、裁定目标边界或创建、更新 `.codeartz/主题目录/target-boundary.md` 时使用。普通技术讨论、需求澄清、代码问答、实现、评审、状态询问和头脑风暴不触发。
+description: 仅当用户主动使用当前宿主的显式 Skill 调用语法调用 target-boundary，并要求分析需求与仓库证据、裁定目标边界或创建、更新目标边界合同时使用。普通技术讨论、需求澄清、代码问答、实现、评审、状态询问和头脑风暴不触发。
 disable-model-invocation: true
 ---
 
@@ -28,7 +28,7 @@ disable-model-invocation: true
   - 触发条件：用户显式调用本 Skill，并要求判断已有目标边界合同能否进入实现。
   - 阶段手册：读取 `references/artifact-review.md`。
   - 手册限制：不读取其他阶段手册。
-  - 复核对象：已有 `target-boundary.md` 与当前证据。
+  - 复核对象：已有 `boundary.md` 与当前证据。
   - 放行条件：合同状态为“已采纳”，证据基线未失效，且“开工入口”复核通过。
   - 失败处理：报告失效证据、待补内容或待裁决点。
 
@@ -68,8 +68,8 @@ disable-model-invocation: true
 - 未授权分区不得降级写成风险或“不适用”。
 - 允许为空的字段写“不适用”。
 - 用户最新明确决定改变既有边界时，现有目标边界合同失效，直至完成更新。
-- `target-boundary.md` 是唯一已采纳的目标边界约束来源。
-- `target-boundary.md` 不替代当前仓库、项目规则、测试或实现设计。
+- `boundary.md` 是唯一已采纳的目标边界约束来源。
+- `boundary.md` 不替代当前仓库、项目规则、测试或实现设计。
 
 ## 禁止动作
 

@@ -13,8 +13,8 @@
     }
   ],
   "postChecks": [
-    { "type": "fileNotExists", "path": ".codeartz/session/target-boundary.md" },
-    { "type": "fileNotExists", "path": ".codeartz/target-boundary/target-boundary.md" },
+    { "type": "fileNotExists", "path": ".codeartz/session/boundary.md" },
+    { "type": "fileNotExists", "path": ".codeartz/target-boundary/boundary.md" },
     { "type": "trajectoryIncludes", "value": "src/session.ts" }
   ],
   "criteria": [

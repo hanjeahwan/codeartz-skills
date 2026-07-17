@@ -13,11 +13,11 @@
     }
   ],
   "postChecks": [
-    { "type": "fileExists", "path": ".codeartz/payment-retry/target-boundary.md" },
+    { "type": "fileExists", "path": ".codeartz/payment-retry/boundary.md" },
     { "type": "fileUnchanged", "path": "src/payment/retry.ts" },
     { "type": "fileUnchanged", "path": "src/payment/retry.test.ts" }
   ],
-  "judgeFiles": [".codeartz/payment-retry/target-boundary.md"],
+  "judgeFiles": [".codeartz/payment-retry/boundary.md"],
   "criteria": [
     "合同只把银行卡 timeout 标为已授权目标行为。",
     "合同把银行卡 declined 和钱包支付列为保持原行为或禁止扩散的独立分区。",

@@ -1,0 +1,7 @@
+interface:
+  display_name: 'Define Product Spec'
+  short_description: '将明确的产品意图收敛为一致的 PRD 与 Tech Spec'
+  default_prompt: '使用 $define-product-spec 将当前产品意图整理为一份产品与技术规格。'
+
+policy:
+  allow_implicit_invocation: false

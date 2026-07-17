@@ -3,7 +3,7 @@
 ## 目标
 
 - 复核证据与边界分析结果是否足以写入目标边界合同。
-- 只维护一个有效的 `.codeartz/<topic>/target-boundary.md`。
+- 只维护一个有效的 `.codeartz/<topic>/boundary.md`。
 - 记录证据基线、关键证据和开工入口。
 - 本阶段不重新执行证据与边界分析。
 
@@ -100,14 +100,14 @@
 - 用户可以指定 `<topic>`。
 - `<topic>` 使用小写 kebab-case。
 - 用户不能改变 `.codeartz/` 根目录。
-- 用户不能改变 `target-boundary.md` 文件名。
+- 用户不能改变 `boundary.md` 文件名。
 - 用户没有指定 `<topic>` 时，从点名的功能、issue、变更、模块、路由或主要对象生成 `<topic>`。
 - `<topic>` 无法判断时，使用 `target-boundary`。
-- 合同通过写入关卡后，只写入 `.codeartz/<topic>/target-boundary.md`。
+- 合同通过写入关卡后，只写入 `.codeartz/<topic>/boundary.md`。
 - 禁止把合同写入 ADR、issue、PR description、README 或实现文件。
 
 - 已有文件处理
-  - 检查项：`.codeartz/<topic>/target-boundary.md` 是否存在。
+  - 检查项：`.codeartz/<topic>/boundary.md` 是否存在。
   - 缺失处理：创建 `.codeartz/<topic>/` 目录和合同文件。
   - 已有处理：先读取现有合同，再更新同一个文件。
   - 禁止：不创建第二个有效合同。

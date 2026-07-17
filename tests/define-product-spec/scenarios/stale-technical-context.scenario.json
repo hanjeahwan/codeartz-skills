@@ -1,0 +1,25 @@
+{
+  "id": "stale-technical-context",
+  "skill": "define-product-spec",
+  "tier": "full",
+  "description": "上游技术描述失效时以 checkout 为事实并限制技术结论。",
+  "files": {
+    "brief.md": "规格名称：邀请撤销\n\n管理员需要撤销尚未使用的邀请。旧设计说明称 src/invite-api.ts 已提供 revokeInvite(token)，只需增加按钮。撤销后访问链接必须显示已撤销，并且不能加入。\n",
+    "src/invitations.ts": "export type Invite = { token: string; usedAt?: number };\nexport function findInvite(token: string): Invite | undefined { return token ? { token } : undefined; }\n"
+  },
+  "judgeFiles": ["docs/specs/邀请撤销.md"],
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 根据 brief.md 和当前仓库生成规格。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "docs/specs/邀请撤销.md" },
+    { "type": "fileUnchanged", "path": "src/invitations.ts" }
+  ],
+  "criteria": [
+    "检查当前仓库后识别旧设计引用的技术入口不存在，没有把 revokeInvite 当作已验证能力。",
+    "产品行为仍准确描述撤销后的可观察结果；技术部分把缺失入口作为待设计或待验证内容，并限制结论范围。",
+    "产物状态与未验证技术事实一致，没有因旧材料声称已有实现而升级确认程度。"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "existing-spec-collision",
+  "skill": "define-product-spec",
+  "tier": "full",
+  "description": "默认目标已有内容且用户未授权修订时不静默覆盖。",
+  "files": {
+    "brief.md": "规格名称：团队邀请\n\n管理员需要通过一次性链接邀请团队成员。链接有效期为 24 小时。\n",
+    "docs/specs/团队邀请.md": "# 团队邀请\n\n- status: approved\n- version: 2.3\n\n这是现有负责人维护的规格。\n"
+  },
+  "judgeFiles": ["docs/specs/团队邀请.md"],
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 根据 brief.md 创建新的产品与技术规格。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "docs/specs/团队邀请.md" },
+    { "type": "questionCountAtMost", "max": 1 }
+  ],
+  "criteria": [
+    "识别默认目标已经存在，而用户没有明确要求修订、替换或覆盖该版本。",
+    "保持现有规格不变，说明覆盖风险并提出最小确认动作，没有创建另一个随机命名的权威副本。",
+    "没有把新 brief 静默合并进已批准内容，也没有改写现有版本或状态。"
+  ]
+}

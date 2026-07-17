@@ -1,0 +1,28 @@
+{
+  "id": "persistent-task-plan",
+  "skill": "to-task",
+  "tier": "smoke",
+  "description": "默认把可恢复任务合同写入固定主题目录，并保持实现文件不变。",
+  "files": {
+    "src/health.ts": "export const health = () => ({ ok: true });\n",
+    "src/health.test.ts": "import assert from 'node:assert/strict';\nimport { health } from './health.ts';\nassert.deepEqual(health(), { ok: true });\n",
+    "spec.md": "健康检查响应增加字符串字段 build，固定值为 dev；现有 ok 字段保持不变；直接测试必须覆盖两个字段。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $to-task 把 spec.md 拆成可中断后继续执行的任务，topic 使用 health-build。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": ".codeartz/health-build/tasks.md" },
+    { "type": "fileUnchanged", "path": "src/health.ts" },
+    { "type": "fileUnchanged", "path": "src/health.test.ts" }
+  ],
+  "judgeFiles": [".codeartz/health-build/tasks.md"],
+  "criteria": [
+    "只创建一个 .codeartz/health-build/tasks.md，没有创建日期副本或修改实现。",
+    "tasks.md 使用执行基线、任务索引、短任务卡片和组合关卡组织内容，任务索引是状态的唯一位置。",
+    "任务状态只使用待执行、已完成或阻塞；未完成任务没有伪造完成证据。",
+    "任务卡片包含结果、范围、入口、验收、验证和提交，并保持现有 ok 字段不变。"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "revise-existing-spec",
+  "skill": "define-product-spec",
+  "tier": "full",
+  "description": "用户明确修订既有规格时更新同一权威文件，保留稳定行为标识并重新进入校准。",
+  "files": {
+    "change.md": "规格名称：账单重试\n\n把自动重试间隔从固定 5 分钟改为 5、30、120 分钟三次退避。其余失败分类、人工重试和通知行为保持不变。版本更新为 1.3。\n",
+    "docs/specs/账单重试.md": "# 账单重试\n\n- status: approved\n- version: 1.2\n- sources: billing brief；src/retry.ts\n\n## 1. 背景与目标\n\n失败账单自动重试。\n\n## 2. 产品行为合同\n\n| ID | 触发与前置条件 | 可观察行为 | 验收条件 | 状态 |\n| --- | --- | --- | --- | --- |\n| B1 | 可重试失败 | 系统自动重试 | 只重试可重试错误 | 已确认 |\n| B2 | 首次失败 | 5 分钟后重试 | 时钟推进 5 分钟时执行一次 | 已确认 |\n| B3 | 人工触发 | 系统立即重试 | 不等待自动计划 | 已确认 |\n\n## 5. 技术设计\n\n`src/retry.ts` 承载 B1-B3。\n",
+    "src/retry.ts": "export const retryDelaysMinutes = [5];\nexport function canRetry(code: string) { return code === 'temporary'; }\n"
+  },
+  "judgeFiles": ["docs/specs/账单重试.md"],
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 根据 change.md 修订现有账单重试规格，当前代码作为技术事实。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "docs/specs/账单重试.md" },
+    { "type": "fileUnchanged", "path": "src/retry.ts" }
+  ],
+  "criteria": [
+    "更新同一份账单重试规格，没有创建第二个权威文件；版本按用户要求变为 1.3，实质修订后不继续沿用原来的 approved 状态。",
+    "保留未改变行为的 B1 和 B3 标识，并继续用 B2 表达同一重试时序行为的修订，没有为旧行为编号重新洗牌。",
+    "准确写入 5、30、120 分钟三次退避，并把当前代码仍只有固定 5 分钟记录为待实现事实；没有修改实现。"
+  ]
+}

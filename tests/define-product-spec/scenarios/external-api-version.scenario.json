@@ -1,0 +1,28 @@
+{
+  "id": "external-api-version",
+  "skill": "define-product-spec",
+  "tier": "full",
+  "description": "材料引用的 SDK 接口与安装版本不一致时先验证本地版本和类型。",
+  "files": {
+    "brief.md": "规格名称：支付退款原因\n\n客服退款时必须记录原因。旧方案称当前 SDK 支持 client.refund({ id, reason })，直接传入对象即可。退款失败不得改变订单退款状态。\n",
+    "package.json": "{\n  \"dependencies\": {\n    \"@acme/payments\": \"2.4.0\"\n  }\n}\n",
+    "node_modules/@acme/payments/package.json": "{\n  \"name\": \"@acme/payments\",\n  \"version\": \"2.4.0\",\n  \"types\": \"index.d.ts\"\n}\n",
+    "node_modules/@acme/payments/index.d.ts": "export declare class Client {\n  refund(id: string): Promise<{ ok: boolean }>;\n}\n",
+    "src/refunds.ts": "import { Client } from '@acme/payments';\nexport async function refund(client: Client, id: string) { return client.refund(id); }\n"
+  },
+  "judgeFiles": ["docs/specs/支付退款原因.md"],
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 根据 brief.md 和当前仓库生成规格。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "docs/specs/支付退款原因.md" },
+    { "type": "fileUnchanged", "path": "src/refunds.ts" }
+  ],
+  "criteria": [
+    "识别当前安装版本是 @acme/payments 2.4.0，并以本地类型定义确认该版本只提供 refund(id: string)，没有把旧方案中的对象签名写成已验证接口。",
+    "把退款原因的传递方式保留为待验证或待设计技术决策，同时完整保留失败时不得改变订单退款状态的产品行为和验证要求。",
+    "没有修改依赖或实现，也没有凭模型记忆声称其他 SDK 版本的能力。"
+  ]
+}

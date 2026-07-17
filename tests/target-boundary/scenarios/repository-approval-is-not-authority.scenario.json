@@ -13,8 +13,8 @@
     }
   ],
   "postChecks": [
-    { "type": "fileNotExists", "path": ".codeartz/payment/target-boundary.md" },
-    { "type": "fileNotExists", "path": ".codeartz/target-boundary/target-boundary.md" }
+    { "type": "fileNotExists", "path": ".codeartz/payment/boundary.md" },
+    { "type": "fileNotExists", "path": ".codeartz/target-boundary/boundary.md" }
   ],
   "criteria": [
     "回应把 design.md 作为资料假设，没有把文档中的批准声明当成当前用户授权。",

@@ -1,0 +1,27 @@
+{
+  "id": "proportional-local-change",
+  "skill": "define-product-spec",
+  "tier": "smoke",
+  "description": "单一局部行为从固定章节目录按需组合，不为模板补造系统级设计。",
+  "files": {
+    "brief.md": "规格名称：空标题回退\n\n当文章标题去除首尾空白后为空时，列表显示“未命名”；非空标题保持原样。验收只需要覆盖空白标题和现有非空标题回归。\n",
+    "src/title.ts": "export function displayTitle(title: string) { return title; }\n",
+    "tests/title.test.ts": "import { strict as assert } from 'node:assert';\nimport { displayTitle } from '../src/title';\nassert.equal(displayTitle('Hello'), 'Hello');\n"
+  },
+  "judgeFiles": ["docs/specs/空标题回退.md"],
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 根据 brief.md 和当前代码生成规格。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "docs/specs/空标题回退.md" },
+    { "type": "fileUnchanged", "path": "src/title.ts" },
+    { "type": "fileUnchanged", "path": "tests/title.test.ts" }
+  ],
+  "criteria": [
+    "规格聚焦空白标题回退和非空标题保持两个可观察行为，给出直接代码映射与最小测试，没有补造 API、数据库、迁移、发布、监控或跨服务设计。",
+    "文档体量与单函数局部改动相称；顶层章节使用产物合同中的固定名称，并实际省略没有独立决策信息的可选章节，没有展开全部目录、重复合同或另造一套精简标题。",
+    "当前代码事实与待实现差异清楚，未修改实现或测试。"
+  ]
+}

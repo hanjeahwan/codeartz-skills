@@ -1,0 +1,28 @@
+{
+  "id": "resume-task-plan",
+  "skill": "to-task",
+  "tier": "full",
+  "description": "新 Agent 依据任务合同和当前 checkout 复核完成证据并找到下一任务。",
+  "files": {
+    ".codeartz/export/tasks.md": "# CSV 导出任务\n\n## 执行基线\n\n- 目标来源：request.md\n- 计划基线：base-commit\n- 工作区状态：clean\n- 失效触发：CSV 入口或目标边界变化。\n\n## 任务索引\n\n| 任务 | 状态 | 依赖 | 执行 |\n| --- | --- | --- | --- |\n| T1 — 增加标题行 | 已完成 | 无 | serial |\n| T2 — 转义逗号 | 待执行 | T1 | serial |\n\n## T1 — 增加标题行\n\n- 结果：CSV 包含固定标题。\n- 范围：只修改 CSV。\n- 入口：src/export.ts。\n- 验收：第一行为 name,amount。\n- 验证：运行 src/export.test.ts。\n- 提交：增加 CSV 标题行。\n\n### 完成证据\n\n- Commit：missing-commit\n- 验证：未记录实际结果。\n\n## T2 — 转义逗号\n\n- 结果：字段中的逗号被正确转义。\n- 范围：PDF 保持不变。\n- 入口：src/export.ts。\n- 验收：含逗号字段符合 CSV 规则。\n- 验证：运行 src/export.test.ts。\n- 提交：转义 CSV 字段。\n\n## 组合关卡\n\n| 关卡 | 状态 | 证据 |\n| --- | --- | --- |\n| 整体测试 | 待执行 | 不适用 |\n| 提交范围审查交接 | 待执行 | 不适用 |\n",
+    "request.md": "CSV 增加固定标题并正确转义逗号，PDF 保持不变。\n",
+    "src/export.ts": "export function exportCsv(rows: string[][]) {\n  return ['name,amount', ...rows.map((row) => row.join(','))].join('\\n');\n}\n\nexport function exportPdf(rows: string[][]) {\n  return `PDF:${rows.length}`;\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $to-task 接手 .codeartz/export/tasks.md，复核当前状态并告诉我下一项可执行任务。只恢复计划，不实现。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "src/export.ts" },
+    { "type": "trajectoryIncludes", "value": ".codeartz/export/tasks.md" },
+    { "type": "trajectoryIncludes", "value": "src/export.ts" }
+  ],
+  "judgeFiles": [".codeartz/export/tasks.md"],
+  "criteria": [
+    "读取 tasks.md 和当前 src/export.ts，而不是仅依据文本状态继续。",
+    "识别 T1 的 Commit 和验证证据无法在当前 checkout 中核对，因此不把已完成状态当作已确认事实。",
+    "在完成证据失效时先报告恢复缺口，不直接把 T2 包装成安全可执行或声称组合关卡可以运行。",
+    "没有修改实现，也没有伪造提交或测试结果。"
+  ]
+}

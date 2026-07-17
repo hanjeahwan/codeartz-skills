@@ -1,8 +1,8 @@
 {
   "id": "conversation-only",
   "skill": "to-task",
-  "tier": "smoke",
-  "description": "默认只在对话返回任务，不产生未经授权的持久副作用。",
+  "tier": "full",
+  "description": "用户明确要求只在对话返回时不创建持久任务合同。",
   "files": {
     "src/health.ts": "export const health = () => ({ ok: true });\n",
     "src/health.test.ts": "import assert from 'node:assert/strict';\nimport { health } from './health.ts';\nassert.deepEqual(health(), { ok: true });\n",
@@ -10,18 +10,18 @@
   },
   "turns": [
     {
-      "prompt": "使用 $to-task 把 spec.md 拆成任务。"
+      "prompt": "使用 $to-task 把 spec.md 拆成任务，只在对话中返回，不要写入项目。"
     }
   ],
   "postChecks": [
     { "type": "fileUnchanged", "path": "src/health.ts" },
     { "type": "fileUnchanged", "path": "src/health.test.ts" },
     { "type": "fileNotExists", "path": "tasks.md" },
-    { "type": "fileNotExists", "path": ".codeartz/tasks.md" }
+    { "type": "fileNotExists", "path": ".codeartz/health-build/tasks.md" }
   ],
   "criteria": [
     "在对话中返回最小可执行任务，并包含实现与直接测试。",
-    "没有创建计划文件、分支、worktree、提交，也没有开始实现。",
+    "遵守用户明确的一次性输出边界，没有创建 tasks.md、分支、worktree、提交，也没有开始实现。",
     "没有声称任务、测试或提交已经完成。"
   ]
 }

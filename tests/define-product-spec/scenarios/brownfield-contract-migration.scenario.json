@@ -1,0 +1,31 @@
+{
+  "id": "brownfield-contract-migration",
+  "skill": "define-product-spec",
+  "tier": "full",
+  "description": "跨数据库、公开 API、worker 和旧客户端的状态迁移形成可回滚技术合同。",
+  "files": {
+    "requirements.md": "规格名称：任务排队状态迁移\n\n对外 API 把任务初始状态从 pending 改名为 queued。旧移动客户端仍会在未来 90 天发送和读取 pending，期间必须兼容。生产库约有 500 万条任务记录，迁移不能停止任务创建或 worker 消费。回滚后不能丢失已排队任务。验收覆盖新旧客户端并存、在途任务、迁移中创建、worker 消费和回滚。\n",
+    "db/schema.sql": "CREATE TABLE tasks (id bigint PRIMARY KEY, status text NOT NULL CHECK (status IN ('pending','running','done')));\nCREATE INDEX tasks_pending_idx ON tasks(id) WHERE status = 'pending';\n",
+    "src/api/tasks.ts": "export type PublicStatus = 'pending' | 'running' | 'done';\nexport function parseStatus(value: string): PublicStatus {\n  if (value === 'pending' || value === 'running' || value === 'done') return value;\n  throw new Error('invalid status');\n}\n",
+    "src/worker.ts": "export async function claimNext(db: { query(sql: string): Promise<unknown> }) {\n  return db.query(\"UPDATE tasks SET status = 'running' WHERE id = (SELECT id FROM tasks WHERE status = 'pending' LIMIT 1 FOR UPDATE SKIP LOCKED)\");\n}\n",
+    "tests/status.test.ts": "import { strict as assert } from 'node:assert';\nimport { parseStatus } from '../src/api/tasks';\nassert.equal(parseStatus('pending'), 'pending');\n"
+  },
+  "judgeFiles": ["docs/specs/任务排队状态迁移.md"],
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 根据 requirements.md 和当前仓库生成产品与技术规格。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "docs/specs/任务排队状态迁移.md" },
+    { "type": "fileUnchanged", "path": "db/schema.sql" },
+    { "type": "fileUnchanged", "path": "src/api/tasks.ts" },
+    { "type": "fileUnchanged", "path": "src/worker.ts" }
+  ],
+  "criteria": [
+    "产品合同明确新 API 使用 queued、旧客户端在 90 天窗口继续兼容 pending，并覆盖新旧客户端并存和回滚后的可观察行为。",
+    "技术设计追踪数据库约束与索引、API 解析和序列化、worker 查询及现有测试，给出分阶段兼容与迁移顺序，而不是只修改状态枚举。",
+    "规格处理 500 万行数据、在线写入、并发 worker、迁移期间新任务、失败恢复和无数据丢失回滚，并给出可运行的验证或观测关卡。",
+    "没有修改代码、数据库或测试；所有具体实现判断都标明代码事实、用户决定或待验证状态。"
+  ]
+}

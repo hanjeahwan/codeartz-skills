@@ -1,4 +1,7 @@
 interface:
   display_name: 'To Task'
-  short_description: '将明确工程目标拆成可验证、可提交并支持并行判断的语义任务'
-  default_prompt: '使用 $to-task 把这个明确目标拆成可执行的工程任务。'
+  short_description: '将明确工程目标拆成可恢复、可验证并可提交的语义任务'
+  default_prompt: '使用 $to-task 把这个明确目标拆成可恢复执行的工程任务。'
+
+policy:
+  allow_implicit_invocation: false

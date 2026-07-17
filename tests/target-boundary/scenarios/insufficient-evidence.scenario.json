@@ -12,8 +12,8 @@
     }
   ],
   "postChecks": [
-    { "type": "fileNotExists", "path": ".codeartz/login-failure/target-boundary.md" },
-    { "type": "fileNotExists", "path": ".codeartz/target-boundary/target-boundary.md" },
+    { "type": "fileNotExists", "path": ".codeartz/login-failure/boundary.md" },
+    { "type": "fileNotExists", "path": ".codeartz/target-boundary/boundary.md" },
     { "type": "trajectoryIncludes", "value": "target-boundary" }
   ],
   "criteria": [

@@ -13,7 +13,7 @@
     }
   ],
   "postChecks": [
-    { "type": "fileNotExists", "path": ".codeartz/login/target-boundary.md" },
+    { "type": "fileNotExists", "path": ".codeartz/login/boundary.md" },
     { "type": "fileUnchanged", "path": "src/login.ts" }
   ],
   "criteria": [

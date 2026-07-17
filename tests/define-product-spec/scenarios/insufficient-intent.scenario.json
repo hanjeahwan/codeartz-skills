@@ -1,0 +1,23 @@
+{
+  "id": "insufficient-intent",
+  "skill": "define-product-spec",
+  "tier": "smoke",
+  "description": "核心产品行为尚不明确时先暴露最小缺口，不补造正式规格。",
+  "files": {
+    "brief.md": "规格名称：团队邀请\n\n希望让管理员更方便地邀请团队成员。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 根据 brief.md 生成产品与技术规格。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileNotExists", "path": "docs/specs/团队邀请.md" },
+    { "type": "questionCountAtMost", "max": 1 }
+  ],
+  "criteria": [
+    "识别主体目标之外仍缺少会改变产品定义的行为、边界或成功标准，说明为什么当前材料不足以形成可靠规格。",
+    "只提出信息增益最高的最小问题或取证动作，没有自行选择邀请机制、权限、界面或技术架构。",
+    "没有创建看似完整的 PRD、Tech Spec 或默认文档，也没有把当前缺口包装成已确认状态。"
+  ]
+}

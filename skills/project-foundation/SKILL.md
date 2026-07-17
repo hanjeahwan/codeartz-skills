@@ -1,6 +1,7 @@
 ---
 name: project-foundation
 description: 当现有仓库缺少可靠的 AGENTS.md、CLAUDE.md、架构说明、开发约定、领域文档或其他供未来 agent 使用的项目知识，或现有项目知识需要根据代码演进进行刷新时使用。
+disable-model-invocation: true
 ---
 
 # 项目知识奠基

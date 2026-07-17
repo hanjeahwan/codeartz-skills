@@ -16,7 +16,7 @@
     { "type": "fileUnchanged", "path": "src/worker.ts" },
     { "type": "fileUnchanged", "path": "ops.md" }
   ],
-  "judgeFiles": [".codeartz/task-retry/target-boundary.md"],
+  "judgeFiles": [".codeartz/task-retry/boundary.md"],
   "criteria": [
     "回应没有把两次或三次中的任一选择伪装成已由用户确定。",
     "若生成合同，合同把重试次数保留为待裁决且状态不是已采纳；若证据门阻止写入，则明确说明阻塞原因。",
