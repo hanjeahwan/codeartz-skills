@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Instruction Doc Audit'
+  short_description: '审查指令文档的可执行性、职责边界、分支完整性与语言一致性'
+  default_prompt: '使用 $instruction-doc-audit 审查并改进这份指令文档。'

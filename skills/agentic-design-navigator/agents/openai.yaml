@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Agentic Design Navigator'
+  short_description: '通过判断探针澄清模糊设计意图并维护可校准的方向基线'
+  default_prompt: '使用 $agentic-design-navigator 帮我澄清这个模糊设计方向。'

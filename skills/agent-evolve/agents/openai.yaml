@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Agent Evolve'
+  short_description: '评估、提案或安全沉淀会改变未来项目决策的可复用规则'
+  default_prompt: '使用 $agent-evolve 评估这条反馈是否应沉淀为项目规则。'

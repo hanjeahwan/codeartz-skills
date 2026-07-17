@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Project Foundation'
+  short_description: '根据代码证据建立或刷新可追溯、需批准后落地的项目知识基础'
+  default_prompt: '使用 $project-foundation 根据当前仓库建立可追溯的项目知识基础。'
