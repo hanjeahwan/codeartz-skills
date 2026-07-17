@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { validateDraft } from '../../skills/project-foundation/scripts/validate-draft.ts';
@@ -45,6 +46,20 @@ const validDraft = `# 项目知识草稿
 
 - 重新读取文件。
 `;
+
+test('草稿模板提供验证器使用的固定一级区块', () => {
+  const template = readFileSync(
+    new URL('../../skills/project-foundation/assets/draft-template.md', import.meta.url),
+    'utf8',
+  );
+  const result = validateDraft(template);
+  assert.equal(
+    result.checks.find((check) => {
+      return check.id === 'fixed-headings';
+    })?.status,
+    'pass',
+  );
+});
 
 test('有效草稿通过并返回稳定 SHA-256', () => {
   const first = validateDraft(validDraft);

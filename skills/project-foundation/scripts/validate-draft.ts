@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const REQUIRED_HEADINGS = ['检查范围', '建议变更', '待裁决', '最终内容', '验证计划'] as const;
+const DRAFT_TEMPLATE = readFileSync(fileURLToPath(new URL('../assets/draft-template.md', import.meta.url)), 'utf8');
+const REQUIRED_HEADINGS = [...DRAFT_TEMPLATE.matchAll(/^## ([^#].*)$/gm)].map((match) => {
+  return match[1].trim();
+});
 const ALLOWED_ACTIONS = new Set(['创建', '修改', '删除']);
 
 export interface DraftCheck {

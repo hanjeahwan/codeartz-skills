@@ -46,7 +46,7 @@ npx skills add https://github.com/hanjeahwan/codeartz-skills --skill target-boun
 
 **对应 Skill：** [`target-boundary`](skills/target-boundary/) 把用户资料先当作假设，再检查仓库事实，明确适用范围、保持原行为、未知、冲突和待裁决项。
 
-**实际结果：** 代码事实、语义边界、目标合同和产物关卡通过后，写入 `.codeartz/<topic>/boundary.md`；否则只输出事实或合同缺口。该文件保存唯一已采纳的目标边界约束、关键证据和开工入口，但不替代仓库、项目规则、测试或实现设计。Codex 只允许通过 `$target-boundary` 显式调用；其他宿主使用各自的显式 Skill 调用语法。
+**实际结果：** 显式调用默认分析并生成目标边界合同；只有明确要求只分析、不落盘时才停在对话。代码事实、语义边界、目标合同和产物关卡通过后，写入 `.codeartz/<topic>/boundary.md`；否则只输出事实或合同缺口。该文件保存唯一已采纳的目标边界约束、关键证据和开工入口，但不替代仓库、项目规则、测试或实现设计。Codex 只允许通过 `$target-boundary` 显式调用；其他宿主使用各自的显式 Skill 调用语法。
 
 ### 4. 目标明确，但任务拆分拖慢执行
 

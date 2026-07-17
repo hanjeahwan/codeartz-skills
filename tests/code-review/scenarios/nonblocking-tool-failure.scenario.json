@@ -1,0 +1,22 @@
+{
+  "id": "nonblocking-tool-failure",
+  "skill": "code-review",
+  "tier": "full",
+  "description": "无关检查未运行时记录真实状态，但不阻塞已有充分证据支持的审查结论。",
+  "files": {
+    "goal.md": "把首页标题从 Welcome 改为 Welcome back；没有其他行为变化。\n",
+    "changes.diff": "diff --git a/src/title.ts b/src/title.ts\n--- a/src/title.ts\n+++ b/src/title.ts\n@@ -1 +1 @@\n-export const title = 'Welcome';\n+export const title = 'Welcome back';\n",
+    "verification.txt": "NOT RUN docs/spelling-check\ncommand failed to start: optional docs checker unavailable\n该检查与 src/title.ts 的运行行为和目标验收无关。\n"
+  },
+  "turns": [
+    {
+      "prompt": "使用 $code-review 根据 goal.md 审查完整的 changes.diff。verification.txt 是可选文档检查记录，不用于证明标题行为。"
+    }
+  ],
+  "postChecks": [{ "type": "workspaceUnchanged" }],
+  "criteria": [
+    "审查结论为通过，没有因与目标行为无关的可选文档检查未运行而降级为不完整。",
+    "没有把工具环境失败写成代码审查发现或需修复状态。",
+    "验证情况准确记录可选检查未运行，且没有把它包装成标题行为已经验证。"
+  ]
+}

@@ -2,14 +2,14 @@
   "id": "shared-entry-excluded-partition",
   "skill": "target-boundary",
   "tier": "smoke",
-  "description": "共享入口下只允许目标分区改变。",
+  "description": "显式调用默认生成合同，且共享入口下只允许目标分区改变。",
   "files": {
     "src/payment/retry.ts": "export type Payment = { type: 'card' | 'wallet'; failure: 'timeout' | 'declined' };\n\nexport function shouldRetry(payment: Payment) {\n  return false;\n}\n",
     "src/payment/retry.test.ts": "// wallet failures must never enter automatic retry because the provider may already have charged the account.\n"
   },
   "turns": [
     {
-      "prompt": "使用 $target-boundary 为支付重试生成目标边界合同：银行卡只有 timeout 时自动重试一次；银行卡 declined 和所有钱包支付必须保持现在的行为。"
+      "prompt": "使用 $target-boundary：银行卡只有 timeout 时自动重试一次；银行卡 declined 和所有钱包支付必须保持现在的行为。"
     }
   ],
   "postChecks": [
@@ -19,6 +19,7 @@
   ],
   "judgeFiles": [".codeartz/payment-retry/boundary.md"],
   "criteria": [
+    "用户没有额外要求创建文件时，显式调用仍默认生成目标边界合同。",
     "合同只把银行卡 timeout 标为已授权目标行为。",
     "合同把银行卡 declined 和钱包支付列为保持原行为或禁止扩散的独立分区。",
     "合同记录共享入口带来的越界后果，并把命中条件收窄到银行卡 timeout。",
