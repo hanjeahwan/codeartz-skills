@@ -1,0 +1,26 @@
+{
+  "id": "off-disables-auto-discovery",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "off 模式关闭主动发现和持久化，明确候选也只有手动调用才处理。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n\n## 后台任务\n\n- 后台任务失败时记录任务标识。\n"
+  },
+  "judgeFiles": ["AGENTS.md"],
+  "turns": [
+    {
+      "prompt": "$agent-evolve off",
+      "checks": [{ "type": "fileUnchanged", "path": "AGENTS.md" }]
+    },
+    {
+      "prompt": "以后所有可能重复投递的后台任务都必须使用业务幂等键，重试时复用原键。"
+    }
+  ],
+  "postChecks": [{ "type": "fileUnchanged", "path": "AGENTS.md" }],
+  "criteria": [
+    "第一轮成功切换到 off 模式，没有修改项目文件。",
+    "第二轮可以回应用户内容，但没有自动加载 Agent Evolve、修改 AGENTS.md 或输出沉淀回执。",
+    "回应没有谎称规则已被保存；需要持久化时只能说明可手动调用 Agent Evolve。"
+  ]
+}

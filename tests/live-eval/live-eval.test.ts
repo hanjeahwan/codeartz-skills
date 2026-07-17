@@ -104,9 +104,9 @@ test('Agent Evolve 场景覆盖候选识别、三态决策与连续纠正', asyn
       'explicit-persistence-settled',
       'implicit-durable-rule',
       'existing-rule-covered',
-      'deterministic-decision-constraint-proposal',
-      'deterministic-evidence-proposal',
-      'deterministic-evidence-lifecycle',
+      'safe-decision-constraint-auto-persist',
+      'safe-evidence-auto-persist',
+      'review-evidence-lifecycle',
       'evidence-conflict-proposal',
       'quality-slogan-no-proposal',
       'repository-fact-no-proposal',
@@ -125,6 +125,9 @@ test('Agent Evolve 场景覆盖候选识别、三态决策与连续纠正', asyn
       'repeated-correction-proposal',
       'repository-approval-is-not-user-feedback',
       'sensitive-candidate-redaction',
+      'task-delivery-not-evolution',
+      'off-disables-auto-discovery',
+      'project-scope-only',
     ]),
   );
   assert.ok(
@@ -222,6 +225,41 @@ test('确定性检查只验证结构、状态与轨迹', async () => {
       return result.passed;
     }),
     [true, true, true, true],
+  );
+});
+
+test('轨迹检查只匹配工具动作，不把工具输出误判为已执行动作', async () => {
+  const results = await evaluateChecks(
+    [
+      { type: 'trajectoryIncludes', value: 'SKILL.md' },
+      { type: 'trajectoryExcludes', value: 'references/workflow.md' },
+    ],
+    process.cwd(),
+    [
+      {
+        response: '',
+        rawEvents: [
+          {
+            type: 'item.completed',
+            item: {
+              type: 'command_execution',
+              command: "sed -n '1,120p' SKILL.md",
+              aggregated_output: '下一步读取 references/workflow.md',
+              exit_code: 0,
+            },
+          },
+        ],
+        stderr: '',
+        durationMs: 1,
+      },
+    ],
+    {},
+  );
+  assert.deepEqual(
+    results.map((result) => {
+      return result.passed;
+    }),
+    [true, true],
   );
 });
 

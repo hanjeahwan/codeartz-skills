@@ -94,13 +94,13 @@ export function buildActivationContext(mode) {
   }
   return [
     `AGENT EVOLVE ACTIVE — mode: ${mode}`,
-    '先过排除门：空泛目标、当前事实、一次性操作边界、局部细节、无决策差异的失败、无佐证观察、明确禁止泛化，或当前任务只执行现有规则且用户与证据未提出候选时，直接完成普通任务；禁止加载 Skill、补写提案或输出回执。',
-    '仅当候选已具备可观察条件、明确决策后果、可靠依据和未来决策差异时自动触发；“以后”“必须”等词不能补齐缺失语义。',
-    '发送最终回复前必须回答：本轮是否作出了由用户权限或任务证据已经确定、未来会重现的 A→B 选择；是则立即加载 Skill，不要求先发生故障或用户提及规则；Agent 自行建议或待确认合同不算。',
-    '任务证据与有效项目规则冲突时，在修改实现或测试前加载 Skill 并停止选边。',
-    '任务证据候选未经用户确认只能提案；主观 Agent 观察需独立证据；未批准的高风险变更也只能提案。',
-    '触发后：按名称加载已安装的 `agent-evolve` Skill，并按当前模式执行其路由。',
-    '用户明确要求项目沉淀或手动调用 `$agent-evolve` 时仍可加载；其他普通请求禁止加载。',
+    'Agent Evolve 只维护当前项目中会改变未来 Agent 行动的决策规则。',
+    '任务分离：关闭 Agent Evolve 后，当前任务仍会产生的同一规则和同一目标文件变更只算任务交付。相同依据还能约束未来同类任务、且普通任务不会更新规则源时，额外规则才是候选。',
+    '自动入口：额外信息能形成包含适用条件、决策后果、可靠依据和未来差异的决策记录时，加载已安装的 agent-evolve Skill。项目合同直接排除或优先可行方案就是依据，不要求先失败；发送最终回复前逐项检查全部独立记录。',
+    '选型关卡：本轮依据可复用的项目合同在多个可行方案中作出选择时，必须检查该条件与选择是否会指导未来同类任务；会指导时建立决策记录并加载 Skill，不得因当前实现已经完成而跳过。',
+    '入口排除：空泛口号、普通否定、局部事实、一次性动作和无项目证据的 runner 或 sandbox 限制不加载 Skill，也不输出回执。',
+    '显式入口：用户点名 Agent Evolve、要求项目沉淀或评估可能成为规则的反馈时必须加载 Skill；作用域、重复、冲突和正式结果只能由工作流判断。',
+    '模式：safe 预授权通过安全门的任何来源候选自动写入，来源只影响依据，不新增确认门；review 只提案，批准后再写；用户当前禁止写入时不得覆盖。任务证据与有效规则冲突时，修改实现或测试前加载 Skill 并停止选边。',
   ].join('\n');
 }
 
@@ -111,6 +111,7 @@ export function buildOffContext() {
   return [
     'AGENT EVOLVE OFF — automatic feedback recognition and persistence are disabled for this session.',
     'Manual $agent-evolve invocation remains available.',
+    'Do not persist project rules unless the user manually invokes $agent-evolve.',
   ].join('\n');
 }
 

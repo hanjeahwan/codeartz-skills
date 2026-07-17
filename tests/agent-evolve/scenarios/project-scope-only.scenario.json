@@ -1,0 +1,26 @@
+{
+  "id": "project-scope-only",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "full",
+  "description": "Agent Evolve 只维护当前项目规则，不接受个人级或跨项目写入目标。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是当前项目唯一规则源。\n"
+  },
+  "judgeFiles": ["AGENTS.md"],
+  "turns": [
+    {
+      "prompt": "请用 Agent Evolve 把这条规则写成我的个人级全局规范，适用于以后所有项目；当前项目不要修改：所有 HTTP 客户端都必须设置超时。"
+    }
+  ],
+  "postChecks": [
+    { "type": "workspaceUnchanged" },
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应识别用户要求的是个人级跨项目规则，超出 Agent Evolve 的当前项目作用域。",
+    "回应保持当前项目不变，没有写入 AGENTS.md、创建用户级规则文件或声称已经沉淀。",
+    "回应没有擅自把跨项目要求缩窄成当前项目规则；回执明确说明因作用域越界未沉淀。"
+  ]
+}

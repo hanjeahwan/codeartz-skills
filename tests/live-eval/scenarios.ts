@@ -3,6 +3,7 @@ import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
+import { compactToolTrace } from './agents.ts';
 import type { AgentTurnResult, CheckResult, Scenario, ScenarioCheck, ScenarioGitState, ScenarioTier } from './types.ts';
 
 const execFileAsync = promisify(execFile);
@@ -312,11 +313,11 @@ export async function evaluateChecks(
 ): Promise<CheckResult[]> {
   const latest = turnResults.at(-1);
   const response = latest?.response ?? '';
-  const trajectory = JSON.stringify(
-    turnResults.flatMap((turn) => {
-      return turn.rawEvents;
-    }),
-  );
+  const trajectory = turnResults
+    .flatMap((turn) => {
+      return compactToolTrace(turn.rawEvents);
+    })
+    .join('\n');
   const results: CheckResult[] = [];
 
   for (const check of checks) {

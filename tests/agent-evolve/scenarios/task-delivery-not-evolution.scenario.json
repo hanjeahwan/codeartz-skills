@@ -1,0 +1,28 @@
+{
+  "id": "task-delivery-not-evolution",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "当前任务直接修改项目 Skill 时，同一规则 diff 只算任务交付，不重复记作 Agent Evolve 沉淀。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n\n## Skills\n\n- 项目 Skill 修改后必须检查最终差异。\n",
+    "skills/release-review/SKILL.md": "---\nname: release-review\ndescription: 审查发布变更并报告风险。\n---\n\n# Release Review\n\n## 输出\n\n- 按检查顺序输出所有栏目。\n- 没有发现时输出空栏目。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "skills/release-review/SKILL.md"],
+  "turns": [
+    {
+      "prompt": "请直接修改 skills/release-review/SKILL.md：所有审查先给结论，再列发现；空栏目不要输出。完成后检查最终差异。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryExcludes", "value": "references/workflow.md" },
+    { "type": "trajectoryExcludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应按要求修改 release-review Skill，使结论先于发现并省略空栏目。",
+    "回应把 release-review 的两条输出规则视为当前任务本身的交付，没有再次抽象为独立的项目规则候选；预置 AGENTS.md 中的最终差异检查规则不是本轮新增。",
+    "回应没有声称修改 AGENTS.md 或加载 Agent Evolve 工作流。",
+    "最终回复只报告当前 Skill 修改和实际验证，没有输出 Agent Evolve 沉淀回执或声称产生额外学习。"
+  ]
+}

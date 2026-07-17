@@ -1,9 +1,9 @@
 {
-  "id": "deterministic-decision-constraint-proposal",
+  "id": "safe-decision-constraint-auto-persist",
   "skill": "agent-evolve",
   "plugin": true,
   "tier": "smoke",
-  "description": "实现任务没有发生故障，但运行时合同已经决定可复用的依赖选择时，当轮形成窄作用域提案。",
+  "description": "safe 模式下运行时合同已经决定可复用选择时，不等待故障或确认，自动沉淀窄作用域规则。",
   "files": {
     "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n",
     "package.json": "{\n  \"type\": \"module\",\n  \"engines\": {\n    \"node\": \">=22\"\n  },\n  \"scripts\": {\n    \"test\": \"node --test\"\n  }\n}\n",
@@ -17,14 +17,14 @@
     }
   ],
   "postChecks": [
-    { "type": "fileUnchanged", "path": "AGENTS.md" },
     { "type": "fileUnchanged", "path": "package.json" },
     { "type": "trajectoryIncludes", "value": "references/workflow.md" },
     { "type": "trajectoryIncludes", "value": "references/validation.md" }
   ],
   "criteria": [
     "回应根据 package.json 的 Node 运行时下限和现有实现完成头像 HTTP 客户端，没有增加 node-fetch，并实际运行测试。",
-    "回应把运行时合同对依赖选择的影响识别为证据派生候选，并在一行回执中返回已提案及会改变确认权限的真实候选来源；没有冒充用户反馈或修改 AGENTS.md。",
-    "建议变更包含可判断的运行时前提和明确的依赖选择，只约束当前项目；运行时下限变化或原生能力不再满足需求时需要重新评估。"
+    "回应识别运行时合同对依赖选择的未来决策价值，并在 safe 模式下自动写入 AGENTS.md，没有因候选来自任务证据再次请求确认。",
+    "规则包含可判断的 Node 运行时前提和优先使用满足需求的原生 fetch 这一明确选择，只约束当前项目。",
+    "规则保留运行时下限变化或原生能力不再满足需求时重新评估的复审条件。"
   ]
 }
