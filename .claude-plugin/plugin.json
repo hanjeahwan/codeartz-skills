@@ -1,6 +1,6 @@
 {
   "name": "codeartz-skills",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "description": "面向 Claude Code 与 Codex 的工程 workflow 技能集，支持目标边界合同、指令审查与 Agent Evolve。",
   "author": {
     "name": "Codeartz",
