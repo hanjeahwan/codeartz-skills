@@ -1,0 +1,27 @@
+{
+  "id": "final-spec-review",
+  "skill": "define-product-spec",
+  "tier": "full",
+  "description": "修订完整规格后审查最终候选稿，消除产品合同、技术映射和验收中的残留矛盾。",
+  "files": {
+    "change.md": "规格名称：会话续期\n\n把空闲超时从 30 分钟改为 15 分钟，版本更新为 2.1。最长会话仍为 8 小时；刷新失败仍要求重新登录。\n",
+    "docs/specs/会话续期.md": "# 会话续期\n\n- status: approved\n- version: 2.0\n- sources: 旧会话需求；src/session.ts\n\n## 产品行为合同\n\n| ID | 触发与前置条件 | 可观察行为 | 验收条件 | 状态 |\n| --- | --- | --- | --- | --- |\n| B1 | 连续 30 分钟无活动 | 会话失效并要求重新登录 | 第 30 分钟失效 | 已确认 |\n| B2 | 会话创建满 8 小时 | 会话失效并要求重新登录 | 即使持续活动也在第 8 小时失效 | 已确认 |\n| B3 | 刷新令牌失败 | 会话失效并要求重新登录 | 不继续使用旧会话 | 已确认 |\n\n## 技术设计\n\n`src/session.ts` 使用 `idleMinutes = 30` 和 `maxHours = 8` 承载 B1-B3。\n\n## 验收与验证\n\n验证第 30 分钟空闲失效、第 8 小时硬失效和刷新失败。\n",
+    "src/session.ts": "export const sessionPolicy = { idleMinutes: 30, maxHours: 8 };\nexport function shouldReauthenticate(refreshSucceeded: boolean) { return !refreshSucceeded; }\n"
+  },
+  "judgeFiles": ["docs/specs/会话续期.md"],
+  "turns": [
+    {
+      "prompt": "使用 $define-product-spec 根据 change.md 修订现有会话续期规格，当前代码作为技术事实。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "docs/specs/会话续期.md" },
+    { "type": "fileUnchanged", "path": "src/session.ts" }
+  ],
+  "criteria": [
+    "同一份规格更新到 version 2.1 并退出 approved；B1 稳定表示 15 分钟空闲超时，B2 的 8 小时上限和 B3 的刷新失败行为保持不变。",
+    "最终规格没有把旧的 30 分钟继续写成目标行为或验收条件；当前代码仍为 30 分钟只能作为当前事实或待实现差异，技术映射和验证与 B1-B3 一致。",
+    "写入前对完整候选稿执行最终审查；有证据可修正的问题在同一候选稿中修正，未决问题不会被伪装成 review 通过。",
+    "交付说明区分规格语义审查结果与文件写入、复读结果，没有把写入完整等同于规格正确，也没有修改实现。"
+  ]
+}
