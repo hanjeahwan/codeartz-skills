@@ -1,0 +1,31 @@
+{
+  "id": "cross-artifact-task-delivery",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "普通任务把决定写入正式产物时，不因项目规则源位于另一文件而重复沉淀同一语义。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n\n## 交付\n\n- 修改文件后检查最终差异。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "docs/specs/审计导出权限.md"],
+  "turns": [
+    {
+      "prompt": "请先把已确认的审计导出权限整理到 docs/specs/审计导出权限.md：只有管理员能发起；普通成员看不到入口，直接调用接口返回 403。"
+    },
+    {
+      "prompt": "补充一个刚确认的统一产品行为：以后项目里的所有审计导出文件都在生成 24 小时后失效。请直接更新这份规格。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "docs/specs/审计导出权限.md" },
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryExcludes", "value": "references/workflow.md" },
+    { "type": "trajectoryExcludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "两轮回应把三项已确认决定写入 docs/specs/审计导出权限.md，并保持原有约束强度。",
+    "第二轮把统一失效时间视为当前规格修订要求，没有因措辞包含“以后”且规格文件与项目规则源不同而形成额外候选。",
+    "AGENTS.md 保持不变，没有复制管理员权限、403 或 24 小时失效规则。",
+    "最终回复只报告当前规格交付和实际验证，没有输出 Agent Evolve 沉淀回执。"
+  ]
+}

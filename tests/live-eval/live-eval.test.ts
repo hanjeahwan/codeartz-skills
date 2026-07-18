@@ -127,6 +127,7 @@ test('Agent Evolve 场景覆盖候选识别、三态决策与连续纠正', asyn
       'repository-approval-is-not-user-feedback',
       'sensitive-candidate-redaction',
       'task-delivery-not-evolution',
+      'cross-artifact-task-delivery',
       'off-disables-auto-discovery',
       'project-scope-only',
     ]),

@@ -39,9 +39,10 @@
 | R29 | 当前任务直接修改一个项目 Skill 的规则内容        | 任务交付、规则文件、无额外范围   | 只完成 Skill 修改，不触发沉淀工作流        | 把同一 diff 再记作规则沉淀       | 用户误判 Agent 已产生额外学习    | `task-delivery-not-evolution`                                    |
 | R30 | `off` 模式出现精确、可复用的未来规则             | 自动发现关闭、没有手动调用       | 不加载工作流、不写入、不输出沉淀回执       | 忽略模式继续自动处理             | 用户无法关闭持久化副作用         | `off-disables-auto-discovery`                                    |
 | R31 | 用户要求写入个人级或跨项目规则                   | 当前项目作用域、越界目标         | 保持当前项目不变并说明作用域限制           | 写入用户级规则或偷偷缩窄到项目   | 越权污染其他项目                 | `project-scope-only`                                             |
+| R32 | 普通任务把已确认决定写入正式产物，项目另有规则源 | 交付语义、异址写入               | 只完成正式产物，不加载沉淀工作流           | 因目标文件不同重复沉淀同一决定   | 双重权威在后续修改时产生冲突     | `cross-artifact-task-delivery`                                   |
 
 ## 场景层级
 
-- `smoke`：`compact-default-proposal`、`explicit-persistence-settled`、`explicitly-local-only`、`existing-rule-covered`、`safe-decision-constraint-auto-persist`、`safe-evidence-auto-persist`、`task-delivery-not-evolution`。
+- `smoke`：`compact-default-proposal`、`cross-artifact-task-delivery`、`explicit-persistence-settled`、`explicitly-local-only`、`existing-rule-covered`、`safe-decision-constraint-auto-persist`、`safe-evidence-auto-persist`、`task-delivery-not-evolution`。
 - `full`：其余可自动执行场景。
 - R17–R18 保留为显式未验证项，不用口头模拟代替真实并发或权限故障。

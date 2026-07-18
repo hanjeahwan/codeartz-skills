@@ -27,9 +27,10 @@ test('buildActivationContext 生成宿主无关的短路由', () => {
   assert.match(context, /当前项目/);
   assert.match(context, /任务分离/);
   assert.match(context, /关闭 Agent Evolve/);
-  assert.match(context, /同一规则和同一目标文件变更/);
+  assert.match(context, /当前任务本来仍须交付的条件、后果和作用域/);
+  assert.match(context, /目标文件不同不能证明独立/);
   assert.match(context, /相同依据还能约束未来同类任务/);
-  assert.match(context, /普通任务不会更新规则源/);
+  assert.doesNotMatch(context, /同一目标文件|普通任务不会更新规则源/);
   assert.match(context, /适用条件、决策后果、可靠依据和未来差异/);
   assert.match(context, /项目合同直接排除或优先可行方案/);
   assert.match(context, /不要求先失败/);
