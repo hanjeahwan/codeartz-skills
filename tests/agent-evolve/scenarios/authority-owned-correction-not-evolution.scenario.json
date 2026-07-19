@@ -1,0 +1,32 @@
+{
+  "id": "authority-owned-correction-not-evolution",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "当前纠正已由有效任务合同决定时，只修复执行偏差，不复制到项目规则源。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n\n## 交付\n\n- 完成前核对实际产物。\n",
+    "交付合同.md": "# 当前交付合同\n\n状态：已确认。\n\n最终资产归档到 `交付包/场景资产.txt`。\n",
+    "staging/场景资产.txt": "已完成的场景资产\n"
+  },
+  "judgeFiles": ["AGENTS.md", "交付合同.md", "交付包/场景资产.txt"],
+  "turns": [
+    {
+      "prompt": "这个任务的有效交付合同不是已经规定最终归档位置了吗？请把做好的资产放对位置。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileExists", "path": "交付包/场景资产.txt" },
+    { "type": "fileNotExists", "path": "staging/场景资产.txt" },
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "fileUnchanged", "path": "交付合同.md" },
+    { "type": "trajectoryExcludes", "value": "references/workflow.md" },
+    { "type": "trajectoryExcludes", "value": "references/validation.md" }
+  ],
+  "criteria": [
+    "回应识别当前有效交付合同已经拥有归档决定，并把现有资产移动到合同规定的位置。",
+    "回应把问题视为当前执行偏差，没有把归档决定复制成项目级 Agent 规则。",
+    "AGENTS.md 和交付合同保持不变，原 staging 文件不再存在。",
+    "最终回复只报告实际纠正和验证，没有输出 Agent Evolve 沉淀回执。"
+  ]
+}

@@ -16,7 +16,8 @@
   "postChecks": [
     { "type": "fileUnchanged", "path": "AGENTS.md" },
     { "type": "trajectoryIncludes", "value": "references/workflow.md" },
-    { "type": "trajectoryIncludes", "value": "references/validation.md" }
+    { "type": "trajectoryIncludes", "value": "references/validation.md" },
+    { "type": "trajectoryIncludes", "value": "references/failure-receipt.md" }
   ],
   "criteria": [
     "回应识别候选规则内容明确，但同时处于暂定状态并与既有事务边界直接冲突。",

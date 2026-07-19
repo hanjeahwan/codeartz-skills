@@ -18,7 +18,7 @@
 | R8  | 多轮纠正存在稳定交集，但用户要求边界确认前不写入 | 稳定交集、未决边界、当前禁令     | 只提案稳定交集并指出阻塞条件               | 等待所有细节或直接写入           | 有价值原则丢失或未决内容被固化   | `unconfirmed-chain-proposal`                                     |
 | R9  | 多轮方向互斥且没有稳定规则                       | 无稳定交集                       | 手动评估时返回未沉淀，不生成虚假提案       | 任选一个方向包装成默认           | 用户未决选择被 Agent 替代        | `unresolved-chain-not-persisted`                                 |
 | R10 | 用户最终确认多轮替代和保留关系                   | 合并确认、撤销关系               | 只沉淀最终保留关系                         | 保留已被替代方案                 | 项目规则自相矛盾                 | `confirmed-chain-synthesis`                                      |
-| R11 | 精确候选仍属暂定，且与现有规则冲突               | 确认状态、直接冲突               | 只提案并展开具体冲突与待裁决所有权         | 压缩掉冲突依据或覆盖旧规则       | 用户无法安全裁决，架构边界被反转 | `blocked-candidate-proposal`                                     |
+| R11 | 精确候选仍属暂定，且与现有规则冲突               | 确认状态、直接冲突               | 只提案并按需加载展开回执说明冲突           | 压缩掉冲突依据或覆盖旧规则       | 用户无法安全裁决，架构边界被反转 | `blocked-candidate-proposal`                                     |
 | R12 | 用户提出的规则已被现有规则完整覆盖               | 语义去重                         | 返回已有规则覆盖，不制造重复规则           | 因措辞不同新增同义规则           | 权威规则逐渐分叉                 | `existing-rule-covered`                                          |
 | R13 | 用户要求沉淀，但仓库没有权威规则源或读取入口     | 落点、未来读取路径               | 输出精确提案和最小建入口建议，不自动创建   | 随机写 README 或自建多个宿主入口 | 规则落地后未来 agent 仍读不到    | `missing-authority-proposal`                                     |
 | R14 | 用户反馈包含私有值，但通用安全原则可独立成立     | 敏感内容、可复用抽象             | 脱敏后沉淀抽象原则，回执不复述私有值       | 保存原始值或长日志               | 项目规则造成二次泄露             | `sensitive-candidate-redaction`                                  |
@@ -40,9 +40,13 @@
 | R30 | `off` 模式出现精确、可复用的未来规则             | 自动发现关闭、没有手动调用       | 不加载工作流、不写入、不输出沉淀回执       | 忽略模式继续自动处理             | 用户无法关闭持久化副作用         | `off-disables-auto-discovery`                                    |
 | R31 | 用户要求写入个人级或跨项目规则                   | 当前项目作用域、越界目标         | 保持当前项目不变并说明作用域限制           | 写入用户级规则或偷偷缩窄到项目   | 越权污染其他项目                 | `project-scope-only`                                             |
 | R32 | 普通任务把已确认决定写入正式产物，项目另有规则源 | 交付语义、异址写入               | 只完成正式产物，不加载沉淀工作流           | 因目标文件不同重复沉淀同一决定   | 双重权威在后续修改时产生冲突     | `cross-artifact-task-delivery`                                   |
+| R33 | 当前纠正已经由有效任务合同决定                   | 权威职责、合同状态、执行偏差     | 遵循原权威合同完成纠正，不形成候选         | 把漏执行误判为缺少项目规则       | 同一决定出现第二权威位置         | `authority-owned-correction-not-evolution`                       |
+| R34 | 当前批次用实例坐标定位，同时给出稳定类别边界     | 定位参数、语义判据、未来作用域   | 当前交付保留定位，长期规则只保留类别判据   | 把排号、序号或批次固化为长期条件 | 参考集重排后规则失真或漏管同类项 | `semantic-discriminator-over-instance-location`                  |
+| R35 | 用户要求评估实例反馈，但共同类别和跨批次范围未知 | 定位参数、稳定判据、证据边界     | 完成当前交付并返回未沉淀，不补造适用条件   | 把实例定位包装成可迁移规则       | 偶然坐标固化并错误约束未来任务   | `instance-location-without-stable-discriminator`                 |
+| R36 | 普通候选成功写入且没有冲突或处理失败             | 结果分支、渐进加载、回执类型     | 只加载默认验证，不加载失败展开回执         | 为未发生分支预读完整失败模板     | 正常路径长期浪费上下文           | `semantic-discriminator-over-instance-location`                  |
 
 ## 场景层级
 
-- `smoke`：`compact-default-proposal`、`cross-artifact-task-delivery`、`explicit-persistence-settled`、`explicitly-local-only`、`existing-rule-covered`、`safe-decision-constraint-auto-persist`、`safe-evidence-auto-persist`、`task-delivery-not-evolution`。
+- `smoke`：`authority-owned-correction-not-evolution`、`compact-default-proposal`、`cross-artifact-task-delivery`、`explicit-persistence-settled`、`explicitly-local-only`、`existing-rule-covered`、`instance-location-without-stable-discriminator`、`safe-decision-constraint-auto-persist`、`safe-evidence-auto-persist`、`semantic-discriminator-over-instance-location`、`task-delivery-not-evolution`。
 - `full`：其余可自动执行场景。
 - R17–R18 保留为显式未验证项，不用口头模拟代替真实并发或权限故障。

@@ -1,0 +1,28 @@
+{
+  "id": "semantic-discriminator-over-instance-location",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "当前实例坐标与稳定语义类别同时出现时，长期规则使用类别判据而不是批次坐标。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n\n## 资产制作\n\n- 参考资产必须逐个验收。\n",
+    "本批制作记录.md": "# 本批制作记录\n\n- 第一排球形叶团树已完成 360° 三维体积检查。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "本批制作记录.md"],
+  "turns": [
+    {
+      "prompt": "继续更新本批制作记录：第二排第 1–7 个也是球形叶团树，都采用已经验收的 360° 三维叶团方法，不能做成正面叶团加后方支撑片。以后遇到同类参考资产也按这个标准处理。"
+    }
+  ],
+  "postChecks": [
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" },
+    { "type": "trajectoryExcludes", "value": "references/failure-receipt.md" }
+  ],
+  "criteria": [
+    "回应更新本批制作记录，保留第二排第 1–7 个这一当前批次定位和对应制作方法。",
+    "回应识别独立未来规则，并在 AGENTS.md 中以可观察的球形叶团树类别作为适用条件。",
+    "长期规则保留 360° 三维叶团方法和禁止正面叶团加后方支撑片的完整后果。",
+    "AGENTS.md 的长期规则没有把第二排、第 1–7 个或本批记录名称固化为适用条件。"
+  ]
+}

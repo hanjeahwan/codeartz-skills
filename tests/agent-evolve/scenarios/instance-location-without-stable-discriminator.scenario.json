@@ -1,0 +1,29 @@
+{
+  "id": "instance-location-without-stable-discriminator",
+  "skill": "agent-evolve",
+  "plugin": true,
+  "tier": "smoke",
+  "description": "只有当前实例定位、没有稳定语义判据时，不把偶然坐标泛化为长期规则。",
+  "files": {
+    "AGENTS.md": "# 项目规则\n\n本文件由未来 agent 自动读取，是唯一项目规则源。\n\n## 资产制作\n\n- 参考资产必须逐个验收。\n",
+    "本批制作记录.md": "# 本批制作记录\n\n本文件是本批资产制作与返工要求的有效权威记录。\n\n- 第一排资产已完成验收。\n"
+  },
+  "judgeFiles": ["AGENTS.md", "本批制作记录.md"],
+  "turns": [
+    {
+      "prompt": "把本批第二排第 1–7 个写进制作记录：这几个都要补成完整的 360° 三维形体，不能只做正面加后方支撑片。同时请用 Agent Evolve 评估这条反馈是否值得沉淀。我只确认这 7 个当前实例；它们是否有共同类别、是否适用于其他批次都未知。"
+    }
+  ],
+  "postChecks": [
+    { "type": "fileUnchanged", "path": "AGENTS.md" },
+    { "type": "trajectoryIncludes", "value": "references/workflow.md" },
+    { "type": "trajectoryIncludes", "value": "references/validation.md" },
+    { "type": "trajectoryExcludes", "value": "references/failure-receipt.md" }
+  ],
+  "criteria": [
+    "回应更新本批制作记录，保留第二排第 1–7 个的定位、完整 360° 三维形体和禁止结构。",
+    "回应没有从当前实例定位猜测未确认的稳定类别、跨批次作用域或失效条件。",
+    "AGENTS.md 保持不变，没有把第二排、第 1–7 个或本批记录名称固化成长期规则。",
+    "最终回复报告当前制作记录交付，并用 Agent Evolve 未沉淀回执说明缺少有依据的稳定判据。"
+  ]
+}
